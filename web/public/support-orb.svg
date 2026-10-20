@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="400" height="400" viewBox="0 0 400 400" fill="none">
+ <defs>
+  <radialGradient id="orb" cx="0" cy="0" r="1" gradientTransform="translate(144 112) rotate(58) scale(282)"><stop stop-color="#fff9ed"/><stop offset=".17" stop-color="#e7c8ad"/><stop offset=".45" stop-color="#92847c"/><stop offset=".72" stop-color="#3c4240"/><stop offset=".9" stop-color="#737c70"/><stop offset="1" stop-color="#bac7a6"/></radialGradient>
+  <radialGradient id="glow"><stop stop-color="#bdce9d" stop-opacity=".22"/><stop offset="1" stop-color="#bdce9d" stop-opacity="0"/></radialGradient>
+  <linearGradient id="ring" x1="46" y1="90" x2="330" y2="300" gradientUnits="userSpaceOnUse"><stop stop-color="#f3e5d7"/><stop offset=".45" stop-color="#494f45"/><stop offset=".8" stop-color="#ced9b9"/><stop offset="1" stop-color="#787d6d"/></linearGradient>
+ </defs>
+ <circle cx="200" cy="200" r="196" fill="url(#glow)"/>
+ <ellipse cx="200" cy="200" rx="173" ry="66" transform="rotate(-28 200 200)" stroke="url(#ring)" stroke-width="3"/>
+ <circle cx="200" cy="192" r="112" fill="url(#orb)" stroke="#f3f0dc" stroke-opacity=".3"/>
+ <path d="M48 245c20 38 107 27 191-18s137-108 117-145" stroke="url(#ring)" stroke-width="4"/>
+ <path d="M200 229s-42-25-42-50c0-24 30-29 42-8 12-21 42-16 42 8 0 25-42 50-42 50Z" stroke="#f8eee4" stroke-width="2" fill="#ffffff0d"/>
+ <circle cx="70" cy="254" r="8" fill="#d0d8b9"/><circle cx="315" cy="112" r="5" fill="#f3e3cf"/>
+</svg>
