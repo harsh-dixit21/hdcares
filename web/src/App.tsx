@@ -5,6 +5,8 @@ import LiquidSculptureHero from '@/components/ui/liquid-sculpture-hero';
 import CursorLiftHeadline from '@/components/ui/cursor-lift-headline';
 import PerspectiveTunnelHero from '@/components/ui/perspective-tunnel-hero';
 import CourageHero from '@/components/ui/courage-hero';
+import SituationJourney from '@/components/ui/situation-journey';
+import FingerprintDemo from '@/components/ui/fingerprint-demo';
 import { TextEffect } from '@/components/motion-primitives/text-effect';
 import { AnimatedGroup } from '@/components/motion-primitives/animated-group';
 
@@ -29,7 +31,7 @@ function Brand() {
 function Header() {
   const [menu, setMenu] = useState(false);
   const links = [{ id: 'home', label: 'Home', icon: Home }, { id: 'privacy', label: 'The approach', icon: Fingerprint }, { id: 'journey', label: 'How it works', icon: ScanLine }, { id: 'support', label: 'Support', icon: Heart }];
-  return <header className="header"><Brand /><nav className="desktop-nav glass" aria-label="Main navigation">{links.map(({ id, label, icon: Icon }) => <a key={id} href={`#${id}`}><Icon size={14} /><span>{label}</span></a>)}</nav><div className="header-actions"><a className="header-cta" href="#start">Find your next step <ArrowUpRight size={15} /></a><button className="menu-button glass" onClick={() => setMenu(!menu)} aria-label={menu ? 'Close navigation' : 'Open navigation'} aria-expanded={menu}>{menu ? <X size={19} /> : <Plus size={19} />}</button></div><AnimatePresence>{menu && <motion.nav className="mobile-nav glass" aria-label="Mobile navigation" initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }}>{links.map(({ id, label, icon: Icon }) => <a key={id} href={`#${id}`} onClick={() => setMenu(false)}><Icon size={17} />{label}<ArrowUpRight size={15} /></a>)}</motion.nav>}</AnimatePresence></header>;
+  return <header className="header"><Brand /><nav className="desktop-nav glass" aria-label="Main navigation">{links.map(({ id, label, icon: Icon }) => <a key={id} href={`#${id}`}><Icon size={14} /><span>{label}</span></a>)}</nav><div className="header-actions"><a className="header-cta" href="#next-step">Find your next step <ArrowUpRight size={15} /></a><button className="menu-button glass" onClick={() => setMenu(!menu)} aria-label={menu ? 'Close navigation' : 'Open navigation'} aria-expanded={menu}>{menu ? <X size={19} /> : <Plus size={19} />}</button></div><AnimatePresence>{menu && <motion.nav className="mobile-nav glass" aria-label="Mobile navigation" initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }}>{links.map(({ id, label, icon: Icon }) => <a key={id} href={`#${id}`} onClick={() => setMenu(false)}><Icon size={17} />{label}<ArrowUpRight size={15} /></a>)}</motion.nav>}</AnimatePresence></header>;
 }
 
 function Hero() {
@@ -40,7 +42,7 @@ function Hero() {
     <div className="sculpture-wrap"><LiquidSculptureHero motionEnabled={enabled} /></div>
     <div className="sculpture-note left"><span className="crosshair">+</span><span>PRIVATE BY DESIGN<br /><b>HUMAN AT HEART</b></span></div>
     <div className="sculpture-note right"><span className="tiny-line" /><span>A LIVING, LIQUID FORM<br /><b>MOVE YOUR CURSOR TO SHAPE IT</b></span></div>
-    <div className="hero-bottom"><p>When intimate images are at risk,<br />you deserve support. Explore protection,<br />reporting, and a path back to confidence.</p><div className="hero-buttons"><a className="button button-light" href="#start">Take the first step <ArrowUpRight size={17} /></a><a className="button button-ghost" href="#journey"><span className="play-circle"><Play size={10} fill="currentColor" /></span>See how it works</a></div></div>
+    <div className="hero-bottom"><p>When intimate images are at risk,<br />you deserve support. Explore protection,<br />reporting, and a path back to confidence.</p><div className="hero-buttons"><a className="button button-light" href="#next-step">Take the first step <ArrowUpRight size={17} /></a><a className="button button-ghost" href="#journey"><span className="play-circle"><Play size={10} fill="currentColor" /></span>See how it works</a></div></div>
     <div className="hero-caption"><span>01 — A SAFER DIGITAL TOMORROW</span><span>HD CARES / CONCEPT EXPERIENCE</span></div>
   </section>;
 }
@@ -129,13 +131,7 @@ export default function App() {
   return <MotionEnabled.Provider value={true}><MotionConfig reducedMotion="never"><div className="app motion-enabled">
     <a className="skip-link" href="#main">Skip to content</a><motion.div className="page-progress" style={{ scaleX: scrollYProgress }} />
     <Header />
-    <main id="main"><div className="hero-sequence"><Hero /><PerspectiveTunnelHero /></div><CourageHero /><div className="content-flow"><div className="values-strip"><span><LockKeyhole size={15} /> Private by design</span><span><ShieldCheck size={15} /> Informed choices</span><span><Heart size={15} /> Human at heart</span><span className="values-end">CARE BEYOND THE SCREEN <Sparkles size={13} /></span></div><Privacy /><Journey /><Support /><Start /><FAQ /></div></main>
+    <main id="main"><div className="hero-sequence"><Hero /><PerspectiveTunnelHero /></div><CourageHero /><div className="content-flow"><div className="values-strip"><span><LockKeyhole size={15} /> Private by design</span><span><ShieldCheck size={15} /> Informed choices</span><span><Heart size={15} /> Human at heart</span><span className="values-end">CARE BEYOND THE SCREEN <Sparkles size={13} /></span></div><SituationJourney /><Privacy /><FingerprintDemo /><Journey /><Support /><Start /><FAQ /></div></main>
     <footer className="footer"><div className="footer-main"><Brand /><p>Your story is <em>still yours.</em></p><a href="#home" className="back-top glass" aria-label="Back to top"><ArrowUpRight size={21} /></a></div><div className="footer-bottom"><span>© {new Date().getFullYear()} HD Cares · Product concept</span><span>Designed around dignity.</span><a href="https://guglielmogiannattasio.it" target="_blank" rel="noreferrer">Sculpture engine by Guglielmo Giannattasio <ArrowUpRight size={10} /></a></div></footer>
   </div></MotionConfig></MotionEnabled.Provider>;
 }
-
-
-
-
-
-
