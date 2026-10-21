@@ -80,7 +80,15 @@ The nine decorative images use the supplied CDN URLs in `src/lib/tunnel-artwork.
 
 Eye tracking, idle glances, blinking, and pointer-down squinting are preserved. Motion is enabled by default. The animation loop pauses outside the visible stage and when the browser tab is hidden. This component requires no additional dependencies, network artwork, or fonts. Hero scroll prompts and between-section continuation links are intentionally omitted.
 
-## Source credits
+## Interactive product demonstrations
+
+After the three heroes, `#next-step` offers three situation-specific routes: worried about sharing, already online, and helping someone. Each route has its own in-memory review checklist, reset control, and relevant next action. Checkmarks indicate reviewed guidance, never completed reports or protection. Header and first-hero primary actions now lead directly to this chooser.
+
+`#fingerprint-demo` computes SHA-256 from one of two bundled SVG landscape samples with Web Crypto. Users can generate a digest, compare an identical copy or the other artwork, switch samples, and reset. The UI explicitly distinguishes exact-byte hashing from perceptual matching. No media uploads, fingerprint registration, network submission, or persistent storage are introduced. Errors explain the localhost/HTTPS requirement; request versioning prevents stale async results after sample changes or reset.
+
+Validation: `npm test` covers a standard SHA-256 known answer, identical samples, different samples, and byte edits, alongside the existing sculpture tests. Manual review: select each situation, toggle and reset checkmarks, change routes and revisit; generate and compare both samples; reset and switch samples; check narrow screens and keyboard focus. No browser-based visual verification is included in the build check.
+
+## Artwork and component credits
 
 - Tiger tear reveal: user-provided React/SVG component, adapted for the third hero.
 - Liquid sculpture component and its supplied artwork: user-provided source, credited to [Guglielmo Giannattasio](https://guglielmogiannattasio.it). Attribution is preserved in the source and page footer.
@@ -88,6 +96,3 @@ Eye tracking, idle glances, blinking, and pointer-down squinting are preserved. 
 - [Motion](https://motion.dev/): scroll values, springs, layout transitions, presence transitions, and SVG/object animation.
 
 The page loads Geist and Instrument Serif through Google Fonts. Sculpture artwork is local; tunnel artwork loads from the supplied 21st.dev CDN. No private user media is collected by this frontend.
-
-
-
