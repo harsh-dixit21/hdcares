@@ -7,6 +7,7 @@ import PerspectiveTunnelHero from '@/components/ui/perspective-tunnel-hero';
 import CourageHero from '@/components/ui/courage-hero';
 import SituationJourney from '@/components/ui/situation-journey';
 import FingerprintDemo from '@/components/ui/fingerprint-demo';
+import ReportOrganizer from '@/components/ui/report-organizer';
 import { TextEffect } from '@/components/motion-primitives/text-effect';
 import { AnimatedGroup } from '@/components/motion-primitives/animated-group';
 
@@ -131,7 +132,7 @@ export default function App() {
   return <MotionEnabled.Provider value={true}><MotionConfig reducedMotion="never"><div className="app motion-enabled">
     <a className="skip-link" href="#main">Skip to content</a><motion.div className="page-progress" style={{ scaleX: scrollYProgress }} />
     <Header />
-    <main id="main"><div className="hero-sequence"><Hero /><PerspectiveTunnelHero /></div><CourageHero /><div className="content-flow"><div className="values-strip"><span><LockKeyhole size={15} /> Private by design</span><span><ShieldCheck size={15} /> Informed choices</span><span><Heart size={15} /> Human at heart</span><span className="values-end">CARE BEYOND THE SCREEN <Sparkles size={13} /></span></div><SituationJourney /><Privacy /><FingerprintDemo /><Journey /><Support /><Start /><FAQ /></div></main>
+    <main id="main"><div className="hero-sequence"><Hero /><PerspectiveTunnelHero /></div><CourageHero /><div className="content-flow"><div className="values-strip"><span><LockKeyhole size={15} /> Private by design</span><span><ShieldCheck size={15} /> Informed choices</span><span><Heart size={15} /> Human at heart</span><span className="values-end">CARE BEYOND THE SCREEN <Sparkles size={13} /></span></div><SituationJourney /><Privacy /><FingerprintDemo /><Journey /><ReportOrganizer /><Support /><Start /><FAQ /></div></main>
     <footer className="footer"><div className="footer-main"><Brand /><p>Your story is <em>still yours.</em></p><a href="#home" className="back-top glass" aria-label="Back to top"><ArrowUpRight size={21} /></a></div><div className="footer-bottom"><span>© {new Date().getFullYear()} HD Cares · Product concept</span><span>Designed around dignity.</span><a href="https://guglielmogiannattasio.it" target="_blank" rel="noreferrer">Sculpture engine by Guglielmo Giannattasio <ArrowUpRight size={10} /></a></div></footer>
   </div></MotionConfig></MotionEnabled.Provider>;
 }

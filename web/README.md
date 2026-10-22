@@ -90,6 +90,14 @@ Validation: `npm test` covers a standard SHA-256 known answer, identical samples
 
 ## Artwork and component credits
 
+## Private report organizer
+
+`#report-organizer` provides an in-memory list of known content URLs, platform names, dates observed, report references, and user-recorded statuses. The already-online situation links directly to it. Users can edit references and statuses, remove individual locations, confirm clearing all notes, and download a UTF-8 plain-text copy. Refreshing clears page memory; downloaded copies remain on the device. The feature does not fetch entered URLs, persist notes, upload images, or submit complaints.
+
+URL validation accepts HTTP/HTTPS and rejects embedded credentials and non-web schemes. Duplicate normalized URLs are rejected. Text export flattens multiline fields to preserve record boundaries. Tests cover validation and export behavior. Manual review: add a location, try a duplicate, change its status/reference, export and inspect the file, cancel/confirm clearing, and reload to confirm notes reset. Visual browser review remains manual.
+
+## Credits
+
 - Tiger tear reveal: user-provided React/SVG component, adapted for the third hero.
 - Liquid sculpture component and its supplied artwork: user-provided source, credited to [Guglielmo Giannattasio](https://guglielmogiannattasio.it). Attribution is preserved in the source and page footer.
 - [Motion Primitives](https://github.com/ibelick/motion-primitives): AnimatedGroup and TextEffect, MIT-licensed.

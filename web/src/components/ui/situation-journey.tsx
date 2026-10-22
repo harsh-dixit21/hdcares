@@ -5,7 +5,7 @@ import './product-demos.css';
 
 const paths = [
   { title: 'I’m worried it may be shared', icon: Shield, heading: 'Start with what you can control.', intro: 'You can explore your options without sharing an image here.', steps: ['Explore how a digital fingerprint works using our sample artwork.', 'Review the eligibility and privacy information of specialist services.', 'Choose whether to take the next step with a service.'], link: '#fingerprint-demo', action: 'Try the fingerprint demo' },
-  { title: 'It’s already online', icon: ScanLine, heading: 'Take it one location at a time.', intro: 'This preview helps you think through the process. It does not submit reports.', steps: ['Organise the links you already know, dates, and platform names.', 'Review the relevant platform’s reporting options.', 'Keep any report references so you can follow up.'], link: '#start', action: 'Explore reporting resources' },
+  { title: 'It’s already online', icon: ScanLine, heading: 'Take it one location at a time.', intro: 'This preview helps you think through the process. It does not submit reports.', steps: ['Organise the links you already know, dates, and platform names.', 'Review the relevant platform’s reporting options.', 'Keep any report references so you can follow up.'], link: '#report-organizer', action: 'Organise your report notes' },
   { title: 'I’m helping someone', icon: Heart, heading: 'Let their choices lead.', intro: 'You can offer practical support without asking to see their private images.', steps: ['Listen and ask what kind of help they would like.', 'Offer to explore support options together, at their pace.', 'Let them decide what information to share and which steps to take.'], link: '#support', action: 'Explore support' },
 ] as const;
 

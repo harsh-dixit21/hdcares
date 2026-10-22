@@ -1,0 +1,17 @@
+.organizer-privacy { max-width: 850px; font-size: 13px; line-height: 1.9; color: #b9c6ab; margin-bottom: 28px; }
+.organizer-form { display: grid; grid-template-columns: 1fr 1fr; gap: 22px; border-radius: 22px; padding: 30px; }
+.report-organizer label { display: flex; flex-direction: column; gap: 10px; font-size: 12px; color: #cbd5bf; min-width: 0; }
+.report-organizer label span { color: #a3b194; }
+.report-organizer input, .report-organizer select { width: 100%; min-width: 0; background: #151b12; color: #e5ecdc; border: 1px solid #c3d3a540; border-radius: 10px; padding: 13px; font: inherit; color-scheme: dark; }
+.report-organizer input:focus-visible, .report-organizer select:focus-visible { outline: 2px solid var(--sage); outline-offset: 3px; }
+.organizer-form > button { justify-self: start; border: 0; }
+.organizer-toolbar { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin: 30px 0 16px; font-size: 12px; color: #b8c7a8; }
+.organizer-toolbar button, .organizer-clear button { display: inline-flex; align-items: center; gap: 10px; border: 1px solid #c3d3a540; border-radius: 100px; padding: 12px 18px; background: transparent; color: #d0dfbf; font-size: 12px; }
+.organizer-toolbar button:disabled { opacity: .4; cursor: default; }
+.organizer-empty { padding: 40px 20px; border: 1px dashed #c3d3a52b; border-radius: 16px; text-align: center; color: #a1b191; font-size: 13px; }
+.report-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 16px; }
+.report-list > li { display: grid; grid-template-columns: 1fr 1fr auto; gap: 26px; border-radius: 18px; padding: 26px; }
+.report-location { min-width: 0; }.report-location h3 { font-size: 21px; font-weight: 400; margin: 14px 0; }.report-location p { font-size: 12px; line-height: 1.7; overflow-wrap: anywhere; color: #bbc8ac; }.report-location small { font-size: 11px; color: #a6b497; }
+.report-controls { display: grid; gap: 16px; }.report-remove { background: none; border: 0; padding: 10px; align-self: start; color: #d2b8a7; }
+.organizer-message { font-size: 12px; line-height: 1.8; color: #c3d3a5; }.organizer-clear { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; font-size: 12px; }
+@media(max-width: 700px) { .organizer-form { grid-template-columns: 1fr; padding: 22px; }.report-list > li { grid-template-columns: 1fr auto; padding: 20px; gap: 16px; }.report-controls { grid-column: 1 / -1; grid-row: 2; }.report-remove { grid-column: 2; grid-row: 1; }.organizer-toolbar { flex-wrap: wrap; } }
