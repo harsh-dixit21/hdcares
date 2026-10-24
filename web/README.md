@@ -98,6 +98,12 @@ URL validation accepts HTTP/HTTPS and rejects embedded credentials and non-web s
 
 ## Credits
 
+### Restore report notes
+
+Use **Save backup** to download a versioned JSON copy, then **Restore backup** to read it locally in a later session. Review the count before choosing **Add backup to notes**, or cancel. Restoring merges new URLs and preserves existing notes for duplicate URLs. The original text export remains available for readable notes. Backup files are unencrypted and contain links and references; keep them private.
+
+Imports validate the file version, field types and lengths, dates, URL schemes, and statuses. Limits are 4 MB and 500 locations. Invalid imports leave notes unchanged, and oversized merges are rejected. Files and notes are not persisted or uploaded. Automated tests cover round trips, invalid files, duplicates, and capacity limits. Manual review: export a backup, reload, restore and confirm, restore again to check duplicate handling, and cancel a pending restore.
+
 - Tiger tear reveal: user-provided React/SVG component, adapted for the third hero.
 - Liquid sculpture component and its supplied artwork: user-provided source, credited to [Guglielmo Giannattasio](https://guglielmogiannattasio.it). Attribution is preserved in the source and page footer.
 - [Motion Primitives](https://github.com/ibelick/motion-primitives): AnimatedGroup and TextEffect, MIT-licensed.

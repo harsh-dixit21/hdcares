@@ -7,7 +7,7 @@ export type ReportNote = {
 export function validateReportUrl(value: string): string | null {
   try {
     const url = new URL(value.trim());
-    if (!['https:', 'http:'].includes(url.protocol) || url.username || url.password) return null;
+    if (!['https:', 'http:'].includes(url.protocol) || url.username || url.password || url.href.length > 4000) return null;
     return url.href;
   } catch { return null; }
 }
