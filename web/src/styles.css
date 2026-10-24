@@ -1,6 +1,8 @@
 @import "tailwindcss";
 @theme { --font-sans: 'Geist', 'Helvetica Neue', Arial, sans-serif; }
 
+.footer .footer-bottom { flex-wrap: wrap; }
+
 .courage-hero { position: relative; z-index: 2; scroll-margin-top: 0; }
 .tear-topline { position: absolute; inset: 120px 5% auto; display: flex; justify-content: space-between; gap: 20px; color: #b8c3ad; font-size: 9px; letter-spacing: .15em; pointer-events: none; }
 .tear-topline > span:last-child { display: flex; align-items: center; gap: 8px; }
