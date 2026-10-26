@@ -3,6 +3,7 @@ import { Download, Plus, Trash2 } from 'lucide-react';
 import { exportReportNotes, reportStatuses, validateReportUrl, type ReportNote } from '@/lib/report-notes';
 import './report-organizer.css';
 import { createReportBackup, parseReportBackup, mergeReportNotes, MAX_BACKUP_BYTES, MAX_REPORT_NOTES } from '@/lib/report-backup';
+import { filterReportNotes, reportStatusCounts, type StatusFilter } from '@/lib/report-filters';
 
 export default function ReportOrganizer() {
   const [notes, setNotes] = useState<ReportNote[]>([]);
@@ -14,6 +15,11 @@ export default function ReportOrganizer() {
   const [reading, setReading] = useState(false);
   const importRequest = useRef(0);
   const fileInput = useRef<HTMLInputElement>(null);
+  const [query, setQuery] = useState('');
+  const [statusFilter, setStatusFilter] = useState<StatusFilter>('All statuses');
+  const visibleNotes = filterReportNotes(notes, query, statusFilter);
+  const counts = reportStatusCounts(notes);
+  function resetFilters() { setQuery(''); setStatusFilter('All statuses'); }
   function add(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const form = event.currentTarget;
@@ -25,7 +31,7 @@ export default function ReportOrganizer() {
     setNotes(previous => [...previous, { id: crypto.randomUUID(), url,
       platform: String(data.get('platform')).trim() || new URL(url).hostname,
       date: String(data.get('date') ?? ''), reference: String(data.get('reference') ?? '').trim(), status: 'Not reported' }]);
-    setError(''); setMessage('Location added to your private notes.'); setConfirmClear(false); form.reset();
+    setError(''); setMessage('Location added to your private notes.'); setConfirmClear(false); resetFilters(); form.reset();
   }
   function download(backup = false) {
     const url = URL.createObjectURL(new Blob([backup ? createReportBackup(notes) : exportReportNotes(notes)], { type: backup ? 'application/json' : 'text/plain;charset=utf-8' }));
@@ -51,7 +57,7 @@ export default function ReportOrganizer() {
     try {
       const merged = mergeReportNotes(notes, pending);
       const added = merged.length - notes.length;
-      setNotes(merged); setPending(null); setConfirmClear(false); setBackupError('');
+      setNotes(merged); setPending(null); setConfirmClear(false); setBackupError(''); resetFilters();
       setMessage(`Restored ${added} locations. Skipped ${pending.length - added} duplicate locations; existing notes were kept.`);
     } catch (cause) { setBackupError(cause instanceof Error ? cause.message : 'Could not restore this backup.'); }
   }
@@ -66,18 +72,24 @@ export default function ReportOrganizer() {
       <button className="button button-light" type="submit"><Plus size={16} /> Add location</button>
       {error && <p className="demo-error" role="alert">{error}</p>}
     </form>
-    <div className="organizer-toolbar"><span>{notes.length} {notes.length === 1 ? 'location' : 'locations'} in your notes</span><div className="backup-actions"><button disabled={!notes.length} onClick={() => download()}><Download size={16} /> Download text</button><button disabled={!notes.length} onClick={() => download(true)}>Save backup</button><button disabled={reading} onClick={() => fileInput.current?.click()}>{reading ? 'Reading backup…' : 'Restore backup'}</button></div></div>
+    <div className="organizer-toolbar"><span>{notes.length} {notes.length === 1 ? 'location' : 'locations'} in your notes</span><div className="backup-actions"><button disabled={!notes.length} onClick={() => download()}><Download size={16} /> Download all as text</button><button disabled={!notes.length} onClick={() => download(true)}>Back up all notes</button><button disabled={reading} onClick={() => fileInput.current?.click()}>{reading ? 'Reading backup…' : 'Restore backup'}</button></div></div>
     <input ref={fileInput} className="sr-only" type="file" accept=".json,application/json" aria-label="Choose an HD Cares backup" onChange={event => { const file = event.target.files?.[0]; event.target.value = ''; void readBackup(file); }} />
     <p className="demo-disclosure">Save backup creates an unencrypted JSON file you can restore later. It contains your links and references. Keep it private. Files are read locally; nothing is uploaded.</p>
     {pending !== null && <div className="backup-preview glass"><h3>Review your backup</h3><p>{pending.length} locations found. New locations will be added; duplicate URLs keep their existing notes.</p><div className="backup-actions"><button onClick={restore} disabled={!pending.length}>Add backup to notes</button><button onClick={() => { setPending(null); setBackupError(''); }}>Cancel</button></div></div>}
     {backupError && <p className="demo-error" role="alert">{backupError}</p>}
+    {notes.length > 0 && <div className="report-filter-panel glass">
+      <div className="report-summary" aria-label="All locations by status">{reportStatuses.map(status => <span key={status}><strong>{counts[status]}</strong> {status}</span>)}</div>
+      <div className="report-filters"><label>Search your notes<input type="search" value={query} maxLength={200} autoComplete="off" placeholder="Website, link, reference, or date" onChange={event => setQuery(event.target.value)} aria-controls="report-results" /></label><label>Filter by status<select value={statusFilter} onChange={event => setStatusFilter(event.target.value as StatusFilter)} aria-controls="report-results"><option>All statuses</option>{reportStatuses.map(status => <option key={status}>{status}</option>)}</select></label><button onClick={resetFilters} disabled={!query && statusFilter === 'All statuses'}>Reset filters</button></div>
+      <p className="report-result-count" role="status">Showing {visibleNotes.length} of {notes.length} locations. Downloads include all notes.</p>
+    </div>}
     {!notes.length && <p className="organizer-empty">Add a link you already know about to start your checklist.</p>}
-    <ul className="report-list">{notes.map((note, index) => <li className="glass" key={note.id}>
+    {notes.length > 0 && !visibleNotes.length && <p className="organizer-empty">No locations match these filters. Try a different search or reset filters.</p>}
+    <ul id="report-results" className="report-list">{visibleNotes.map(note => { const index = notes.findIndex(item => item.id === note.id); return <li className="glass" key={note.id}>
       <div className="report-location"><span className="demo-label">LOCATION {String(index + 1).padStart(2, '0')}</span><h3>{note.platform}</h3><p>{note.url}</p><small>{note.date ? `Observed: ${note.date}` : 'Date not recorded'}</small></div>
       <div className="report-controls"><label>Status recorded by you<select value={note.status} onChange={event => { const status = event.target.value as ReportNote['status']; setNotes(previous => previous.map(item => item.id === note.id ? { ...item, status } : item)); }}>{reportStatuses.map(status => <option key={status}>{status}</option>)}</select></label>
       <label>Report reference<input maxLength={200} autoComplete="off" value={note.reference} onChange={event => { const reference = event.target.value; setNotes(previous => previous.map(item => item.id === note.id ? { ...item, reference } : item)); }} /></label></div>
       <button className="report-remove" onClick={() => { setNotes(previous => previous.filter(item => item.id !== note.id)); setConfirmClear(false); setMessage('Location removed.'); }} aria-label={`Remove location ${index + 1}: ${note.platform}`}><Trash2 size={17} /></button>
-    </li>)}</ul>
+    </li>; })}</ul>
     <p className="organizer-message" role="status">{message}</p>
     {notes.length > 0 && <div className="organizer-clear">{confirmClear ? <><span>Clear all notes from this page?</span><button onClick={() => { setNotes([]); setConfirmClear(false); setMessage('All notes cleared from this page. Previously downloaded files remain on your device.'); }}>Yes, clear notes</button><button onClick={() => setConfirmClear(false)}>Keep notes</button></> : <button onClick={() => setConfirmClear(true)}>Clear all notes</button>}</div>}
     <p className="demo-disclosure">Statuses are your own records. HD Cares does not verify removal or submit these notes. <a href="#start">Explore specialist services and official reporting options.</a></p>

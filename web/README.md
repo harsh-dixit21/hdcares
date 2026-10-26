@@ -100,6 +100,8 @@ URL validation accepts HTTP/HTTPS and rejects embedded credentials and non-web s
 
 ### Restore report notes
 
+The organizer also supports case-insensitive search across platform names, URLs, references, and observed dates, combined with a status filter. Multiple search words can match different fields. A status summary counts all notes; the result count describes the filtered list. Reset filters restores the full list. Adding or restoring notes resets filters to show new entries. Downloads and backups always include all notes. Filters live only in page memory. Tests cover combined filters, whitespace/case handling, counts, and preserving source data. For manual review, add several statuses, search by reference, change a matching status, reset filters, and verify a download still contains every note.
+
 Use **Save backup** to download a versioned JSON copy, then **Restore backup** to read it locally in a later session. Review the count before choosing **Add backup to notes**, or cancel. Restoring merges new URLs and preserves existing notes for duplicate URLs. The original text export remains available for readable notes. Backup files are unencrypted and contain links and references; keep them private.
 
 Imports validate the file version, field types and lengths, dates, URL schemes, and statuses. Limits are 4 MB and 500 locations. Invalid imports leave notes unchanged, and oversized merges are rejected. Files and notes are not persisted or uploaded. Automated tests cover round trips, invalid files, duplicates, and capacity limits. Manual review: export a backup, reload, restore and confirm, restore again to check duplicate handling, and cancel a pending restore.

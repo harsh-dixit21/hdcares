@@ -21,3 +21,11 @@
 .backup-preview p { color: #b8c7a8; font-size: 13px; line-height: 1.8; }
 .backup-preview button { border: 1px solid #c3d3a540; border-radius: 100px; padding: 12px 18px; background: #20291a; color: #d0dfbf; }
 .backup-preview button:disabled { opacity: .4; cursor: default; }
+.report-filter-panel { padding: 24px; margin: 24px 0; border-radius: 18px; }
+.report-summary { display: flex; flex-wrap: wrap; gap: 12px 24px; margin-bottom: 22px; color: #b8c7a8; font-size: 12px; }
+.report-summary strong { font-weight: 500; color: #e3ecd7; margin-right: 5px; }
+.report-filters { display: grid; grid-template-columns: 2fr 1fr auto; align-items: end; gap: 16px; }
+.report-filters button { border: 1px solid #c3d3a540; border-radius: 100px; background: transparent; color: #d0dfbf; padding: 13px 18px; font-size: 12px; }
+.report-filters button:disabled { opacity: .4; cursor: default; }
+.report-result-count { font-size: 11px; line-height: 1.8; color: #a7b696; margin: 18px 0 0; }
+@media (max-width: 700px) { .report-filters { grid-template-columns: 1fr; }.report-filters button { justify-self: start; }.report-filter-panel { padding: 20px; } }
