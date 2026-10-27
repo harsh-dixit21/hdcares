@@ -1,5 +1,5 @@
 import { useRef, useState, type FormEvent } from 'react';
-import { Download, Plus, Trash2 } from 'lucide-react';
+import { Download, Plus, Trash2, Undo2 } from 'lucide-react';
 import { exportReportNotes, reportStatuses, validateReportUrl, type ReportNote } from '@/lib/report-notes';
 import './report-organizer.css';
 import { createReportBackup, parseReportBackup, mergeReportNotes, MAX_BACKUP_BYTES, MAX_REPORT_NOTES } from '@/lib/report-backup';
@@ -17,9 +17,32 @@ export default function ReportOrganizer() {
   const fileInput = useRef<HTMLInputElement>(null);
   const [query, setQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('All statuses');
+  const [removedNotes, setRemovedNotes] = useState<ReportNote[]>([]);
+  const [undoError, setUndoError] = useState('');
   const visibleNotes = filterReportNotes(notes, query, statusFilter);
   const counts = reportStatusCounts(notes);
   function resetFilters() { setQuery(''); setStatusFilter('All statuses'); }
+  function remove(note: ReportNote) {
+    setRemovedNotes([note]); setUndoError('');
+    setNotes(previous => previous.filter(item => item.id !== note.id));
+    setConfirmClear(false); setMessage('Location removed. You can undo this deletion below.');
+  }
+  function clearNotes() {
+    setRemovedNotes(notes); setNotes([]); setConfirmClear(false); setUndoError('');
+    importRequest.current++; setPending(null); setReading(false); setBackupError('');
+    resetFilters();
+    setMessage('Notes cleared from the list. Undo is available until dismissed or the page reloads. Downloaded files remain on your device.');
+  }
+  function undoDeletion() {
+    try {
+      const restored = mergeReportNotes(notes, removedNotes);
+      const count = restored.length - notes.length;
+      setNotes(restored); setRemovedNotes([]); setUndoError(''); setConfirmClear(false); resetFilters();
+      setMessage(`Recovered ${count} locations. Existing notes for duplicate URLs were kept.`);
+    } catch {
+      setUndoError('Recovery would exceed 500 locations. Download your notes and free space before trying again. Your recovery copy is still available.');
+    }
+  }
   function add(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const form = event.currentTarget;
@@ -77,6 +100,11 @@ export default function ReportOrganizer() {
     <p className="demo-disclosure">Save backup creates an unencrypted JSON file you can restore later. It contains your links and references. Keep it private. Files are read locally; nothing is uploaded.</p>
     {pending !== null && <div className="backup-preview glass"><h3>Review your backup</h3><p>{pending.length} locations found. New locations will be added; duplicate URLs keep their existing notes.</p><div className="backup-actions"><button onClick={restore} disabled={!pending.length}>Add backup to notes</button><button onClick={() => { setPending(null); setBackupError(''); }}>Cancel</button></div></div>}
     {backupError && <p className="demo-error" role="alert">{backupError}</p>}
+    {removedNotes.length > 0 && <div className="report-undo glass">
+      <div><h3>Recover your last deletion</h3><p>{removedNotes.length} {removedNotes.length === 1 ? 'location is' : 'locations are'} available to recover. A new deletion replaces this recovery copy. Reloading or dismissing clears it.</p></div>
+      <div className="backup-actions"><button onClick={undoDeletion}><Undo2 size={16} /> Undo deletion</button><button onClick={() => { setRemovedNotes([]); setUndoError(''); setMessage('Recovery copy dismissed.'); }}>Dismiss recovery copy</button></div>
+      {undoError && <p className="demo-error" role="alert">{undoError}</p>}
+    </div>}
     {notes.length > 0 && <div className="report-filter-panel glass">
       <div className="report-summary" aria-label="All locations by status">{reportStatuses.map(status => <span key={status}><strong>{counts[status]}</strong> {status}</span>)}</div>
       <div className="report-filters"><label>Search your notes<input type="search" value={query} maxLength={200} autoComplete="off" placeholder="Website, link, reference, or date" onChange={event => setQuery(event.target.value)} aria-controls="report-results" /></label><label>Filter by status<select value={statusFilter} onChange={event => setStatusFilter(event.target.value as StatusFilter)} aria-controls="report-results"><option>All statuses</option>{reportStatuses.map(status => <option key={status}>{status}</option>)}</select></label><button onClick={resetFilters} disabled={!query && statusFilter === 'All statuses'}>Reset filters</button></div>
@@ -88,10 +116,10 @@ export default function ReportOrganizer() {
       <div className="report-location"><span className="demo-label">LOCATION {String(index + 1).padStart(2, '0')}</span><h3>{note.platform}</h3><p>{note.url}</p><small>{note.date ? `Observed: ${note.date}` : 'Date not recorded'}</small></div>
       <div className="report-controls"><label>Status recorded by you<select value={note.status} onChange={event => { const status = event.target.value as ReportNote['status']; setNotes(previous => previous.map(item => item.id === note.id ? { ...item, status } : item)); }}>{reportStatuses.map(status => <option key={status}>{status}</option>)}</select></label>
       <label>Report reference<input maxLength={200} autoComplete="off" value={note.reference} onChange={event => { const reference = event.target.value; setNotes(previous => previous.map(item => item.id === note.id ? { ...item, reference } : item)); }} /></label></div>
-      <button className="report-remove" onClick={() => { setNotes(previous => previous.filter(item => item.id !== note.id)); setConfirmClear(false); setMessage('Location removed.'); }} aria-label={`Remove location ${index + 1}: ${note.platform}`}><Trash2 size={17} /></button>
+      <button className="report-remove" onClick={() => remove(note)} aria-label={`Remove location ${index + 1}: ${note.platform}`}><Trash2 size={17} /></button>
     </li>; })}</ul>
     <p className="organizer-message" role="status">{message}</p>
-    {notes.length > 0 && <div className="organizer-clear">{confirmClear ? <><span>Clear all notes from this page?</span><button onClick={() => { setNotes([]); setConfirmClear(false); setMessage('All notes cleared from this page. Previously downloaded files remain on your device.'); }}>Yes, clear notes</button><button onClick={() => setConfirmClear(false)}>Keep notes</button></> : <button onClick={() => setConfirmClear(true)}>Clear all notes</button>}</div>}
+    {notes.length > 0 && <div className="organizer-clear">{confirmClear ? <><span>Clear all notes? A temporary undo copy will remain until dismissed or reloaded.</span><button onClick={clearNotes}>Yes, clear notes</button><button onClick={() => setConfirmClear(false)}>Keep notes</button></> : <button onClick={() => setConfirmClear(true)}>Clear all notes</button>}</div>}
     <p className="demo-disclosure">Statuses are your own records. HD Cares does not verify removal or submit these notes. <a href="#start">Explore specialist services and official reporting options.</a></p>
   </section>;
 }

@@ -32,3 +32,15 @@ test('capacity failures leave current notes intact', () => {
   assert.throws(() => mergeReportNotes(current, [note]));
   assert.equal(current.length, 500);
 });
+
+test('recovering deleted notes retains new entries and newer references for re-added URLs', () => {
+  const deleted = [{ ...note }, { ...note, id: 'deleted-2', url: 'https://second.example/' }];
+  const current = [{ ...note, id: 'readded', reference: 'UPDATED' }, { ...note, id: 'new', url: 'https://new.example/' }];
+  const recovered = mergeReportNotes(current, deleted);
+  assert.equal(recovered.length, 3);
+  assert.equal(recovered.find(row => row.url === note.url).reference, 'UPDATED');
+  assert.equal(recovered.find(row => row.url === 'https://second.example/').status, note.status);
+  assert.equal(current.length, 2);
+  assert.equal(deleted.length, 2);
+  assert.deepEqual(mergeReportNotes([], deleted), deleted);
+});
