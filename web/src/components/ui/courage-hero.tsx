@@ -1,4 +1,3 @@
-import { Heart } from 'lucide-react';
 import TigerTearReveal from '@/components/ui/tiger-tear-reveal';
 
 export default function CourageHero() {
@@ -6,7 +5,7 @@ export default function CourageHero() {
     id="courage"
     className="courage-hero"
     word="COURAGE"
-    tagline="ON YOUR OWN TERMS"
+    tagline=""
     ink="#c3d3a5"
     paper="#171c16"
     taglineColor="#b8c3ad"
@@ -16,13 +15,6 @@ export default function CourageHero() {
     scrollDistance="220svh"
     hint={false}
   >
-    <h2 className="sr-only">Courage, on your own terms.</h2>
-    <div className="tear-topline" aria-hidden="true">
-      <span>03 / A WAY FORWARD</span>
-      <span><Heart size={13} /> AT YOUR PACE</span>
-    </div>
-    <div className="tear-footer">
-      <p>You don’t have to face this alone.<br /><span>Support, on your own terms.</span></p>
-    </div>
+    <h2 className="sr-only">Courage</h2>
   </TigerTearReveal>;
 }
