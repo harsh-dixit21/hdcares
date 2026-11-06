@@ -2,6 +2,7 @@ import { useEffect, useRef, useState, type FormEvent } from 'react';
 import { Download, Plus, Trash2, Undo2 } from 'lucide-react';
 import { exportReportNotes, reportStatuses, validateReportUrl, type ReportNote } from '@/lib/report-notes';
 import './report-organizer.css';
+import { localToday, validObservationDate } from '@/lib/report-date';
 import { createReportBackup, parseReportBackup, mergeReportNotes, previewReportBackup, MAX_BACKUP_BYTES, MAX_REPORT_NOTES } from '@/lib/report-backup';
 import { filterReportNotes, sortReportNotes, reportStatusCounts, type StatusFilter, type ReportSort } from '@/lib/report-filters';
 
@@ -70,6 +71,7 @@ export default function ReportOrganizer() {
     event.preventDefault();
     const form = event.currentTarget;
     const data = new FormData(form);
+    if (!validObservationDate(String(data.get('date') ?? ''))) { setError('Choose a real observation date on or before today.'); return; }
     if (notes.length >= MAX_REPORT_NOTES) { setError('You can keep at most 500 locations in one session.'); return; }
     const url = validateReportUrl(String(data.get('url') ?? ''));
     if (!url) { setError('Enter a complete http:// or https:// URL without a username or password.'); return; }
@@ -116,7 +118,7 @@ export default function ReportOrganizer() {
     <form className="organizer-form glass" onSubmit={add}>
       <label>Content URL <span>(required)</span><input name="url" type="url" required maxLength={4000} placeholder="https://example.com/post/..." autoComplete="off" spellCheck={false} /></label>
       <label>Platform or website<input name="platform" maxLength={100} placeholder="Optional — defaults to the website name" autoComplete="off" /></label>
-      <label>Date observed<input name="date" type="date" /></label>
+      <label>Date observed<input name="date" type="date" max={localToday()} /></label>
       <label>Report reference <span>(if you have one)</span><input name="reference" maxLength={200} autoComplete="off" placeholder="Optional" /></label>
       <button className="button button-light" type="submit"><Plus size={16} /> Add location</button>
       {error && <p className="demo-error" role="alert">{error}</p>}
@@ -146,7 +148,7 @@ export default function ReportOrganizer() {
       <div className="report-controls"><label>Status recorded by you<select value={note.status} onChange={event => { const status = event.target.value as ReportNote['status']; setNotes(previous => previous.map(item => item.id === note.id ? { ...item, status } : item)); }}>{reportStatuses.map(status => <option key={status}>{status}</option>)}</select></label>
       <button className="report-copy" onClick={() => void copyLocation(note)}>Copy link</button>
       <label>Platform or website<input maxLength={100} value={note.platform} autoComplete="off" onChange={event => { const platform = event.target.value; setNotes(previous => previous.map(item => item.id === note.id ? { ...item, platform } : item)); }} onBlur={() => setNotes(previous => previous.map(item => item.id === note.id ? { ...item, platform: item.platform.trim() || new URL(item.url).hostname } : item))} /></label>
-      <label>Date observed<input type="date" value={note.date} onChange={event => { const date = event.target.value; setNotes(previous => previous.map(item => item.id === note.id ? { ...item, date } : item)); }} /></label>
+      <label>Date observed<input type="date" max={localToday()} value={note.date} onChange={event => { const date = event.target.value; if (!validObservationDate(date)) { setMessage('Choose an observation date on or before today.'); return; } setNotes(previous => previous.map(item => item.id === note.id ? { ...item, date } : item)); }} /></label>
       <label>Report reference<input maxLength={200} autoComplete="off" value={note.reference} onChange={event => { const reference = event.target.value; setNotes(previous => previous.map(item => item.id === note.id ? { ...item, reference } : item)); }} /></label></div>
       <button className="report-remove" onClick={() => remove(note)} aria-label={`Remove location ${index + 1}: ${note.platform}`}><Trash2 size={17} /></button>
     </li>; })}</ul>
