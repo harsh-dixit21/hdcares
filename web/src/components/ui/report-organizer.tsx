@@ -2,7 +2,7 @@ import { useEffect, useRef, useState, type FormEvent } from 'react';
 import { Download, Plus, Trash2, Undo2 } from 'lucide-react';
 import { exportReportNotes, reportStatuses, validateReportUrl, type ReportNote } from '@/lib/report-notes';
 import './report-organizer.css';
-import { createReportBackup, parseReportBackup, mergeReportNotes, MAX_BACKUP_BYTES, MAX_REPORT_NOTES } from '@/lib/report-backup';
+import { createReportBackup, parseReportBackup, mergeReportNotes, previewReportBackup, MAX_BACKUP_BYTES, MAX_REPORT_NOTES } from '@/lib/report-backup';
 import { filterReportNotes, sortReportNotes, reportStatusCounts, type StatusFilter, type ReportSort } from '@/lib/report-filters';
 
 export default function ReportOrganizer() {
@@ -12,6 +12,7 @@ export default function ReportOrganizer() {
   const [concealed, setConcealed] = useState(false);
   const [confirmClear, setConfirmClear] = useState(false);
   const [pending, setPending] = useState<ReportNote[] | null>(null);
+  const backupPreview = pending ? previewReportBackup(notes, pending) : null;
   const [backupError, setBackupError] = useState('');
   const [reading, setReading] = useState(false);
   const importRequest = useRef(0);
@@ -123,7 +124,7 @@ export default function ReportOrganizer() {
     <div className="organizer-toolbar"><span>{notes.length} {notes.length === 1 ? 'location' : 'locations'} in your notes</span><div className="backup-actions"><button disabled={!notes.length} onClick={() => download()}><Download size={16} /> Download all as text</button><button disabled={!notes.length} onClick={() => download(true)}>Back up all notes</button><button disabled={reading} onClick={() => fileInput.current?.click()}>{reading ? 'Reading backup…' : 'Restore backup'}</button></div></div>
     <input ref={fileInput} className="sr-only" type="file" accept=".json,application/json" aria-label="Choose an HD Cares backup" onChange={event => { const file = event.target.files?.[0]; event.target.value = ''; void readBackup(file); }} />
     <p className="demo-disclosure">Save backup creates an unencrypted JSON file you can restore later. It contains your links and references. Keep it private. Files are read locally; nothing is uploaded.</p>
-    {pending !== null && <div className="backup-preview glass"><h3>Review your backup</h3><p>{pending.length} locations found. New locations will be added; duplicate URLs keep their existing notes.</p><div className="backup-actions"><button onClick={restore} disabled={!pending.length}>Add backup to notes</button><button onClick={() => { setPending(null); setBackupError(''); }}>Cancel</button></div></div>}
+    {pending !== null && <div className="backup-preview glass"><h3>Review your backup</h3><p>{backupPreview?.added} new locations; {backupPreview?.duplicates} duplicates will be skipped. Existing notes will be kept. {backupPreview?.exceedsLimit && 'This would exceed the 500-location limit. Free space before restoring.'}</p><div className="backup-actions"><button onClick={restore} disabled={!backupPreview?.added || backupPreview.exceedsLimit}>Add backup to notes</button><button onClick={() => { setPending(null); setBackupError(''); }}>Cancel</button></div></div>}
     {backupError && <p className="demo-error" role="alert">{backupError}</p>}
     {removedNotes.length > 0 && <div className="report-undo glass">
       <div><h3>Recover your last deletion</h3><p>{removedNotes.length} {removedNotes.length === 1 ? 'location is' : 'locations are'} available to recover. A new deletion replaces this recovery copy. Reloading or dismissing clears it.</p></div>

@@ -3,6 +3,15 @@ import { reportStatuses, validateReportUrl, type ReportNote } from './report-not
 export const MAX_BACKUP_BYTES = 4_000_000;
 export const MAX_REPORT_NOTES = 500;
 
+export function previewReportBackup(current: ReportNote[], incoming: ReportNote[]) {
+  const urls = new Set(current.map(note => note.url));
+  let added = 0;
+  for (const note of incoming) {
+    if (!urls.has(note.url)) { urls.add(note.url); added++; }
+  }
+  return { added, duplicates: incoming.length - added, exceedsLimit: current.length + added > MAX_REPORT_NOTES };
+}
+
 export function createReportBackup(notes: ReportNote[]): string {
   return JSON.stringify({ format: 'hdcares-report-notes', version: 1,
     notes: notes.map(({ id: _id, ...note }) => note) }, null, 2);
