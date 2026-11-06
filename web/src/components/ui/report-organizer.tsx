@@ -67,9 +67,9 @@ export default function ReportOrganizer() {
       date: String(data.get('date') ?? ''), reference: String(data.get('reference') ?? '').trim(), status: 'Not reported' }]);
     setError(''); setMessage('Location added to your private notes.'); setConfirmClear(false); resetFilters(); form.reset();
   }
-  function download(backup = false) {
-    const url = URL.createObjectURL(new Blob([backup ? createReportBackup(notes) : exportReportNotes(notes)], { type: backup ? 'application/json' : 'text/plain;charset=utf-8' }));
-    const link = document.createElement('a'); link.href = url; link.download = backup ? 'hdcares-report-backup.json' : 'hdcares-report-notes.txt';
+  function download(backup = false, selection = notes) {
+    const url = URL.createObjectURL(new Blob([backup ? createReportBackup(selection) : exportReportNotes(selection)], { type: backup ? 'application/json' : 'text/plain;charset=utf-8' }));
+    const link = document.createElement('a'); link.href = url; link.download = backup ? 'hdcares-report-backup.json' : selection === notes ? 'hdcares-report-notes.txt' : 'hdcares-filtered-notes.txt';
     document.body.appendChild(link); link.click(); link.remove();
     window.setTimeout(() => URL.revokeObjectURL(url), 1000);
     setMessage('Notes exported. Keep the downloaded file somewhere private.');
@@ -117,11 +117,12 @@ export default function ReportOrganizer() {
       {undoError && <p className="demo-error" role="alert">{undoError}</p>}
     </div>}
     {notes.length > 0 && <div className="report-filter-panel glass">
+      <button className="report-copy" disabled={!visibleNotes.length} onClick={() => download(false, visibleNotes)}>Download shown locations ({visibleNotes.length})</button>
       <label>Website or platform<select value={platformFilter} onChange={event => setPlatformFilter(event.target.value)}><option value="">All platforms</option>{[...new Set([...platforms, ...(platformFilter ? [platformFilter] : [])])].map(platform => <option key={platform} value={platform}>{platform}</option>)}</select></label>
       <label>Sort locations<select value={sortOrder} onChange={event => setSortOrder(event.target.value as ReportSort)}>{['Added order', 'Newest observed', 'Oldest observed', 'Platform'].map(order => <option key={order}>{order}</option>)}</select></label>
       <div className="report-summary" aria-label="All locations by status">{reportStatuses.map(status => <span key={status}><strong>{counts[status]}</strong> {status}</span>)}</div>
       <div className="report-filters"><label>Search your notes<input type="search" value={query} maxLength={200} autoComplete="off" placeholder="Website, link, reference, or date" onChange={event => setQuery(event.target.value)} aria-controls="report-results" /></label><label>Filter by status<select value={statusFilter} onChange={event => setStatusFilter(event.target.value as StatusFilter)} aria-controls="report-results"><option>All statuses</option>{reportStatuses.map(status => <option key={status}>{status}</option>)}</select></label><button onClick={resetFilters} disabled={!query && statusFilter === 'All statuses' && !platformFilter}>Reset filters</button></div>
-      <p className="report-result-count" role="status">Showing {visibleNotes.length} of {notes.length} locations. Downloads include all notes.</p>
+      <p className="report-result-count" role="status">Showing {visibleNotes.length} of {notes.length} locations. The toolbar exports all notes; Download shown locations exports this view.</p>
     </div>}
     {!notes.length && <p className="organizer-empty">Add a link you already know about to start your checklist.</p>}
     {notes.length > 0 && !visibleNotes.length && <p className="organizer-empty">No locations match these filters. Try a different search or reset filters.</p>}
