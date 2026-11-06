@@ -8,6 +8,7 @@ import CourageHero from '@/components/ui/courage-hero';
 import SituationJourney from '@/components/ui/situation-journey';
 import FingerprintDemo from '@/components/ui/fingerprint-demo';
 import ReportOrganizer from '@/components/ui/report-organizer';
+import { matchesFaq } from '@/lib/faq-search';
 import { TextEffect } from '@/components/motion-primitives/text-effect';
 import { AnimatedGroup } from '@/components/motion-primitives/animated-group';
 
@@ -121,7 +122,9 @@ const questions = [
 
 function FAQ() {
   const [open, setOpen] = useState<number | null>(0);
-  return <section className="section faq-section"><Reveal><p className="eyebrow">NO FINE PRINT. JUST CLARITY.</p><Heading>Questions are welcome.</Heading></Reveal><div className="faq-list">{questions.map(([q, a], i) => <div className="faq-item" key={q}><h3><button aria-expanded={open === i} aria-controls={`answer-${i}`} onClick={() => setOpen(open === i ? null : i)}>{q}<ChevronDown size={17} className={open === i ? 'rotated' : ''} /></button></h3><AnimatePresence initial={false}>{open === i && <motion.div id={`answer-${i}`} initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} transition={{ duration: 0.3 }}><p>{a}</p></motion.div>}</AnimatePresence></div>)}</div></section>;
+  const [search, setSearch] = useState('');
+  const found = questions.filter(([question, answer]) => matchesFaq(question, answer, search)).length;
+  return <section className="section faq-section"><Reveal><p className="eyebrow">NO FINE PRINT. JUST CLARITY.</p><Heading>Questions are welcome.</Heading></Reveal><div className="faq-list"><label className="faq-search">Search questions<input type="search" value={search} onChange={event => setSearch(event.target.value)} placeholder="Try uploads, under 18, or complaints" /></label><p role="status" className="faq-count">{found ? `${found} matching questions` : 'No matching questions. Try a different word.'}</p>{questions.map(([q, a], i) => matchesFaq(q, a, search) && <div className="faq-item" key={q}><h3><button aria-expanded={open === i} aria-controls={`answer-${i}`} onClick={() => setOpen(open === i ? null : i)}>{q}<ChevronDown size={17} className={open === i ? 'rotated' : ''} /></button></h3><AnimatePresence initial={false}>{open === i && <motion.div id={`answer-${i}`} initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} transition={{ duration: 0.3 }}><p>{a}</p></motion.div>}</AnimatePresence></div>)}</div></section>;
 }
 
 export default function App() {
