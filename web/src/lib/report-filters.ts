@@ -1,6 +1,17 @@
 import { reportStatuses, type ReportNote } from './report-notes.ts';
 
 export type StatusFilter = 'All statuses' | ReportNote['status'];
+export type ReportSort = 'Added order' | 'Newest observed' | 'Oldest observed' | 'Platform';
+
+export function sortReportNotes(notes: ReportNote[], order: ReportSort): ReportNote[] {
+  return [...notes].sort((a, b) => {
+    if (order === 'Platform') return a.platform.localeCompare(b.platform);
+    if (order === 'Added order') return 0;
+    if (!a.date) return b.date ? 1 : 0;
+    if (!b.date) return -1;
+    return order === 'Newest observed' ? b.date.localeCompare(a.date) : a.date.localeCompare(b.date);
+  });
+}
 
 export function filterReportNotes(notes: ReportNote[], query: string, status: StatusFilter): ReportNote[] {
   const words = query.trim().toLowerCase().split(/\s+/).filter(Boolean);

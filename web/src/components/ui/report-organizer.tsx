@@ -3,7 +3,7 @@ import { Download, Plus, Trash2, Undo2 } from 'lucide-react';
 import { exportReportNotes, reportStatuses, validateReportUrl, type ReportNote } from '@/lib/report-notes';
 import './report-organizer.css';
 import { createReportBackup, parseReportBackup, mergeReportNotes, MAX_BACKUP_BYTES, MAX_REPORT_NOTES } from '@/lib/report-backup';
-import { filterReportNotes, reportStatusCounts, type StatusFilter } from '@/lib/report-filters';
+import { filterReportNotes, sortReportNotes, reportStatusCounts, type StatusFilter, type ReportSort } from '@/lib/report-filters';
 
 export default function ReportOrganizer() {
   const [notes, setNotes] = useState<ReportNote[]>([]);
@@ -19,7 +19,8 @@ export default function ReportOrganizer() {
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('All statuses');
   const [removedNotes, setRemovedNotes] = useState<ReportNote[]>([]);
   const [undoError, setUndoError] = useState('');
-  const visibleNotes = filterReportNotes(notes, query, statusFilter);
+  const [sortOrder, setSortOrder] = useState<ReportSort>('Added order');
+  const visibleNotes = sortReportNotes(filterReportNotes(notes, query, statusFilter), sortOrder);
   const counts = reportStatusCounts(notes);
   function resetFilters() { setQuery(''); setStatusFilter('All statuses'); }
   function remove(note: ReportNote) {
@@ -106,6 +107,7 @@ export default function ReportOrganizer() {
       {undoError && <p className="demo-error" role="alert">{undoError}</p>}
     </div>}
     {notes.length > 0 && <div className="report-filter-panel glass">
+      <label>Sort locations<select value={sortOrder} onChange={event => setSortOrder(event.target.value as ReportSort)}>{['Added order', 'Newest observed', 'Oldest observed', 'Platform'].map(order => <option key={order}>{order}</option>)}</select></label>
       <div className="report-summary" aria-label="All locations by status">{reportStatuses.map(status => <span key={status}><strong>{counts[status]}</strong> {status}</span>)}</div>
       <div className="report-filters"><label>Search your notes<input type="search" value={query} maxLength={200} autoComplete="off" placeholder="Website, link, reference, or date" onChange={event => setQuery(event.target.value)} aria-controls="report-results" /></label><label>Filter by status<select value={statusFilter} onChange={event => setStatusFilter(event.target.value as StatusFilter)} aria-controls="report-results"><option>All statuses</option>{reportStatuses.map(status => <option key={status}>{status}</option>)}</select></label><button onClick={resetFilters} disabled={!query && statusFilter === 'All statuses'}>Reset filters</button></div>
       <p className="report-result-count" role="status">Showing {visibleNotes.length} of {notes.length} locations. Downloads include all notes.</p>
