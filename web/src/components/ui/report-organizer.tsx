@@ -1,4 +1,4 @@
-import { useRef, useState, type FormEvent } from 'react';
+import { useEffect, useRef, useState, type FormEvent } from 'react';
 import { Download, Plus, Trash2, Undo2 } from 'lucide-react';
 import { exportReportNotes, reportStatuses, validateReportUrl, type ReportNote } from '@/lib/report-notes';
 import './report-organizer.css';
@@ -19,6 +19,16 @@ export default function ReportOrganizer() {
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('All statuses');
   const [removedNotes, setRemovedNotes] = useState<ReportNote[]>([]);
   const [undoError, setUndoError] = useState('');
+  const hasSessionNotes = notes.length > 0 || removedNotes.length > 0;
+  useEffect(() => {
+    if (!hasSessionNotes) return;
+    const warnBeforeLeaving = (event: BeforeUnloadEvent) => {
+      event.preventDefault();
+      event.returnValue = '';
+    };
+    window.addEventListener('beforeunload', warnBeforeLeaving);
+    return () => window.removeEventListener('beforeunload', warnBeforeLeaving);
+  }, [hasSessionNotes]);
   const [sortOrder, setSortOrder] = useState<ReportSort>('Added order');
   const [platformFilter, setPlatformFilter] = useState('');
   const platforms = [...new Set(notes.map(note => note.platform))].sort((a, b) => a.localeCompare(b));
