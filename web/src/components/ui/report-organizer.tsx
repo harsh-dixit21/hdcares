@@ -20,9 +20,11 @@ export default function ReportOrganizer() {
   const [removedNotes, setRemovedNotes] = useState<ReportNote[]>([]);
   const [undoError, setUndoError] = useState('');
   const [sortOrder, setSortOrder] = useState<ReportSort>('Added order');
-  const visibleNotes = sortReportNotes(filterReportNotes(notes, query, statusFilter), sortOrder);
+  const [platformFilter, setPlatformFilter] = useState('');
+  const platforms = [...new Set(notes.map(note => note.platform))].sort((a, b) => a.localeCompare(b));
+  const visibleNotes = sortReportNotes(filterReportNotes(notes, query, statusFilter).filter(note => !platformFilter || note.platform === platformFilter), sortOrder);
   const counts = reportStatusCounts(notes);
-  function resetFilters() { setQuery(''); setStatusFilter('All statuses'); }
+  function resetFilters() { setQuery(''); setStatusFilter('All statuses'); setPlatformFilter(''); }
   function remove(note: ReportNote) {
     setRemovedNotes([note]); setUndoError('');
     setNotes(previous => previous.filter(item => item.id !== note.id));
@@ -107,9 +109,10 @@ export default function ReportOrganizer() {
       {undoError && <p className="demo-error" role="alert">{undoError}</p>}
     </div>}
     {notes.length > 0 && <div className="report-filter-panel glass">
+      <label>Website or platform<select value={platformFilter} onChange={event => setPlatformFilter(event.target.value)}><option value="">All platforms</option>{[...new Set([...platforms, ...(platformFilter ? [platformFilter] : [])])].map(platform => <option key={platform} value={platform}>{platform}</option>)}</select></label>
       <label>Sort locations<select value={sortOrder} onChange={event => setSortOrder(event.target.value as ReportSort)}>{['Added order', 'Newest observed', 'Oldest observed', 'Platform'].map(order => <option key={order}>{order}</option>)}</select></label>
       <div className="report-summary" aria-label="All locations by status">{reportStatuses.map(status => <span key={status}><strong>{counts[status]}</strong> {status}</span>)}</div>
-      <div className="report-filters"><label>Search your notes<input type="search" value={query} maxLength={200} autoComplete="off" placeholder="Website, link, reference, or date" onChange={event => setQuery(event.target.value)} aria-controls="report-results" /></label><label>Filter by status<select value={statusFilter} onChange={event => setStatusFilter(event.target.value as StatusFilter)} aria-controls="report-results"><option>All statuses</option>{reportStatuses.map(status => <option key={status}>{status}</option>)}</select></label><button onClick={resetFilters} disabled={!query && statusFilter === 'All statuses'}>Reset filters</button></div>
+      <div className="report-filters"><label>Search your notes<input type="search" value={query} maxLength={200} autoComplete="off" placeholder="Website, link, reference, or date" onChange={event => setQuery(event.target.value)} aria-controls="report-results" /></label><label>Filter by status<select value={statusFilter} onChange={event => setStatusFilter(event.target.value as StatusFilter)} aria-controls="report-results"><option>All statuses</option>{reportStatuses.map(status => <option key={status}>{status}</option>)}</select></label><button onClick={resetFilters} disabled={!query && statusFilter === 'All statuses' && !platformFilter}>Reset filters</button></div>
       <p className="report-result-count" role="status">Showing {visibleNotes.length} of {notes.length} locations. Downloads include all notes.</p>
     </div>}
     {!notes.length && <p className="organizer-empty">Add a link you already know about to start your checklist.</p>}
