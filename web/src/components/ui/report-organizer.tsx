@@ -129,6 +129,7 @@ export default function ReportOrganizer() {
     {pending !== null && <div className="backup-preview glass"><h3>Review your backup</h3><p>{backupPreview?.added} new locations; {backupPreview?.duplicates} duplicates will be skipped. Existing notes will be kept. {backupPreview?.exceedsLimit && 'This would exceed the 500-location limit. Free space before restoring.'}</p><div className="backup-actions"><button onClick={restore} disabled={!backupPreview?.added || backupPreview.exceedsLimit}>Add backup to notes</button><button onClick={() => { setPending(null); setBackupError(''); }}>Cancel</button></div></div>}
     {backupError && <p className="demo-error" role="alert">{backupError}</p>}
     {removedNotes.length > 0 && <div className="report-undo glass">
+      <button className="report-copy" onClick={() => download(true, removedNotes)}>Download recovery backup</button>
       <div><h3>Recover your last deletion</h3><p>{removedNotes.length} {removedNotes.length === 1 ? 'location is' : 'locations are'} available to recover. A new deletion replaces this recovery copy. Reloading or dismissing clears it.</p></div>
       <div className="backup-actions"><button onClick={undoDeletion}><Undo2 size={16} /> Undo deletion</button><button onClick={() => { setRemovedNotes([]); setUndoError(''); setMessage('Recovery copy dismissed.'); }}>Dismiss recovery copy</button></div>
       {undoError && <p className="demo-error" role="alert">{undoError}</p>}

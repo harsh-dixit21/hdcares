@@ -2,7 +2,30 @@
 
 Rebuilt local React + TypeScript frontend using Vite, Tailwind CSS 4, Motion for React, Motion Primitives source components, and Lucide icons. Node.js 24 LTS is recommended. The design is now dark charcoal with sage accents, a large liquid sculpture, and layered dimensional illustrations.
 
-## Development
+## Working with private report notes
+
+Notes live only in the current page's memory. Use **Back up all notes** to keep a
+restorable JSON copy before closing. The browser may warn before leaving when notes
+or a deletion recovery copy exist; this warning is not guaranteed on mobile or if
+the browser is terminated. There is no automatic saving.
+
+- Search by link, platform, reference, or date; combine platform and status filters.
+- Sort by observation date or platform. Undated entries come last in date sorting.
+- Edit the platform, observation date, status, and reference directly in each entry.
+- **Download shown locations** exports only the filtered view as readable text.
+  Toolbar downloads include every note. Text exports cannot be restored as backups.
+- **Hide private notes** conceals the form and list on screen without erasing them.
+- **Copy link** writes only the chosen URL to the clipboard, which may sync elsewhere.
+- Restore previews count duplicates and enforce the 500-location limit. Existing
+  entries win when a backup contains the same normalized URL.
+- A deletion can be undone until another deletion replaces it, it is dismissed,
+  or the page closes. **Download recovery backup** saves those deleted entries even
+  when the current list is too full to undo. Restore it later like any other backup.
+
+Downloaded files are unencrypted and contain the recorded links and references.
+The app never opens a recorded content URL or submits a report automatically.
+
+## Running locally
 
 ```powershell
 cd "C:\Users\HARSH DIXIT\OneDrive\Documents\ChatGPT\hdcares\web"
