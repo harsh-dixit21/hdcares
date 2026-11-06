@@ -9,6 +9,7 @@ export default function ReportOrganizer() {
   const [notes, setNotes] = useState<ReportNote[]>([]);
   const [error, setError] = useState('');
   const [message, setMessage] = useState('');
+  const [concealed, setConcealed] = useState(false);
   const [confirmClear, setConfirmClear] = useState(false);
   const [pending, setPending] = useState<ReportNote[] | null>(null);
   const [backupError, setBackupError] = useState('');
@@ -108,6 +109,9 @@ export default function ReportOrganizer() {
   return <section id="report-organizer" className="section report-organizer" aria-labelledby="organizer-title">
     <div className="demo-intro"><p className="eyebrow">ONE LOCATION AT A TIME</p><h2 id="organizer-title">Keep your next steps<br /><em>in one place.</em></h2><p>Organise known links and report references. No images needed.</p></div>
     <p className="organizer-privacy">Notes stay in this page’s memory. Reloading or closing the page clears them. Download a copy if you want to keep them. Adding a link here does not open it or send a report.</p>
+    <button className="report-copy" aria-expanded={!concealed} aria-controls="private-notes-panel" onClick={() => setConcealed(value => !value)}>{concealed ? 'Show private notes' : 'Hide private notes'}</button>
+    {concealed && <p className="organizer-privacy" role="status">Notes are hidden on screen and still held in this page’s memory. This does not lock or erase them.</p>}
+    <div id="private-notes-panel" hidden={concealed}>
     <form className="organizer-form glass" onSubmit={add}>
       <label>Content URL <span>(required)</span><input name="url" type="url" required maxLength={4000} placeholder="https://example.com/post/..." autoComplete="off" spellCheck={false} /></label>
       <label>Platform or website<input name="platform" maxLength={100} placeholder="Optional — defaults to the website name" autoComplete="off" /></label>
@@ -147,6 +151,7 @@ export default function ReportOrganizer() {
     </li>; })}</ul>
     <p className="organizer-message" role="status">{message}</p>
     {notes.length > 0 && <div className="organizer-clear">{confirmClear ? <><span>Clear all notes? A temporary undo copy will remain until dismissed or reloaded.</span><button onClick={clearNotes}>Yes, clear notes</button><button onClick={() => setConfirmClear(false)}>Keep notes</button></> : <button onClick={() => setConfirmClear(true)}>Clear all notes</button>}</div>}
+    </div>
     <p className="demo-disclosure">Statuses are your own records. HD Cares does not verify removal or submit these notes. <a href="#start">Explore specialist services and official reporting options.</a></p>
   </section>;
 }
