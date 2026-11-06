@@ -2,6 +2,8 @@
 @theme { --font-sans: 'Geist', 'Helvetica Neue', Arial, sans-serif; }
 
 .footer .footer-bottom { flex-wrap: wrap; }
+.visual-fallback { padding: 160px 6% 100px; min-height: 60svh; background: #151b12; }
+.visual-fallback p { margin: 24px 0; color: #cbd5bf; }
 .faq-search { display: grid; gap: 12px; font-size: 14px; color: #cbd5bf; }
 .faq-search input { width: 100%; min-height: 48px; padding: 12px 16px; color: #efeee8; background: #151b12; border: 1px solid #c3d3a540; border-radius: 10px; font: inherit; }
 .faq-count { color: #b8c7a8; font-size: 13px; }
