@@ -25,6 +25,14 @@ export default function ReportOrganizer() {
   const visibleNotes = sortReportNotes(filterReportNotes(notes, query, statusFilter).filter(note => !platformFilter || note.platform === platformFilter), sortOrder);
   const counts = reportStatusCounts(notes);
   function resetFilters() { setQuery(''); setStatusFilter('All statuses'); setPlatformFilter(''); }
+  async function copyLocation(note: ReportNote) {
+    try {
+      await navigator.clipboard.writeText(note.url);
+      setMessage('Link copied. Your clipboard may be visible to other apps or synced devices.');
+    } catch {
+      setMessage('Clipboard access was unavailable. Select and copy the displayed link manually.');
+    }
+  }
   function remove(note: ReportNote) {
     setRemovedNotes([note]); setUndoError('');
     setNotes(previous => previous.filter(item => item.id !== note.id));
@@ -120,6 +128,7 @@ export default function ReportOrganizer() {
     <ul id="report-results" className="report-list">{visibleNotes.map(note => { const index = notes.findIndex(item => item.id === note.id); return <li className="glass" key={note.id}>
       <div className="report-location"><span className="demo-label">LOCATION {String(index + 1).padStart(2, '0')}</span><h3>{note.platform}</h3><p>{note.url}</p><small>{note.date ? `Observed: ${note.date}` : 'Date not recorded'}</small></div>
       <div className="report-controls"><label>Status recorded by you<select value={note.status} onChange={event => { const status = event.target.value as ReportNote['status']; setNotes(previous => previous.map(item => item.id === note.id ? { ...item, status } : item)); }}>{reportStatuses.map(status => <option key={status}>{status}</option>)}</select></label>
+      <button className="report-copy" onClick={() => void copyLocation(note)}>Copy link</button>
       <label>Platform or website<input maxLength={100} value={note.platform} autoComplete="off" onChange={event => { const platform = event.target.value; setNotes(previous => previous.map(item => item.id === note.id ? { ...item, platform } : item)); }} onBlur={() => setNotes(previous => previous.map(item => item.id === note.id ? { ...item, platform: item.platform.trim() || new URL(item.url).hostname } : item))} /></label>
       <label>Date observed<input type="date" value={note.date} onChange={event => { const date = event.target.value; setNotes(previous => previous.map(item => item.id === note.id ? { ...item, date } : item)); }} /></label>
       <label>Report reference<input maxLength={200} autoComplete="off" value={note.reference} onChange={event => { const reference = event.target.value; setNotes(previous => previous.map(item => item.id === note.id ? { ...item, reference } : item)); }} /></label></div>
