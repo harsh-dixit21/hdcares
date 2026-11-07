@@ -25,14 +25,16 @@ export default function FingerprintDemo() {
       if (request === generation.current) setError('This browser cannot run the demo here. Open the app on localhost or HTTPS and try again.');
     } finally { if (request === generation.current) setBusy(false); }
   }
-  async function compare(same: boolean) {
+  async function compare(kind: 'identical' | 'different' | 'edited') {
     const request = ++generation.current;
     setBusy(true); setError('');
     try {
-      const candidate = await demoFingerprint(demoArt[same ? sample : 1 - sample].svg);
+      const original = demoArt[sample].svg;
+      const source = kind === 'edited' ? original + ' ' : kind === 'identical' ? original : demoArt[1 - sample].svg;
+      const candidate = await demoFingerprint(source);
       if (request === generation.current) setResult(candidate === digest
         ? 'Exact match: identical sample bytes produce the same fingerprint.'
-        : 'Different fingerprint: this artwork has different bytes.');
+        : kind === 'edited' ? 'One trailing space changed the fingerprint even though the artwork looks identical.' : 'Different fingerprint: this artwork has different bytes.');
     } catch { if (request === generation.current) setError('Comparison failed. Please try again.'); }
     finally { if (request === generation.current) setBusy(false); }
   }
@@ -48,7 +50,7 @@ export default function FingerprintDemo() {
         <motion.div className="digest-icon" key={digest || 'empty'} initial={{ scale: .85, rotateY: -35 }} animate={{ scale: 1, rotateY: 0 }} transition={{ type: 'spring', damping: 15 }}><Fingerprint size={80} strokeWidth={1} /></motion.div>
         <div className="digest-output" aria-live="polite">{digest ? <><span>SHA-256 / COMPUTED LOCALLY</span><code>{digest}</code></> : <p>Your sample’s fingerprint will appear here.</p>}</div>
         <div className="demo-actions"><button className="button button-light" disabled={busy} onClick={generate}>{busy ? 'Calculating…' : digest ? 'Generate again' : 'Generate fingerprint'}</button><button className="demo-reset" onClick={() => reset()} aria-label="Reset fingerprint demo"><RotateCcw size={17} /></button></div>
-        {digest && <div className="compare-panel"><span className="demo-label">03 / TRY A MATCH</span><div className="demo-actions"><button disabled={busy} onClick={() => compare(true)}>Compare identical copy</button><button disabled={busy} onClick={() => compare(false)}>Compare other artwork</button></div></div>}
+        {digest && <div className="compare-panel"><span className="demo-label">03 / TRY A MATCH</span><div className="demo-actions"><button disabled={busy} onClick={() => compare('identical')}>Compare identical copy</button><button disabled={busy} onClick={() => compare('different')}>Compare other artwork</button><button disabled={busy} onClick={() => compare('edited')}>Change one byte</button></div></div>}
         <p className="demo-result" role="status">{result}</p>{error && <p role="alert" className="demo-error">{error}</p>}
       </div>
     </div>
