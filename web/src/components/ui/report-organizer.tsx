@@ -35,11 +35,16 @@ export default function ReportOrganizer() {
     return () => window.removeEventListener('beforeunload', warnBeforeLeaving);
   }, [hasSessionNotes]);
   const [sortOrder, setSortOrder] = useState<ReportSort>('Added order');
+  const [requestedPage, setRequestedPage] = useState(1);
+  const pageSize = 10;
   const [platformFilter, setPlatformFilter] = useState('');
   const platforms = [...new Set(notes.map(note => note.platform))].sort((a, b) => a.localeCompare(b));
   const visibleNotes = sortReportNotes(filterReportNotes(notes, query, statusFilter).filter(note => !platformFilter || note.platform === platformFilter), sortOrder);
+  const pages = Math.max(1, Math.ceil(visibleNotes.length / pageSize));
+  const page = Math.min(requestedPage, pages);
+  const pageNotes = visibleNotes.slice((page - 1) * pageSize, page * pageSize);
   const counts = reportStatusCounts(notes);
-  function resetFilters() { setQuery(''); setStatusFilter('All statuses'); setPlatformFilter(''); }
+  function resetFilters() { setRequestedPage(1); setQuery(''); setStatusFilter('All statuses'); setPlatformFilter(''); }
   async function copyLocation(note: ReportNote) {
     try {
       await navigator.clipboard.writeText(note.url);
@@ -155,12 +160,12 @@ export default function ReportOrganizer() {
       {undoError && <p className="demo-error" role="alert">{undoError}</p>}
     </div>}
     {notes.length > 0 && <div className="report-filter-panel glass">
-      <button className="report-copy" disabled={!visibleNotes.length} onClick={() => download(false, visibleNotes)}>Download shown locations ({visibleNotes.length})</button>
-      <label>Website or platform<select value={platformFilter} onChange={event => setPlatformFilter(event.target.value)}><option value="">All platforms</option>{[...new Set([...platforms, ...(platformFilter ? [platformFilter] : [])])].map(platform => <option key={platform} value={platform}>{platform}</option>)}</select></label>
-      <label>Sort locations<select value={sortOrder} onChange={event => setSortOrder(event.target.value as ReportSort)}>{['Added order', 'Newest observed', 'Oldest observed', 'Platform'].map(order => <option key={order}>{order}</option>)}</select></label>
+      <button className="report-copy" disabled={!visibleNotes.length} onClick={() => download(false, visibleNotes)}>Download all matches ({visibleNotes.length})</button>
+      <label>Website or platform<select value={platformFilter} onChange={event => { setPlatformFilter(event.target.value); setRequestedPage(1); }}><option value="">All platforms</option>{[...new Set([...platforms, ...(platformFilter ? [platformFilter] : [])])].map(platform => <option key={platform} value={platform}>{platform}</option>)}</select></label>
+      <label>Sort locations<select value={sortOrder} onChange={event => { setSortOrder(event.target.value as ReportSort); setRequestedPage(1); }}>{['Added order', 'Newest observed', 'Oldest observed', 'Platform'].map(order => <option key={order}>{order}</option>)}</select></label>
       <div className="report-summary" aria-label="All locations by status">{reportStatuses.map(status => <span key={status}><strong>{counts[status]}</strong> {status}</span>)}</div>
-      <div className="report-filters"><label>Search your notes<input type="search" value={query} maxLength={200} autoComplete="off" placeholder="Website, link, reference, or date" onChange={event => setQuery(event.target.value)} aria-controls="report-results" /></label><label>Filter by status<select value={statusFilter} onChange={event => setStatusFilter(event.target.value as StatusFilter)} aria-controls="report-results"><option>All statuses</option>{reportStatuses.map(status => <option key={status}>{status}</option>)}</select></label><button onClick={resetFilters} disabled={!query && statusFilter === 'All statuses' && !platformFilter}>Reset filters</button></div>
-      <p className="report-result-count" role="status">Showing {visibleNotes.length} of {notes.length} locations. The toolbar exports all notes; Download shown locations exports this view.</p>
+      <div className="report-filters"><label>Search your notes<input type="search" value={query} maxLength={200} autoComplete="off" placeholder="Website, link, reference, or date" onChange={event => { setQuery(event.target.value); setRequestedPage(1); }} aria-controls="report-results" /></label><label>Filter by status<select value={statusFilter} onChange={event => { setStatusFilter(event.target.value as StatusFilter); setRequestedPage(1); }} aria-controls="report-results"><option>All statuses</option>{reportStatuses.map(status => <option key={status}>{status}</option>)}</select></label><button onClick={resetFilters} disabled={!query && statusFilter === 'All statuses' && !platformFilter}>Reset filters</button></div>
+      <p className="report-result-count" role="status">{visibleNotes.length} of {notes.length} locations match. Downloads include matches across every page.</p>
     </div>}
     {!notes.length && <div className="organizer-empty">
       <p>Add a known link, or explore the organizer with two fictional examples.</p>
@@ -175,7 +180,12 @@ export default function ReportOrganizer() {
       }}>Load practice notes</button>
     </div>}
     {notes.length > 0 && !visibleNotes.length && <p className="organizer-empty">No locations match these filters. Try a different search or reset filters.</p>}
-    <ul id="report-results" className="report-list">{visibleNotes.map(note => { const index = notes.findIndex(item => item.id === note.id); return <li className="glass" key={note.id}>
+    {pages > 1 && <nav className="backup-actions" aria-label="Report results pages">
+      <button className="report-copy" disabled={page === 1} onClick={() => setRequestedPage(page - 1)}>Previous</button>
+      <span role="status">Page {page} of {pages}</span>
+      <button className="report-copy" disabled={page === pages} onClick={() => setRequestedPage(page + 1)}>Next</button>
+    </nav>}
+    <ul id="report-results" className="report-list">{pageNotes.map(note => { const index = notes.findIndex(item => item.id === note.id); return <li className="glass" key={note.id}>
       <div className="report-location"><span className="demo-label">LOCATION {String(index + 1).padStart(2, '0')}</span><h3>{note.platform}</h3><p>{note.url}</p><small>{note.date ? `Observed: ${note.date}` : 'Date not recorded'}</small></div>
       <div className="report-controls"><label>Status recorded by you<select value={note.status} onChange={event => { const status = event.target.value as ReportNote['status']; setNotes(previous => previous.map(item => item.id === note.id ? { ...item, status } : item)); }}>{reportStatuses.map(status => <option key={status}>{status}</option>)}</select></label>
       <button className="report-copy" onClick={() => void copyLocation(note)}>Copy link</button>

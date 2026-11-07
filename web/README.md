@@ -12,7 +12,7 @@ the browser is terminated. There is no automatic saving.
 - Search by link, platform, reference, or date; combine platform and status filters.
 - Sort by observation date or platform. Undated entries come last in date sorting.
 - Edit the platform, observation date, status, and reference directly in each entry.
-- **Download shown locations** exports only the filtered view as readable text.
+- **Download all matches** exports only the filtered view as readable text.
   Toolbar downloads include every note. Text exports cannot be restored as backups.
 - **Hide private notes** conceals the form and list on screen without erasing them.
 - **Copy link** writes only the chosen URL to the clipboard, which may sync elsewhere.
