@@ -13,6 +13,7 @@ const paths = [
 export default function SituationJourney() {
   const [selected, setSelected] = useState<number | null>(null);
   const [checked, setChecked] = useState<boolean[][]>(() => paths.map(() => [false, false, false]));
+  const [steps, setSteps] = useState<string[][]>(() => paths.map(path => [...path.steps]));
   const path = selected === null ? null : paths[selected];
   const count = selected === null ? 0 : checked[selected].filter(Boolean).length;
   return <section id="next-step" className="section situation-section" aria-labelledby="situation-title">
@@ -25,9 +26,21 @@ export default function SituationJourney() {
     <div className="situation-options" role="group" aria-label="Choose your situation">{paths.map(({ title, icon: Icon }, index) => <button key={title} className="glass" aria-pressed={selected === index} aria-controls="situation-details" onClick={() => setSelected(index)}><Icon size={25} strokeWidth={1.3} /><span>{title}</span><ArrowUpRight size={18} /></button>)}</div>
     <div id="situation-details" aria-live="polite">{path && selected !== null ? <motion.div className="situation-detail glass" key={selected} initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}>
       <div><span className="demo-label">A PERSONAL STARTING POINT</span><h3>{path.heading}</h3><p>{path.intro}</p><a className="inline-link" href={path.link}>{path.action}<ArrowUpRight size={16} /></a></div>
-      <div><span className="demo-label">{count} OF 3 REVIEWED</span><div className="checklist-progress" aria-hidden="true"><motion.div animate={{ scaleX: count / 3 }} /></div>{path.steps.map((step, index) => <label className="situation-check" key={step}><input type="checkbox" checked={checked[selected][index]} onChange={event => { const value = event.target.checked; setChecked(previous => previous.map((items, route) => route === selected ? items.map((item, i) => i === index ? value : item) : items)); }} /><span>{step}</span></label>)}<button className="review-reset" onClick={() => setChecked(previous => previous.map((items, route) => route === selected ? [false, false, false] : items))}>Reset this checklist</button></div>
+      <div><span className="demo-label">{count} OF {steps[selected].length} REVIEWED</span><div className="checklist-progress" aria-hidden="true"><motion.div animate={{ scaleX: count / steps[selected].length }} /></div>{steps[selected].map((step, index) => <label className="situation-check" key={index}><input type="checkbox" checked={checked[selected][index]} onChange={event => { const value = event.target.checked; setChecked(previous => previous.map((items, route) => route === selected ? items.map((item, i) => i === index ? value : item) : items)); }} /><span>{step}</span></label>)}<button className="review-reset" onClick={() => setChecked(previous => previous.map((items, route) => route === selected ? items.map(() => false) : items))}>Reset this checklist</button></div>
+      <form className="personal-step" onSubmit={event => {
+        event.preventDefault();
+        const form = event.currentTarget;
+        const step = String(new FormData(form).get('step') ?? '').trim();
+        if (!step) return;
+        setSteps(previous => previous.map((items, route) => route === selected ? [...items, step] : items));
+        setChecked(previous => previous.map((items, route) => route === selected ? [...items, false] : items));
+        form.reset();
+      }}>
+        <label>Your own next step<input name="step" maxLength={180} required autoComplete="off" /></label>
+        <button className="report-copy">Add step</button>
+      </form>
       <button className="report-copy" onClick={() => {
-        const checklist = path.steps.map((step, i) => (checked[selected][i] ? '[x] ' : '[ ] ') + step);
+        const checklist = steps[selected].map((step, i) => (checked[selected][i] ? '[x] ' : '[ ] ') + step);
         downloadText('my-checklist.txt', [path.title, '', ...checklist].join('\n'));
       }}>Save checklist as text</button>
     </motion.div> : <p className="situation-empty">No details or private images needed. Just a place to start.</p>}</div>
