@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { motion } from 'motion/react';
 import { ArrowUpRight, Heart, ScanLine, Shield } from 'lucide-react';
 import './product-demos.css';
+import { downloadText } from '@/lib/download-text';
 
 const paths = [
   { title: 'I’m worried it may be shared', icon: Shield, heading: 'Start with what you can control.', intro: 'You can explore your options without sharing an image here.', steps: ['Explore how a digital fingerprint works using our sample artwork.', 'Review the eligibility and privacy information of specialist services.', 'Choose whether to take the next step with a service.'], link: '#fingerprint-demo', action: 'Try the fingerprint demo' },
@@ -25,6 +26,10 @@ export default function SituationJourney() {
     <div id="situation-details" aria-live="polite">{path && selected !== null ? <motion.div className="situation-detail glass" key={selected} initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}>
       <div><span className="demo-label">A PERSONAL STARTING POINT</span><h3>{path.heading}</h3><p>{path.intro}</p><a className="inline-link" href={path.link}>{path.action}<ArrowUpRight size={16} /></a></div>
       <div><span className="demo-label">{count} OF 3 REVIEWED</span><div className="checklist-progress" aria-hidden="true"><motion.div animate={{ scaleX: count / 3 }} /></div>{path.steps.map((step, index) => <label className="situation-check" key={step}><input type="checkbox" checked={checked[selected][index]} onChange={event => { const value = event.target.checked; setChecked(previous => previous.map((items, route) => route === selected ? items.map((item, i) => i === index ? value : item) : items)); }} /><span>{step}</span></label>)}<button className="review-reset" onClick={() => setChecked(previous => previous.map((items, route) => route === selected ? [false, false, false] : items))}>Reset this checklist</button></div>
+      <button className="report-copy" onClick={() => {
+        const checklist = path.steps.map((step, i) => (checked[selected][i] ? '[x] ' : '[ ] ') + step);
+        downloadText('my-checklist.txt', [path.title, '', ...checklist].join('\n'));
+      }}>Save checklist as text</button>
     </motion.div> : <p className="situation-empty">No details or private images needed. Just a place to start.</p>}</div>
     <p className="demo-disclosure">Your choices and checkmarks stay in this page’s memory and reset when you reload. They indicate steps you have reviewed, not a submitted report or active protection. <a href="#start">View specialist services and age-specific options.</a></p>
   </section>;
