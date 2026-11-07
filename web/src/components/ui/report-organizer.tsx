@@ -162,7 +162,18 @@ export default function ReportOrganizer() {
       <div className="report-filters"><label>Search your notes<input type="search" value={query} maxLength={200} autoComplete="off" placeholder="Website, link, reference, or date" onChange={event => setQuery(event.target.value)} aria-controls="report-results" /></label><label>Filter by status<select value={statusFilter} onChange={event => setStatusFilter(event.target.value as StatusFilter)} aria-controls="report-results"><option>All statuses</option>{reportStatuses.map(status => <option key={status}>{status}</option>)}</select></label><button onClick={resetFilters} disabled={!query && statusFilter === 'All statuses' && !platformFilter}>Reset filters</button></div>
       <p className="report-result-count" role="status">Showing {visibleNotes.length} of {notes.length} locations. The toolbar exports all notes; Download shown locations exports this view.</p>
     </div>}
-    {!notes.length && <p className="organizer-empty">Add a link you already know about to start your checklist.</p>}
+    {!notes.length && <div className="organizer-empty">
+      <p>Add a known link, or explore the organizer with two fictional examples.</p>
+      <button className="report-copy" disabled={reading || pending !== null || removedNotes.length > 0} onClick={() => {
+        const practiceNotes: ReportNote[] = [
+          { id: crypto.randomUUID(), url: 'https://example.invalid/sample-one', platform: 'Example forum', date: localToday(), reference: '', status: 'Not reported' },
+          { id: crypto.randomUUID(), url: 'https://example.invalid/sample-two', platform: 'Example gallery', date: localToday(), reference: 'DEMO-02', status: 'Following up' },
+        ];
+        setNotes(practiceNotes);
+        resetFilters();
+        setMessage('Two fictional practice notes added. Clear the list when you finish exploring.');
+      }}>Load practice notes</button>
+    </div>}
     {notes.length > 0 && !visibleNotes.length && <p className="organizer-empty">No locations match these filters. Try a different search or reset filters.</p>}
     <ul id="report-results" className="report-list">{visibleNotes.map(note => { const index = notes.findIndex(item => item.id === note.id); return <li className="glass" key={note.id}>
       <div className="report-location"><span className="demo-label">LOCATION {String(index + 1).padStart(2, '0')}</span><h3>{note.platform}</h3><p>{note.url}</p><small>{note.date ? `Observed: ${note.date}` : 'Date not recorded'}</small></div>
