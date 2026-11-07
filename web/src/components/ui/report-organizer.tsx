@@ -3,6 +3,7 @@ import { Download, Plus, Trash2, Undo2 } from 'lucide-react';
 import { exportReportNotes, reportStatuses, validateReportUrl, type ReportNote } from '@/lib/report-notes';
 import './report-organizer.css';
 import { downloadText } from '@/lib/download-text';
+import { followUpCalendar } from '@/lib/follow-up-calendar';
 import { localToday, validObservationDate } from '@/lib/report-date';
 import { createReportBackup, parseReportBackup, mergeReportNotes, previewReportBackup, MAX_BACKUP_BYTES, MAX_REPORT_NOTES } from '@/lib/report-backup';
 import { filterReportNotes, sortReportNotes, reportStatusCounts, type StatusFilter, type ReportSort } from '@/lib/report-filters';
@@ -125,6 +126,19 @@ export default function ReportOrganizer() {
       {error && <p className="demo-error" role="alert">{error}</p>}
     </form>
     <div className="organizer-toolbar"><span>{notes.length} {notes.length === 1 ? 'location' : 'locations'} in your notes</span><div className="backup-actions"><button disabled={!notes.length} onClick={() => download()}><Download size={16} /> Download all as text</button><button disabled={!notes.length} onClick={() => download(true)}>Back up all notes</button><button disabled={reading} onClick={() => fileInput.current?.click()}>{reading ? 'Reading backup…' : 'Restore backup'}</button></div></div>
+    {notes.length > 0 && <details className="backup-preview glass"><summary>Schedule a follow-up</summary>
+      <form onSubmit={event => {
+        event.preventDefault();
+        const day = String(new FormData(event.currentTarget).get('day') ?? '');
+        try {
+          downloadText('follow-up.ics', followUpCalendar(day), 'text/calendar;charset=utf-8');
+          setMessage('Open the calendar file to add the event. It is titled “Follow up” and contains no note details.');
+        } catch { setMessage('Choose a valid follow-up date.'); }
+      }}>
+        <label>Follow-up date<input type="date" name="day" required min={localToday()} /></label>
+        <button className="report-copy">Save calendar event</button>
+      </form>
+    </details>}
     {notes.length > 0 && <button className="report-copy" onClick={() => {
       const totals = reportStatuses.map(status => status + ': ' + counts[status]);
       downloadText('status-counts.txt', ['Report status totals', ...totals].join('\n'));
