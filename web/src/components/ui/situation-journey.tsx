@@ -16,6 +16,11 @@ export default function SituationJourney() {
   const count = selected === null ? 0 : checked[selected].filter(Boolean).length;
   return <section id="next-step" className="section situation-section" aria-labelledby="situation-title">
     <div className="demo-intro"><p className="eyebrow">YOUR SITUATION. YOUR PACE.</p><h2 id="situation-title">Where would you<br /><em>like to begin?</em></h2><p>Choose what feels closest. You can change your choice at any time.</p></div>
+    <nav aria-label="Tool shortcuts" className="tool-shortcuts">
+      <a href="#fingerprint-demo">Fingerprint demo</a>
+      <a href="#report-organizer">Report organizer</a>
+      <a href="#start">Specialist services</a>
+    </nav>
     <div className="situation-options" role="group" aria-label="Choose your situation">{paths.map(({ title, icon: Icon }, index) => <button key={title} className="glass" aria-pressed={selected === index} aria-controls="situation-details" onClick={() => setSelected(index)}><Icon size={25} strokeWidth={1.3} /><span>{title}</span><ArrowUpRight size={18} /></button>)}</div>
     <div id="situation-details" aria-live="polite">{path && selected !== null ? <motion.div className="situation-detail glass" key={selected} initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}>
       <div><span className="demo-label">A PERSONAL STARTING POINT</span><h3>{path.heading}</h3><p>{path.intro}</p><a className="inline-link" href={path.link}>{path.action}<ArrowUpRight size={16} /></a></div>

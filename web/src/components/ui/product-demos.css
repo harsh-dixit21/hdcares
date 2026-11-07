@@ -38,3 +38,5 @@
 .demo-result { color: #cfdfb9; font-size: 12px; line-height: 1.8; min-height: 22px; }.demo-error { color: #f2bda8; font-size: 12px; line-height: 1.8; }
 .fingerprint-lab button:disabled { opacity: .5; cursor: wait; }
 @media(max-width: 800px) { .situation-options { grid-template-columns: 1fr; }.situation-options button { flex-direction: row; align-items: center; padding: 22px; gap: 18px; }.situation-options button span { max-width: none; flex: 1; font-size: 16px; }.situation-options button > svg:last-child { align-self: center; }.situation-detail, .fingerprint-lab { grid-template-columns: 1fr; }.situation-detail { gap: 30px; padding: 26px; }.sample-panel { border-right: 0; border-bottom: 1px solid #ffffff17; }.sample-panel, .digest-panel { padding: 24px; }.demo-intro h2 { max-width: none; } }
+.tool-shortcuts { display: flex; flex-wrap: wrap; gap: 8px 20px; margin-bottom: 24px; }
+.tool-shortcuts a { display: inline-flex; align-items: center; min-height: 44px; color: var(--sage); text-decoration: underline; text-underline-offset: 4px; }
