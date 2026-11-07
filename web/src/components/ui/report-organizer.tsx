@@ -2,6 +2,7 @@ import { useEffect, useRef, useState, type FormEvent } from 'react';
 import { Download, Plus, Trash2, Undo2 } from 'lucide-react';
 import { exportReportNotes, reportStatuses, validateReportUrl, type ReportNote } from '@/lib/report-notes';
 import './report-organizer.css';
+import { downloadText } from '@/lib/download-text';
 import { localToday, validObservationDate } from '@/lib/report-date';
 import { createReportBackup, parseReportBackup, mergeReportNotes, previewReportBackup, MAX_BACKUP_BYTES, MAX_REPORT_NOTES } from '@/lib/report-backup';
 import { filterReportNotes, sortReportNotes, reportStatusCounts, type StatusFilter, type ReportSort } from '@/lib/report-filters';
@@ -124,6 +125,11 @@ export default function ReportOrganizer() {
       {error && <p className="demo-error" role="alert">{error}</p>}
     </form>
     <div className="organizer-toolbar"><span>{notes.length} {notes.length === 1 ? 'location' : 'locations'} in your notes</span><div className="backup-actions"><button disabled={!notes.length} onClick={() => download()}><Download size={16} /> Download all as text</button><button disabled={!notes.length} onClick={() => download(true)}>Back up all notes</button><button disabled={reading} onClick={() => fileInput.current?.click()}>{reading ? 'Reading backup…' : 'Restore backup'}</button></div></div>
+    {notes.length > 0 && <button className="report-copy" onClick={() => {
+      const totals = reportStatuses.map(status => status + ': ' + counts[status]);
+      downloadText('status-counts.txt', ['Report status totals', ...totals].join('\n'));
+      setMessage('Exported counts only. The file contains no links, platforms, dates, or references.');
+    }}>Download status totals only</button>}
     <input ref={fileInput} className="sr-only" type="file" accept=".json,application/json" aria-label="Choose an HD Cares backup" onChange={event => { const file = event.target.files?.[0]; event.target.value = ''; void readBackup(file); }} />
     <p className="demo-disclosure">Save backup creates an unencrypted JSON file you can restore later. It contains your links and references. Keep it private. Files are read locally; nothing is uploaded.</p>
     {pending !== null && <div className="backup-preview glass"><h3>Review your backup</h3><p>{backupPreview?.added} new locations; {backupPreview?.duplicates} duplicates will be skipped. Existing notes will be kept. {backupPreview?.exceedsLimit && 'This would exceed the 500-location limit. Free space before restoring.'}</p><div className="backup-actions"><button onClick={restore} disabled={!backupPreview?.added || backupPreview.exceedsLimit}>Add backup to notes</button><button onClick={() => { setPending(null); setBackupError(''); }}>Cancel</button></div></div>}
