@@ -8,16 +8,17 @@ export default function FingerprintDemo() {
   const [sample, setSample] = useState(0);
   const [digest, setDigest] = useState('');
   const [busy, setBusy] = useState(false);
+  const [comparedDigest, setComparedDigest] = useState('');
   const [result, setResult] = useState('');
   const [error, setError] = useState('');
   const generation = useRef(0);
   function reset(index = sample) {
     generation.current++;
-    setSample(index); setDigest(''); setBusy(false); setResult(''); setError('');
+    setSample(index); setDigest(''); setComparedDigest(''); setBusy(false); setResult(''); setError('');
   }
   async function generate() {
     const request = ++generation.current;
-    setBusy(true); setError(''); setResult('');
+    setBusy(true); setError(''); setResult(''); setComparedDigest('');
     try {
       const value = await demoFingerprint(demoArt[sample].svg);
       if (request === generation.current) setDigest(value);
@@ -32,7 +33,9 @@ export default function FingerprintDemo() {
       const original = demoArt[sample].svg;
       const source = kind === 'edited' ? original + ' ' : kind === 'identical' ? original : demoArt[1 - sample].svg;
       const candidate = await demoFingerprint(source);
-      if (request === generation.current) setResult(candidate === digest
+      if (request !== generation.current) return;
+      setComparedDigest(candidate);
+      setResult(candidate === digest
         ? 'Exact match: identical sample bytes produce the same fingerprint.'
         : kind === 'edited' ? 'One trailing space changed the fingerprint even though the artwork looks identical.' : 'Different fingerprint: this artwork has different bytes.');
     } catch { if (request === generation.current) setError('Comparison failed. Please try again.'); }
@@ -51,6 +54,10 @@ export default function FingerprintDemo() {
         <div className="digest-output" aria-live="polite">{digest ? <><span>SHA-256 / COMPUTED LOCALLY</span><code>{digest}</code></> : <p>Your sample’s fingerprint will appear here.</p>}</div>
         <div className="demo-actions"><button className="button button-light" disabled={busy} onClick={generate}>{busy ? 'Calculating…' : digest ? 'Generate again' : 'Generate fingerprint'}</button><button className="demo-reset" onClick={() => reset()} aria-label="Reset fingerprint demo"><RotateCcw size={17} /></button></div>
         {digest && <div className="compare-panel"><span className="demo-label">03 / TRY A MATCH</span><div className="demo-actions"><button disabled={busy} onClick={() => compare('identical')}>Compare identical copy</button><button disabled={busy} onClick={() => compare('different')}>Compare other artwork</button><button disabled={busy} onClick={() => compare('edited')}>Change one byte</button></div></div>}
+        {comparedDigest && <div className="digest-output">
+          <span>COMPARISON FINGERPRINT</span><code>{comparedDigest}</code>
+          <p>{Array.from(comparedDigest).filter((digit, i) => digit !== digest[i]).length} of 64 hexadecimal digits differ.</p>
+        </div>}
         <p className="demo-result" role="status">{result}</p>{error && <p role="alert" className="demo-error">{error}</p>}
       </div>
     </div>
