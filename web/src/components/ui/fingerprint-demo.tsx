@@ -3,6 +3,7 @@ import { motion } from 'motion/react';
 import { Fingerprint, LockKeyhole, RotateCcw } from 'lucide-react';
 import { demoArt, demoFingerprint } from '@/lib/demo-fingerprint';
 import './product-demos.css';
+import PracticePlatform from './practice-platform';
 
 export default function FingerprintDemo() {
   const [sample, setSample] = useState(0);
@@ -61,6 +62,7 @@ export default function FingerprintDemo() {
         <p className="demo-result" role="status">{result}</p>{error && <p role="alert" className="demo-error">{error}</p>}
       </div>
     </div>
+    <PracticePlatform sample={sample} digest={digest} />
     <p className="demo-disclosure">This demonstrates exact-byte hashing, not perceptual image matching. Even a small file change can produce a different SHA-256 value. Nothing is registered, uploaded, or blocked; real protection requires specialist matching and participating platforms.</p>
   </section>;
 }
