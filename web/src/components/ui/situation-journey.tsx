@@ -43,6 +43,11 @@ export default function SituationJourney() {
       {selected === 2 && <div className="support-draft">
         <label>Draft a message of support<textarea rows={4} value={supportDraft} maxLength={2000}
           onChange={event => setSupportDraft(event.target.value)} /></label>
+        <details><summary>Add a conversation starter</summary>
+          {['Would you like me to stay with you?', 'Would you like help writing down your options?', 'When would you like me to check in?'].map(prompt =>
+            <button key={prompt} className="report-copy" disabled={supportDraft.length + prompt.length + 1 > 2000}
+              onClick={() => setSupportDraft(text => [text.trimEnd(), prompt].filter(Boolean).join('\n'))}>{prompt}</button>)}
+        </details>
         <button className="report-copy" disabled={!supportDraft.trim()} onClick={() =>
           downloadText('support-message.txt', supportDraft)}>Save message draft</button>
       </div>}
