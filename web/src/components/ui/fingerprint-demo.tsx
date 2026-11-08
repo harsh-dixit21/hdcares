@@ -12,9 +12,11 @@ export default function FingerprintDemo() {
   const [comparedDigest, setComparedDigest] = useState('');
   const [result, setResult] = useState('');
   const [error, setError] = useState('');
+  const [enteredHash, setEnteredHash] = useState('');
   const generation = useRef(0);
   function reset(index = sample) {
     generation.current++;
+    setEnteredHash('');
     setSample(index); setDigest(''); setComparedDigest(''); setBusy(false); setResult(''); setError('');
   }
   async function generate() {
@@ -55,6 +57,15 @@ export default function FingerprintDemo() {
         <div className="digest-output" aria-live="polite">{digest ? <><span>SHA-256 / COMPUTED LOCALLY</span><code>{digest}</code></> : <p>Your sample’s fingerprint will appear here.</p>}</div>
         <div className="demo-actions"><button className="button button-light" disabled={busy} onClick={generate}>{busy ? 'Calculating…' : digest ? 'Generate again' : 'Generate fingerprint'}</button><button className="demo-reset" onClick={() => reset()} aria-label="Reset fingerprint demo"><RotateCcw size={17} /></button></div>
         {digest && <div className="compare-panel"><span className="demo-label">03 / TRY A MATCH</span><div className="demo-actions"><button disabled={busy} onClick={() => compare('identical')}>Compare identical copy</button><button disabled={busy} onClick={() => compare('different')}>Compare other artwork</button><button disabled={busy} onClick={() => compare('edited')}>Change one byte</button></div></div>}
+        {digest && <details className="compare-panel">
+          <summary>Verify a fingerprint</summary>
+          <label>SHA-256 value<input value={enteredHash} maxLength={128} spellCheck={false}
+            autoComplete="off" onChange={event => setEnteredHash(event.target.value)} /></label>
+          <p role="status">{enteredHash.trim() && (
+            !/^[a-f0-9]{64}$/i.test(enteredHash.trim()) ? 'Enter 64 hexadecimal digits.' :
+            enteredHash.trim().toLowerCase() === digest ? 'Matches this sample.' : 'Different from this sample.'
+          )}</p>
+        </details>}
         {comparedDigest && <div className="digest-output">
           <span>COMPARISON FINGERPRINT</span><code>{comparedDigest}</code>
           <p>{Array.from(comparedDigest).filter((digit, i) => digit !== digest[i]).length} of 64 hexadecimal digits differ.</p>
