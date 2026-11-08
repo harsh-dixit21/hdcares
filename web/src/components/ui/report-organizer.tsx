@@ -19,7 +19,9 @@ export default function ReportOrganizer() {
   const [confirmClear, setConfirmClear] = useState(false);
   const [pending, setPending] = useState<ReportNote[] | null>(null);
   const [previewSource, setPreviewSource] = useState('backup');
-  const backupPreview = pending ? previewReportBackup(notes, pending) : null;
+  const [excluded, setExcluded] = useState<Set<string>>(new Set());
+  const selectedIncoming = pending?.filter(note => !excluded.has(note.id)) ?? [];
+  const backupPreview = pending ? previewReportBackup(notes, selectedIncoming) : null;
   const [backupError, setBackupError] = useState('');
   const [reading, setReading] = useState(false);
   const importRequest = useRef(0);
@@ -119,7 +121,7 @@ export default function ReportOrganizer() {
   async function readBackup(file?: File) {
     if (!file) return;
     const request = ++importRequest.current;
-    setPreviewSource('backup');
+    setPreviewSource('backup'); setExcluded(new Set());
     setPending(null); setBackupError(''); setReading(true);
     try {
       if (file.size > MAX_BACKUP_BYTES) throw new Error('Backup files must be smaller than 4 MB.');
@@ -132,10 +134,10 @@ export default function ReportOrganizer() {
   function restore() {
     if (!pending) return;
     try {
-      const merged = mergeReportNotes(notes, pending);
+      const merged = mergeReportNotes(notes, selectedIncoming);
       const added = merged.length - notes.length;
       setNotes(merged); setPending(null); setConfirmClear(false); setBackupError(''); resetFilters();
-      setMessage(`Restored ${added} locations. Skipped ${pending.length - added} duplicate locations; existing notes were kept.`);
+      setMessage(`Restored ${added} locations. Skipped ${selectedIncoming.length - added} duplicate locations; existing notes were kept.`);
     } catch (cause) { setBackupError(cause instanceof Error ? cause.message : 'Could not restore this backup.'); }
   }
   return <section id="report-organizer" className="section report-organizer" aria-labelledby="organizer-title">
@@ -158,7 +160,7 @@ export default function ReportOrganizer() {
         const form = event.currentTarget;
         try {
           const incoming = parsePastedLinks(String(new FormData(form).get('links') ?? ''));
-          setPending(incoming); setPreviewSource('pasted links'); setBackupError('');
+          setPending(incoming); setExcluded(new Set()); setPreviewSource('pasted links'); setBackupError('');
           form.reset();
         } catch (cause) { setPending(null); setBackupError(cause instanceof Error ? cause.message : 'Check the pasted links.'); }
       }}>
@@ -187,7 +189,23 @@ export default function ReportOrganizer() {
     }}>Download status totals only</button>}
     <input ref={fileInput} className="sr-only" type="file" accept=".json,application/json" aria-label="Choose an HD Cares backup" onChange={event => { const file = event.target.files?.[0]; event.target.value = ''; void readBackup(file); }} />
     <p className="demo-disclosure">Save backup creates an unencrypted JSON file you can restore later. It contains your links and references. Keep it private. Files are read locally; nothing is uploaded.</p>
-    {pending !== null && <div className="backup-preview glass"><h3>Review your {previewSource}</h3><p>{backupPreview?.added} new locations; {backupPreview?.duplicates} duplicates will be skipped. Existing notes will be kept. {backupPreview?.exceedsLimit && 'This would exceed the 500-location limit. Free space before restoring.'}</p><div className="backup-actions"><button onClick={restore} disabled={!backupPreview?.added || backupPreview.exceedsLimit}>Add to notes</button><button onClick={() => { setPending(null); setBackupError(''); }}>Cancel</button></div></div>}
+    {pending !== null && <div className="backup-preview glass"><h3>Review your {previewSource}</h3>
+      <details><summary>Choose entries ({selectedIncoming.length} of {pending.length})</summary>
+        <div className="backup-actions">
+          <button onClick={() => setExcluded(new Set())}>Choose all</button>
+          <button onClick={() => setExcluded(new Set(pending.map(note => note.id)))}>Choose none</button>
+        </div>
+        <ul className="import-choices">{pending.map(note => <li key={note.id}><label>
+          <input type="checkbox" checked={!excluded.has(note.id)} onChange={event => {
+            const include = event.target.checked;
+            setExcluded(previous => {
+              const next = new Set(previous);
+              if (include) next.delete(note.id); else next.add(note.id);
+              return next;
+            });
+          }} />{note.url}
+        </label></li>)}</ul>
+      </details><p>{backupPreview?.added} new locations; {backupPreview?.duplicates} duplicates will be skipped. Existing notes will be kept. {backupPreview?.exceedsLimit && 'This would exceed the 500-location limit. Free space before restoring.'}</p><div className="backup-actions"><button onClick={restore} disabled={!backupPreview?.added || backupPreview.exceedsLimit}>Add to notes</button><button onClick={() => { setPending(null); setBackupError(''); }}>Cancel</button></div></div>}
     {backupError && <p className="demo-error" role="alert">{backupError}</p>}
     {removedNotes.length > 0 && <div className="report-undo glass">
       <button className="report-copy" onClick={() => download(true, removedNotes)}>Download recovery backup</button>
