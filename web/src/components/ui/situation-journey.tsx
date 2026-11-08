@@ -55,6 +55,16 @@ export default function SituationJourney() {
         <label>Your own next step<input name="step" maxLength={180} required autoComplete="off" /></label>
         <button className="report-copy">Add step</button>
       </form>
+      {steps[selected].length > path.steps.length && <details>
+        <summary>Manage personal steps</summary>
+        <ul>{steps[selected].slice(path.steps.length).map((step, i) => {
+          const index = path.steps.length + i;
+          return <li key={index}>{step}{' '}<button className="report-copy" onClick={() => {
+            setSteps(previous => previous.map((items, route) => route === selected ? items.filter((_, n) => n !== index) : items));
+            setChecked(previous => previous.map((items, route) => route === selected ? items.filter((_, n) => n !== index) : items));
+          }} aria-label={'Remove step: ' + step}>Remove</button></li>;
+        })}</ul>
+      </details>}
       <button className="report-copy" onClick={() => {
         const checklist = steps[selected].map((step, i) => (checked[selected][i] ? '[x] ' : '[ ] ') + step);
         downloadText('my-checklist.txt', [path.title, '', ...checklist].join('\n'));
