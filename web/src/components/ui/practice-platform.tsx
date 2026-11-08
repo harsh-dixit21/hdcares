@@ -1,3 +1,4 @@
+import { downloadText } from '@/lib/download-text';
 import { useState } from 'react';
 import { demoArt, demoFingerprint } from '@/lib/demo-fingerprint';
 
@@ -52,5 +53,12 @@ export default function PracticePlatform({ sample, digest }: Props) {
     <p role="status">{uploadResult}</p>
     <button className="report-copy" disabled={scanning} onClick={scanPosts}>Scan two practice posts</button>
     {scanResult && <p role="status">Last scan: {scanResult.length ? scanResult.join(', ') + ' matched.' : 'No matches.'}</p>}
+    <button className="report-copy" disabled={!uploadResult && !scanResult} onClick={() => {
+      const lines = ['HD Cares practice session', 'Built-in artwork only. All outcomes are simulated.',
+        'Current registrations: ' + (registrations.map(item => item.name).join(', ') || 'None'),
+        'Last upload check: ' + (uploadResult || 'Not run'),
+        'Last scan: ' + (scanResult ? scanResult.join(', ') || 'No matches' : 'Not run')];
+      downloadText('practice-session.txt', lines.join('\n'));
+    }}>Save demo record</button>
   </section>;
 }
