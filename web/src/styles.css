@@ -222,5 +222,6 @@ html { scroll-padding-top: 0; }
   .tunnel-bottom { bottom: 15px; flex-direction: row; }
   .tunnel-arrival { display: none; }
 }
+.service-download { display: block; margin: 24px auto 0; padding: 12px 20px; border: 1px solid currentColor; border-radius: 24px; }
 .service-filter { display: grid; gap: 8px; max-width: 26rem; margin: 0 auto 24px; font-size: 14px; }
 .service-filter select { color: #252c20; background: #eef1e7; border: 1px solid #77836a; border-radius: 8px; padding: 12px; min-height: 44px; }
