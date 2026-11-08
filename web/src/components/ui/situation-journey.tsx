@@ -15,6 +15,7 @@ export default function SituationJourney() {
   const [checked, setChecked] = useState<boolean[][]>(() => paths.map(() => [false, false, false]));
   const [steps, setSteps] = useState<string[][]>(() => paths.map(path => [...path.steps]));
   const [supportDraft, setSupportDraft] = useState('I’m here for you. Would it help if I listened, sat with you, or helped you look through your options?');
+  const [remainingOnly, setRemainingOnly] = useState(false);
   const path = selected === null ? null : paths[selected];
   const count = selected === null ? 0 : checked[selected].filter(Boolean).length;
   return <section id="next-step" className="section situation-section" aria-labelledby="situation-title">
@@ -36,7 +37,9 @@ export default function SituationJourney() {
     <div className="situation-options" role="group" aria-label="Choose your situation">{paths.map(({ title, icon: Icon }, index) => <button key={title} className="glass" aria-pressed={selected === index} aria-controls="situation-details" onClick={() => setSelected(index)}><Icon size={25} strokeWidth={1.3} /><span>{title}</span><ArrowUpRight size={18} /></button>)}</div>
     <div id="situation-details" aria-live="polite">{path && selected !== null ? <motion.div className="situation-detail glass" key={selected} initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}>
       <div><span className="demo-label">A PERSONAL STARTING POINT</span><h3>{path.heading}</h3><p>{path.intro}</p><a className="inline-link" href={path.link}>{path.action}<ArrowUpRight size={16} /></a></div>
-      <div><span className="demo-label">{count} OF {steps[selected].length} REVIEWED</span><div className="checklist-progress" aria-hidden="true"><motion.div animate={{ scaleX: count / steps[selected].length }} /></div>{steps[selected].map((step, index) => <label className="situation-check" key={index}><input type="checkbox" checked={checked[selected][index]} onChange={event => { const value = event.target.checked; setChecked(previous => previous.map((items, route) => route === selected ? items.map((item, i) => i === index ? value : item) : items)); }} /><span>{step}</span></label>)}<button className="review-reset" onClick={() => setChecked(previous => previous.map((items, route) => route === selected ? items.map(() => false) : items))}>Reset this checklist</button></div>
+      <div><span className="demo-label">{count} OF {steps[selected].length} REVIEWED</span><div className="checklist-progress" aria-hidden="true"><motion.div animate={{ scaleX: count / steps[selected].length }} /></div><label className="situation-check"><input type="checkbox" checked={remainingOnly} onChange={event => setRemainingOnly(event.target.checked)} />Show only remaining steps</label>
+      {remainingOnly && count === steps[selected].length && <p>All steps reviewed.</p>}
+      {steps[selected].map((step, index) => (!remainingOnly || !checked[selected][index]) && <label className="situation-check" key={index}><input type="checkbox" checked={checked[selected][index]} onChange={event => { const value = event.target.checked; setChecked(previous => previous.map((items, route) => route === selected ? items.map((item, i) => i === index ? value : item) : items)); }} /><span>{step}</span></label>)}<button className="review-reset" onClick={() => setChecked(previous => previous.map((items, route) => route === selected ? items.map(() => false) : items))}>Reset this checklist</button></div>
       {selected === 2 && <div className="support-draft">
         <label>Draft a message of support<textarea rows={4} value={supportDraft} maxLength={2000}
           onChange={event => setSupportDraft(event.target.value)} /></label>
