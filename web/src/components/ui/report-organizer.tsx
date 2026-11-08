@@ -2,6 +2,7 @@ import { useEffect, useRef, useState, type FormEvent } from 'react';
 import { Download, Plus, Trash2, Undo2 } from 'lucide-react';
 import { exportReportNotes, reportStatuses, validateReportUrl, type ReportNote } from '@/lib/report-notes';
 import './report-organizer.css';
+import { parsePastedLinks } from '@/lib/pasted-links';
 import { downloadText } from '@/lib/download-text';
 import { followUpCalendar } from '@/lib/follow-up-calendar';
 import { localToday, validObservationDate } from '@/lib/report-date';
@@ -15,6 +16,7 @@ export default function ReportOrganizer() {
   const [concealed, setConcealed] = useState(false);
   const [confirmClear, setConfirmClear] = useState(false);
   const [pending, setPending] = useState<ReportNote[] | null>(null);
+  const [previewSource, setPreviewSource] = useState('backup');
   const backupPreview = pending ? previewReportBackup(notes, pending) : null;
   const [backupError, setBackupError] = useState('');
   const [reading, setReading] = useState(false);
@@ -105,6 +107,7 @@ export default function ReportOrganizer() {
   async function readBackup(file?: File) {
     if (!file) return;
     const request = ++importRequest.current;
+    setPreviewSource('backup');
     setPending(null); setBackupError(''); setReading(true);
     try {
       if (file.size > MAX_BACKUP_BYTES) throw new Error('Backup files must be smaller than 4 MB.');
@@ -137,6 +140,20 @@ export default function ReportOrganizer() {
       <button className="button button-light" type="submit"><Plus size={16} /> Add location</button>
       {error && <p className="demo-error" role="alert">{error}</p>}
     </form>
+    <details className="backup-preview glass"><summary>Add several links</summary>
+      <form onSubmit={event => {
+        event.preventDefault();
+        const form = event.currentTarget;
+        try {
+          const incoming = parsePastedLinks(String(new FormData(form).get('links') ?? ''));
+          setPending(incoming); setPreviewSource('pasted links'); setBackupError('');
+          form.reset();
+        } catch (cause) { setPending(null); setBackupError(cause instanceof Error ? cause.message : 'Check the pasted links.'); }
+      }}>
+        <label>Known links, one per line<textarea name="links" required rows={4} maxLength={2000500} autoComplete="off" spellCheck={false} /></label>
+        <button className="report-copy" disabled={reading}>Preview links</button>
+      </form>
+    </details>
     <div className="organizer-toolbar"><span>{notes.length} {notes.length === 1 ? 'location' : 'locations'} in your notes</span><div className="backup-actions"><button disabled={!notes.length} onClick={() => download()}><Download size={16} /> Download all as text</button><button disabled={!notes.length} onClick={() => download(true)}>Back up all notes</button><button disabled={reading} onClick={() => fileInput.current?.click()}>{reading ? 'Reading backup…' : 'Restore backup'}</button></div></div>
     {notes.length > 0 && <details className="backup-preview glass"><summary>Schedule a follow-up</summary>
       <form onSubmit={event => {
@@ -158,7 +175,7 @@ export default function ReportOrganizer() {
     }}>Download status totals only</button>}
     <input ref={fileInput} className="sr-only" type="file" accept=".json,application/json" aria-label="Choose an HD Cares backup" onChange={event => { const file = event.target.files?.[0]; event.target.value = ''; void readBackup(file); }} />
     <p className="demo-disclosure">Save backup creates an unencrypted JSON file you can restore later. It contains your links and references. Keep it private. Files are read locally; nothing is uploaded.</p>
-    {pending !== null && <div className="backup-preview glass"><h3>Review your backup</h3><p>{backupPreview?.added} new locations; {backupPreview?.duplicates} duplicates will be skipped. Existing notes will be kept. {backupPreview?.exceedsLimit && 'This would exceed the 500-location limit. Free space before restoring.'}</p><div className="backup-actions"><button onClick={restore} disabled={!backupPreview?.added || backupPreview.exceedsLimit}>Add backup to notes</button><button onClick={() => { setPending(null); setBackupError(''); }}>Cancel</button></div></div>}
+    {pending !== null && <div className="backup-preview glass"><h3>Review your {previewSource}</h3><p>{backupPreview?.added} new locations; {backupPreview?.duplicates} duplicates will be skipped. Existing notes will be kept. {backupPreview?.exceedsLimit && 'This would exceed the 500-location limit. Free space before restoring.'}</p><div className="backup-actions"><button onClick={restore} disabled={!backupPreview?.added || backupPreview.exceedsLimit}>Add to notes</button><button onClick={() => { setPending(null); setBackupError(''); }}>Cancel</button></div></div>}
     {backupError && <p className="demo-error" role="alert">{backupError}</p>}
     {removedNotes.length > 0 && <div className="report-undo glass">
       <button className="report-copy" onClick={() => download(true, removedNotes)}>Download recovery backup</button>
