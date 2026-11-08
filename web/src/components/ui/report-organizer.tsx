@@ -2,6 +2,7 @@ import { useEffect, useRef, useState, type FormEvent } from 'react';
 import { Download, Plus, Trash2, Undo2 } from 'lucide-react';
 import { exportReportNotes, reportStatuses, validateReportUrl, type ReportNote } from '@/lib/report-notes';
 import './report-organizer.css';
+import FollowUpDraft from './follow-up-draft';
 import { parsePastedLinks } from '@/lib/pasted-links';
 import { downloadText } from '@/lib/download-text';
 import { followUpCalendar } from '@/lib/follow-up-calendar';
@@ -11,6 +12,7 @@ import { filterReportNotes, sortReportNotes, reportStatusCounts, type StatusFilt
 
 export default function ReportOrganizer() {
   const [notes, setNotes] = useState<ReportNote[]>([]);
+  const [drafts, setDrafts] = useState<Record<string, string>>({});
   const [error, setError] = useState('');
   const [message, setMessage] = useState('');
   const [concealed, setConcealed] = useState(false);
@@ -67,11 +69,17 @@ export default function ReportOrganizer() {
     }
   }
   function remove(note: ReportNote) {
+    setDrafts(previous => {
+      const next = { ...previous };
+      delete next[note.id];
+      return next;
+    });
     setRemovedNotes([note]); setUndoError('');
     setNotes(previous => previous.filter(item => item.id !== note.id));
     setConfirmClear(false); setMessage('Location removed. You can undo this deletion below.');
   }
   function clearNotes() {
+    setDrafts({});
     setRemovedNotes(notes); setNotes([]); setConfirmClear(false); setUndoError('');
     importRequest.current++; setPending(null); setReading(false); setBackupError('');
     resetFilters();
@@ -233,6 +241,12 @@ export default function ReportOrganizer() {
     <ul id="report-results" className="report-list">{pageNotes.map(note => { const index = notes.findIndex(item => item.id === note.id); return <li className="glass" key={note.id}>
       <div className="report-location"><span className="demo-label">LOCATION {String(index + 1).padStart(2, '0')}</span><h3>{note.platform}</h3><p>{note.url}</p><small>{note.date ? `Observed: ${note.date}` : 'Date not recorded'}</small></div>
       <div className="report-controls"><label>Status recorded by you<select value={note.status} onChange={event => { const status = event.target.value as ReportNote['status']; setNotes(previous => previous.map(item => item.id === note.id ? { ...item, status } : item)); }}>{reportStatuses.map(status => <option key={status}>{status}</option>)}</select></label>
+      <FollowUpDraft note={note} edited={drafts[note.id]} onEdit={value => setDrafts(previous => {
+        const next = { ...previous };
+        if (value === undefined) delete next[note.id];
+        else next[note.id] = value;
+        return next;
+      })} />
       <button className="report-copy" onClick={() => void copyLocation(note)}>Copy link</button>
       <label>Platform or website<input maxLength={100} value={note.platform} autoComplete="off" onChange={event => { const platform = event.target.value; setNotes(previous => previous.map(item => item.id === note.id ? { ...item, platform } : item)); }} onBlur={() => setNotes(previous => previous.map(item => item.id === note.id ? { ...item, platform: item.platform.trim() || new URL(item.url).hostname } : item))} /></label>
       <label>Date observed<input type="date" max={localToday()} value={note.date} onChange={event => { const date = event.target.value; if (!validObservationDate(date)) { setMessage('Choose an observation date on or before today.'); return; } setNotes(previous => previous.map(item => item.id === note.id ? { ...item, date } : item)); }} /></label>
