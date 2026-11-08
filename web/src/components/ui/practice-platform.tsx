@@ -20,6 +20,19 @@ export default function PracticePlatform({ sample, digest }: Props) {
     } catch { setUploadResult('Could not hash the sample. Try localhost or HTTPS.'); }
     finally { setChecking(false); }
   }
+  const [scanResult, setScanResult] = useState<string[] | null>(null);
+  const [scanning, setScanning] = useState(false);
+  async function scanPosts() {
+    setScanning(true);
+    try {
+      const matches = await Promise.all(demoArt.map(async art => {
+        const hash = await demoFingerprint(art.svg);
+        return registrations.some(entry => entry.digest === hash) ? art.name : null;
+      }));
+      setScanResult(matches.filter((name): name is NonNullable<typeof name> => name !== null));
+    } catch { setScanResult(null); setUploadResult('Could not scan the example posts.'); }
+    finally { setScanning(false); }
+  }
   const registered = registrations.some(item => item.digest === digest);
   return <section className="backup-preview glass" aria-label="Practice platform">
     <h3>Practice platform</h3>
@@ -37,5 +50,7 @@ export default function PracticePlatform({ sample, digest }: Props) {
     </select></label>
     <button className="report-copy" disabled={checking} onClick={checkUpload}>Try uploading sample</button>
     <p role="status">{uploadResult}</p>
+    <button className="report-copy" disabled={scanning} onClick={scanPosts}>Scan two practice posts</button>
+    {scanResult && <p role="status">Last scan: {scanResult.length ? scanResult.join(', ') + ' matched.' : 'No matches.'}</p>}
   </section>;
 }
