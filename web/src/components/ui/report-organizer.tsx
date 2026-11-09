@@ -220,6 +220,11 @@ export default function ReportOrganizer() {
         <button className="report-copy" onClick={() => setSelectedIds(new Set(visibleNotes.map(note => note.id)))}>Select all matches</button>
         <button className="report-copy" onClick={() => setSelectedIds(new Set())}>Clear selection</button>
       </div>
+      <label>Update selected statuses<select disabled={!selectedNotes.length} value="" onChange={event => {
+        const status = event.target.value as ReportNote['status'];
+        setNotes(previous => previous.map(note => selectedIds.has(note.id) ? { ...note, status } : note));
+        setMessage('Selected statuses updated.');
+      }}><option value="" disabled>Choose status</option>{reportStatuses.map(status => <option key={status}>{status}</option>)}</select></label>
       <p role="status">{selectedNotes.length} locations selected across all pages.</p>
       <button className="report-copy" disabled={!visibleNotes.length} onClick={() => download(false, visibleNotes)}>Download all matches ({visibleNotes.length})</button>
       <fieldset className="report-dates"><legend>Observation period</legend>
