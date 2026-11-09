@@ -287,7 +287,9 @@ export default function ReportOrganizer() {
     {notes.length > 0 && !visibleNotes.length && <p className="organizer-empty">No locations match these filters. Try a different search or reset filters.</p>}
     {pages > 1 && <nav className="backup-actions" aria-label="Report results pages">
       <button className="report-copy" disabled={page === 1} onClick={() => setRequestedPage(page - 1)}>Previous</button>
-      <span role="status">Page {page} of {pages}</span>
+      <label>Go to page<select value={page} onChange={event => setRequestedPage(Number(event.target.value))}>
+        {Array.from({ length: pages }, (_, i) => <option key={i} value={i + 1}>{i + 1} of {pages}</option>)}
+      </select></label>
       <button className="report-copy" disabled={page === pages} onClick={() => setRequestedPage(page + 1)}>Next</button>
     </nav>}
     <ul id="report-results" className="report-list">{pageNotes.map(note => { const index = notes.findIndex(item => item.id === note.id); return <li className="glass" key={note.id}>
