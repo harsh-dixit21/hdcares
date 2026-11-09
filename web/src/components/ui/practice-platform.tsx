@@ -9,6 +9,7 @@ export default function PracticePlatform({ sample, digest }: Props) {
   const [registrations, setRegistrations] = useState<Registration[]>([]);
   const [participates, setParticipates] = useState(true);
   const [editedUpload, setEditedUpload] = useState(false);
+  const [events, setEvents] = useState<string[]>([]);
   const [uploadChoice, setUploadChoice] = useState(0);
   const [uploadResult, setUploadResult] = useState('');
   const [checking, setChecking] = useState(false);
@@ -18,6 +19,7 @@ export default function PracticePlatform({ sample, digest }: Props) {
     try {
       const fingerprint = await demoFingerprint(sample.svg + (editedUpload ? ' ' : ''));
       const match = participates && registrations.some(entry => entry.digest === fingerprint);
+      setEvents(previous => [...previous, new Date().toLocaleTimeString() + ' — ' + sample.name + (match ? ' blocked' : ' allowed')]);
       setUploadResult(sample.name + (match ? ' matched. The practice platform blocked this upload.' :
         ' had no registered match. The practice platform allowed this upload.'));
     } catch { setUploadResult('Could not hash the sample. Try localhost or HTTPS.'); }
@@ -56,6 +58,7 @@ export default function PracticePlatform({ sample, digest }: Props) {
     </select></label>
     <button className="report-copy" disabled={checking} onClick={checkUpload}>Try uploading sample</button>
     <p role="status">{uploadResult}</p>
+    <details><summary>Upload history ({events.length})</summary><ol>{events.map((event, i) => <li key={i}>{event}</li>)}</ol></details>
     <button className="report-copy" disabled={scanning} onClick={scanPosts}>Scan two practice posts</button>
     {scanResult && <p role="status">Last scan: {scanResult.length ? scanResult.join(', ') + ' matched.' : 'No matches.'}</p>}
     <button className="report-copy" disabled={!uploadResult && !scanResult} onClick={() => {
