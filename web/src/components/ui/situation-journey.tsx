@@ -52,6 +52,8 @@ export default function SituationJourney() {
         <button className="report-copy" disabled={!supportDraft.trim()} onClick={() =>
           downloadText('support-message.txt', supportDraft)}>Save message draft</button>
       </div>}
+      <button className="report-copy" disabled={count === steps[selected].length} onClick={() =>
+        setChecked(previous => previous.map((items, route) => route === selected ? items.map(() => true) : items))}>Mark all steps reviewed</button>
       <form className="personal-step" onSubmit={event => {
         event.preventDefault();
         const form = event.currentTarget;
