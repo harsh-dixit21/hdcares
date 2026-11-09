@@ -216,6 +216,10 @@ export default function ReportOrganizer() {
       {undoError && <p className="demo-error" role="alert">{undoError}</p>}
     </div>}
     {notes.length > 0 && <div className="report-filter-panel glass">
+      <div className="backup-actions">
+        <button className="report-copy" onClick={() => setSelectedIds(new Set(visibleNotes.map(note => note.id)))}>Select all matches</button>
+        <button className="report-copy" onClick={() => setSelectedIds(new Set())}>Clear selection</button>
+      </div>
       <p role="status">{selectedNotes.length} locations selected across all pages.</p>
       <button className="report-copy" disabled={!visibleNotes.length} onClick={() => download(false, visibleNotes)}>Download all matches ({visibleNotes.length})</button>
       <fieldset className="report-dates"><legend>Observation period</legend>
