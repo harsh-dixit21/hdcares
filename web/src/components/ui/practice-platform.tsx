@@ -57,6 +57,7 @@ export default function PracticePlatform({ sample, digest }: Props) {
       {demoArt.map((art, index) => <option value={index} key={art.name}>{art.name}</option>)}
     </select></label>
     <button className="report-copy" disabled={checking} onClick={checkUpload}>Try uploading sample</button>
+    <button className="report-copy" disabled={!events.length} onClick={() => setEvents([])}>Clear upload history</button>
     <p role="status">{uploadResult}</p>
     <details><summary>Upload history ({events.length})</summary><ol>{events.map((event, i) => <li key={i}>{event}</li>)}</ol></details>
     <button className="report-copy" disabled={scanning} onClick={scanPosts}>Scan two practice posts</button>
