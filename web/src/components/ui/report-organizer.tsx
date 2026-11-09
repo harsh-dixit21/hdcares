@@ -225,6 +225,13 @@ export default function ReportOrganizer() {
         setNotes(previous => previous.map(note => selectedIds.has(note.id) ? { ...note, status } : note));
         setMessage('Selected statuses updated.');
       }}><option value="" disabled>Choose status</option>{reportStatuses.map(status => <option key={status}>{status}</option>)}</select></label>
+      <details><summary>Remove selected locations</summary>
+        <button className="report-copy" disabled={!selectedNotes.length} onClick={() => {
+          setRemovedNotes(selectedNotes); setUndoError('');
+          setNotes(previous => previous.filter(note => !selectedIds.has(note.id)));
+          setSelectedIds(new Set()); setMessage('Selected locations removed. Undo is available.');
+        }}>Confirm removal of {selectedNotes.length} selected locations</button>
+      </details>
       <p role="status">{selectedNotes.length} locations selected across all pages.</p>
       <button className="report-copy" disabled={!visibleNotes.length} onClick={() => download(false, visibleNotes)}>Download all matches ({visibleNotes.length})</button>
       <fieldset className="report-dates"><legend>Observation period</legend>
