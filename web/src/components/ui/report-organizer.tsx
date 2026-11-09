@@ -233,6 +233,7 @@ export default function ReportOrganizer() {
         }}>Confirm removal of {selectedNotes.length} selected locations</button>
       </details>
       <button className="report-copy" disabled={!selectedNotes.length} onClick={() => download(false, selectedNotes)}>Download selected as text</button>
+      <button className="report-copy" disabled={!selectedNotes.length} onClick={() => download(true, selectedNotes)}>Back up selected locations</button>
       <p role="status">{selectedNotes.length} locations selected across all pages.</p>
       <button className="report-copy" disabled={!visibleNotes.length} onClick={() => download(false, visibleNotes)}>Download all matches ({visibleNotes.length})</button>
       <fieldset className="report-dates"><legend>Observation period</legend>
