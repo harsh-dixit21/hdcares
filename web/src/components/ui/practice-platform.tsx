@@ -61,6 +61,10 @@ export default function PracticePlatform({ sample, digest }: Props) {
     <button className="report-copy" disabled={!registrations.length} onClick={() =>
       downloadText('practice-registrations.txt', ['Simulated registrations for built-in artwork',
         ...registrations.map(item => item.name + '\n' + item.digest)].join('\n\n'))}>Save practice registrations</button>
+    <button className="report-copy" disabled={checking || scanning} onClick={() => {
+      setRegistrations([]); setEvents([]); setUploadResult(''); setScanResult(null);
+      setParticipates(true); setEditedUpload(false); setUploadChoice(0);
+    }}>Reset practice platform</button>
     <p role="status">{uploadResult}</p>
     <details><summary>Upload history ({events.length})</summary><ol>{events.map((event, i) => <li key={i}>{event}</li>)}</ol></details>
     <button className="report-copy" disabled={scanning} onClick={scanPosts}>Scan two practice posts</button>
