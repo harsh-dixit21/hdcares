@@ -232,6 +232,7 @@ export default function ReportOrganizer() {
           setSelectedIds(new Set()); setMessage('Selected locations removed. Undo is available.');
         }}>Confirm removal of {selectedNotes.length} selected locations</button>
       </details>
+      <button className="report-copy" disabled={!selectedNotes.length} onClick={() => download(false, selectedNotes)}>Download selected as text</button>
       <p role="status">{selectedNotes.length} locations selected across all pages.</p>
       <button className="report-copy" disabled={!visibleNotes.length} onClick={() => download(false, visibleNotes)}>Download all matches ({visibleNotes.length})</button>
       <fieldset className="report-dates"><legend>Observation period</legend>
