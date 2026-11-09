@@ -68,7 +68,11 @@ export default function SituationJourney() {
         <summary>Manage personal steps</summary>
         <ul>{steps[selected].slice(path.steps.length).map((step, i) => {
           const index = path.steps.length + i;
-          return <li key={index}>{step}{' '}<button className="report-copy" onClick={() => {
+          return <li key={index}><label>Personal step<input value={step} maxLength={180}
+            onChange={event => {
+              const value = event.target.value;
+              setSteps(previous => previous.map((items, route) => route === selected ? items.map((item, n) => n === index ? value : item) : items));
+            }} /></label>{' '}<button className="report-copy" onClick={() => {
             setSteps(previous => previous.map((items, route) => route === selected ? items.filter((_, n) => n !== index) : items));
             setChecked(previous => previous.map((items, route) => route === selected ? items.filter((_, n) => n !== index) : items));
           }} aria-label={'Remove step: ' + step}>Remove</button></li>;
