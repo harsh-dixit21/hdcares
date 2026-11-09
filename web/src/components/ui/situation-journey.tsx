@@ -21,6 +21,9 @@ export default function SituationJourney() {
   const count = selected === null ? 0 : checked[selected].filter(Boolean).length;
   return <section id="next-step" className="section situation-section" aria-labelledby="situation-title">
     <div className="demo-intro"><p className="eyebrow">YOUR SITUATION. YOUR PACE.</p><h2 id="situation-title">Where would you<br /><em>like to begin?</em></h2><p>Choose what feels closest. You can change your choice at any time.</p></div>
+    <button className="report-copy" onClick={() => downloadText('all-checklists.txt',
+      paths.map((path, route) => [path.title, ...steps[route].map((step, i) =>
+        (checked[route][i] ? '[x] ' : '[ ] ') + step)].join('\n')).join('\n\n'))}>Save all checklists</button>
     <nav aria-label="Tool shortcuts" className="tool-shortcuts">
       <a href="#fingerprint-demo">Fingerprint demo</a>
       <a href="#report-organizer">Report organizer</a>
