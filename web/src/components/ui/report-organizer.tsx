@@ -236,6 +236,10 @@ export default function ReportOrganizer() {
       <button className="report-copy" disabled={!selectedNotes.length} onClick={() => download(false, selectedNotes)}>Download selected as text</button>
       <button className="report-copy" disabled={!selectedNotes.length} onClick={() => download(true, selectedNotes)}>Back up selected locations</button>
       <button className="report-copy" disabled={!visibleNotes.length} onClick={() => downloadText('report-locations.csv', reportCsv(visibleNotes), 'text/csv;charset=utf-8')}>Export matches as CSV</button>
+      <details><summary>Website totals</summary>
+        <ul>{[...new Set(notes.map(note => new URL(note.url).hostname))].sort().map(host =>
+          <li key={host}>{host}: {notes.filter(note => new URL(note.url).hostname === host).length} locations</li>)}</ul>
+      </details>
       <p role="status">{selectedNotes.length} locations selected across all pages.</p>
       <button className="report-copy" disabled={!visibleNotes.length} onClick={() => download(false, visibleNotes)}>Download all matches ({visibleNotes.length})</button>
       <fieldset className="report-dates"><legend>Observation period</legend>
