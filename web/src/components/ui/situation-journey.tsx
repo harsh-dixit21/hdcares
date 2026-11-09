@@ -16,6 +16,7 @@ export default function SituationJourney() {
   const [steps, setSteps] = useState<string[][]>(() => paths.map(path => [...path.steps]));
   const [supportDraft, setSupportDraft] = useState('I’m here for you. Would it help if I listened, sat with you, or helped you look through your options?');
   const [remainingOnly, setRemainingOnly] = useState(false);
+  const [clipboardMessage, setClipboardMessage] = useState('');
   const path = selected === null ? null : paths[selected];
   const count = selected === null ? 0 : checked[selected].filter(Boolean).length;
   return <section id="next-step" className="section situation-section" aria-labelledby="situation-title">
@@ -73,6 +74,12 @@ export default function SituationJourney() {
           }} aria-label={'Remove step: ' + step}>Remove</button></li>;
         })}</ul>
       </details>}
+      <button className="report-copy" onClick={async () => {
+        try {
+          await navigator.clipboard.writeText(steps[selected].map((step, i) => (checked[selected][i] ? '[x] ' : '[ ] ') + step).join('\n'));
+          setClipboardMessage('Checklist copied.');
+        } catch { setClipboardMessage('Clipboard unavailable. Save the checklist as text instead.'); }
+      }}>Copy checklist</button><p role="status">{clipboardMessage}</p>
       <button className="report-copy" onClick={() => {
         const checklist = steps[selected].map((step, i) => (checked[selected][i] ? '[x] ' : '[ ] ') + step);
         downloadText('my-checklist.txt', [path.title, '', ...checklist].join('\n'));
