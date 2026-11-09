@@ -8,6 +8,7 @@ type Props = { sample: number; digest: string };
 export default function PracticePlatform({ sample, digest }: Props) {
   const [registrations, setRegistrations] = useState<Registration[]>([]);
   const [participates, setParticipates] = useState(true);
+  const [editedUpload, setEditedUpload] = useState(false);
   const [uploadChoice, setUploadChoice] = useState(0);
   const [uploadResult, setUploadResult] = useState('');
   const [checking, setChecking] = useState(false);
@@ -15,7 +16,7 @@ export default function PracticePlatform({ sample, digest }: Props) {
     setChecking(true);
     const sample = demoArt[uploadChoice];
     try {
-      const fingerprint = await demoFingerprint(sample.svg);
+      const fingerprint = await demoFingerprint(sample.svg + (editedUpload ? ' ' : ''));
       const match = participates && registrations.some(entry => entry.digest === fingerprint);
       setUploadResult(sample.name + (match ? ' matched. The practice platform blocked this upload.' :
         ' had no registered match. The practice platform allowed this upload.'));
@@ -49,6 +50,7 @@ export default function PracticePlatform({ sample, digest }: Props) {
       <button className="report-copy" onClick={() => setRegistrations(items =>
         items.filter(entry => entry.digest !== item.digest))}>Remove registration</button>
     </li>)}</ul>
+    <label><input type="checkbox" checked={editedUpload} onChange={event => setEditedUpload(event.target.checked)} />Add one trailing byte to the simulated upload</label>
     <label>Simulated upload<select value={uploadChoice} onChange={event => setUploadChoice(Number(event.target.value))}>
       {demoArt.map((art, index) => <option value={index} key={art.name}>{art.name}</option>)}
     </select></label>
