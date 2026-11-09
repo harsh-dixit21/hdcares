@@ -302,7 +302,18 @@ export default function ReportOrganizer() {
         });
       }} /></label>
       <div className="report-location"><span className="demo-label">LOCATION {String(index + 1).padStart(2, '0')}</span><h3>{note.platform}</h3><p>{note.url}</p><small>{note.date ? `Observed: ${note.date}` : 'Date not recorded'}</small></div>
-      <div className="report-controls"><label>Status recorded by you<select value={note.status} onChange={event => { const status = event.target.value as ReportNote['status']; setNotes(previous => previous.map(item => item.id === note.id ? { ...item, status } : item)); }}>{reportStatuses.map(status => <option key={status}>{status}</option>)}</select></label>
+      <div className="report-controls"><details><summary>Correct this link</summary>
+        <form onSubmit={event => {
+          event.preventDefault();
+          const url = validateReportUrl(String(new FormData(event.currentTarget).get('corrected-url') ?? ''));
+          if (!url || notes.some(item => item.id !== note.id && item.url === url)) {
+            setMessage('Enter a complete unique HTTP or HTTPS link without credentials.'); return;
+          }
+          setNotes(previous => previous.map(item => item.id === note.id ? { ...item, url } : item));
+          setMessage('Location link corrected.');
+        }}><label>Corrected URL<input name="corrected-url" type="url" defaultValue={note.url} required maxLength={4000} /></label>
+        <button className="report-copy">Save corrected link</button></form>
+      </details><label>Status recorded by you<select value={note.status} onChange={event => { const status = event.target.value as ReportNote['status']; setNotes(previous => previous.map(item => item.id === note.id ? { ...item, status } : item)); }}>{reportStatuses.map(status => <option key={status}>{status}</option>)}</select></label>
       <FollowUpDraft note={note} edited={drafts[note.id]} onEdit={value => setDrafts(previous => {
         const next = { ...previous };
         if (value === undefined) delete next[note.id];
