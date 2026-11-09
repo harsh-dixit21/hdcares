@@ -44,7 +44,7 @@ export default function ReportOrganizer() {
   }, [hasSessionNotes]);
   const [sortOrder, setSortOrder] = useState<ReportSort>('Added order');
   const [requestedPage, setRequestedPage] = useState(1);
-  const pageSize = 10;
+  const [pageSize, setPageSize] = useState(10);
   const [platformFilter, setPlatformFilter] = useState('');
   const [missingDetail, setMissingDetail] = useState<'any' | 'date' | 'reference'>('any');
   const [fromDate, setFromDate] = useState('');
@@ -244,6 +244,9 @@ export default function ReportOrganizer() {
           <li key={host}>{host}: {notes.filter(note => new URL(note.url).hostname === host).length} locations</li>)}</ul>
       </details>
       <label><input type="checkbox" checked={olderOnly} onChange={event => { setOlderOnly(event.target.checked); setRequestedPage(1); }} />Outstanding for at least seven days since observation</label>
+      <label>Locations per page<select value={pageSize} onChange={event => { setPageSize(Number(event.target.value)); setRequestedPage(1); }}>
+        {[10, 25, 50].map(size => <option key={size}>{size}</option>)}
+      </select></label>
       <p role="status">{selectedNotes.length} locations selected across all pages.</p>
       <button className="report-copy" disabled={!visibleNotes.length} onClick={() => download(false, visibleNotes)}>Download all matches ({visibleNotes.length})</button>
       <fieldset className="report-dates"><legend>Observation period</legend>
