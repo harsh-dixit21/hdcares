@@ -41,3 +41,8 @@
 .report-filters button:disabled { opacity: .4; cursor: default; }
 .report-result-count { font-size: 11px; line-height: 1.8; color: #a7b696; margin: 18px 0 0; }
 @media (max-width: 700px) { .report-filters { grid-template-columns: 1fr; }.report-filters button { justify-self: start; }.report-filter-panel { padding: 20px; } }
+
+.report-list > li > label { grid-column: 1 / -1; flex-direction: row; align-items: center; }
+.report-list > li > label input { width: auto; }
+.report-list > li > .report-remove { grid-row: 2; }
+@media (max-width: 700px) { .report-list > li > .report-controls { grid-row: 3; } }

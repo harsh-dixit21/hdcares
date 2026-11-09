@@ -11,6 +11,7 @@ import { createReportBackup, parseReportBackup, mergeReportNotes, previewReportB
 import { filterReportNotes, sortReportNotes, reportStatusCounts, type StatusFilter, type ReportSort } from '@/lib/report-filters';
 
 export default function ReportOrganizer() {
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [notes, setNotes] = useState<ReportNote[]>([]);
   const [drafts, setDrafts] = useState<Record<string, string>>({});
   const [error, setError] = useState('');
@@ -60,6 +61,7 @@ export default function ReportOrganizer() {
   const pages = Math.max(1, Math.ceil(visibleNotes.length / pageSize));
   const page = Math.min(requestedPage, pages);
   const pageNotes = visibleNotes.slice((page - 1) * pageSize, page * pageSize);
+  const selectedNotes = notes.filter(note => selectedIds.has(note.id));
   const counts = reportStatusCounts(notes);
   function resetFilters() { setFromDate(''); setThroughDate(''); setRequestedPage(1); setQuery(''); setStatusFilter('All statuses'); setPlatformFilter(''); setMissingDetail('any'); }
   async function copyLocation(note: ReportNote) {
@@ -214,6 +216,7 @@ export default function ReportOrganizer() {
       {undoError && <p className="demo-error" role="alert">{undoError}</p>}
     </div>}
     {notes.length > 0 && <div className="report-filter-panel glass">
+      <p role="status">{selectedNotes.length} locations selected across all pages.</p>
       <button className="report-copy" disabled={!visibleNotes.length} onClick={() => download(false, visibleNotes)}>Download all matches ({visibleNotes.length})</button>
       <fieldset className="report-dates"><legend>Observation period</legend>
         <label>From<input type="date" max={throughDate || localToday()} value={fromDate} onChange={event => {
@@ -257,6 +260,14 @@ export default function ReportOrganizer() {
       <button className="report-copy" disabled={page === pages} onClick={() => setRequestedPage(page + 1)}>Next</button>
     </nav>}
     <ul id="report-results" className="report-list">{pageNotes.map(note => { const index = notes.findIndex(item => item.id === note.id); return <li className="glass" key={note.id}>
+      <label>Select location<input type="checkbox" checked={selectedIds.has(note.id)} onChange={event => {
+        const selected = event.target.checked;
+        setSelectedIds(previous => {
+          const next = new Set(previous);
+          if (selected) next.add(note.id); else next.delete(note.id);
+          return next;
+        });
+      }} /></label>
       <div className="report-location"><span className="demo-label">LOCATION {String(index + 1).padStart(2, '0')}</span><h3>{note.platform}</h3><p>{note.url}</p><small>{note.date ? `Observed: ${note.date}` : 'Date not recorded'}</small></div>
       <div className="report-controls"><label>Status recorded by you<select value={note.status} onChange={event => { const status = event.target.value as ReportNote['status']; setNotes(previous => previous.map(item => item.id === note.id ? { ...item, status } : item)); }}>{reportStatuses.map(status => <option key={status}>{status}</option>)}</select></label>
       <FollowUpDraft note={note} edited={drafts[note.id]} onEdit={value => setDrafts(previous => {
