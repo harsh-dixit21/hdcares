@@ -7,6 +7,7 @@ type Props = { sample: number; digest: string };
 
 export default function PracticePlatform({ sample, digest }: Props) {
   const [registrations, setRegistrations] = useState<Registration[]>([]);
+  const [participates, setParticipates] = useState(true);
   const [uploadChoice, setUploadChoice] = useState(0);
   const [uploadResult, setUploadResult] = useState('');
   const [checking, setChecking] = useState(false);
@@ -15,7 +16,7 @@ export default function PracticePlatform({ sample, digest }: Props) {
     const sample = demoArt[uploadChoice];
     try {
       const fingerprint = await demoFingerprint(sample.svg);
-      const match = registrations.some(entry => entry.digest === fingerprint);
+      const match = participates && registrations.some(entry => entry.digest === fingerprint);
       setUploadResult(sample.name + (match ? ' matched. The practice platform blocked this upload.' :
         ' had no registered match. The practice platform allowed this upload.'));
     } catch { setUploadResult('Could not hash the sample. Try localhost or HTTPS.'); }
@@ -28,7 +29,7 @@ export default function PracticePlatform({ sample, digest }: Props) {
     try {
       const matches = await Promise.all(demoArt.map(async art => {
         const hash = await demoFingerprint(art.svg);
-        return registrations.some(entry => entry.digest === hash) ? art.name : null;
+        return participates && registrations.some(entry => entry.digest === hash) ? art.name : null;
       }));
       setScanResult(matches.filter((name): name is NonNullable<typeof name> => name !== null));
     } catch { setScanResult(null); setUploadResult('Could not scan the example posts.'); }
@@ -37,6 +38,8 @@ export default function PracticePlatform({ sample, digest }: Props) {
   const registered = registrations.some(item => item.digest === digest);
   return <section className="backup-preview glass" aria-label="Practice platform">
     <h3>Practice platform</h3>
+    <label><input type="checkbox" checked={participates} onChange={event => setParticipates(event.target.checked)} />Platform checks registered fingerprints</label>
+    {!participates && <p>This simulated platform skips matching while participation is off.</p>}
     <p>This local simulation uses built-in artwork. Register a sample fingerprint to try a platform match.</p>
     <button className="report-copy" disabled={!digest || registered} onClick={() =>
       setRegistrations(items => [...items, { name: demoArt[sample].name, digest }])}>
