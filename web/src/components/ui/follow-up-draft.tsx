@@ -10,6 +10,7 @@ export default function FollowUpDraft({ note, edited, onEdit }: Props) {
     'Could you let me know the status and whether you need anything else from me?'].filter(Boolean).join('\n');
   const draft = edited ?? template;
   return <details><summary>Draft a follow-up request</summary>
+    <label>Suggested subject<input readOnly value={'Follow-up on report' + (note.reference ? ' ' + note.reference : '')} onFocus={event => event.target.select()} /></label>
     <label>Message to review<textarea rows={5} value={draft} maxLength={4000}
       onChange={event => onEdit(event.target.value)} /></label>
     <button className="report-copy" disabled={!draft.trim()} onClick={async () => {
