@@ -57,6 +57,10 @@ export default function FingerprintDemo() {
         <div className="digest-output" aria-live="polite">{digest ? <><span>SHA-256 / COMPUTED LOCALLY</span><code>{digest}</code></> : <p>Your sample’s fingerprint will appear here.</p>}</div>
         <div className="demo-actions"><button className="button button-light" disabled={busy} onClick={generate}>{busy ? 'Calculating…' : digest ? 'Generate again' : 'Generate fingerprint'}</button><button className="demo-reset" onClick={() => reset()} aria-label="Reset fingerprint demo"><RotateCcw size={17} /></button></div>
         {digest && <div className="compare-panel"><span className="demo-label">03 / TRY A MATCH</span><div className="demo-actions"><button disabled={busy} onClick={() => compare('identical')}>Compare identical copy</button><button disabled={busy} onClick={() => compare('different')}>Compare other artwork</button><button disabled={busy} onClick={() => compare('edited')}>Change one byte</button></div></div>}
+        {digest && <button className="report-copy" onClick={async () => {
+          try { await navigator.clipboard.writeText(digest); setResult('Fingerprint copied.'); }
+          catch { setError('Clipboard unavailable. Select the displayed fingerprint to copy it.'); }
+        }}>Copy sample fingerprint</button>}
         {digest && <details className="compare-panel">
           <summary>Verify a fingerprint</summary>
           <label>SHA-256 value<input value={enteredHash} maxLength={128} spellCheck={false}
