@@ -38,6 +38,10 @@ export default function PersonalPlan() {
     <p role="status">{tasks.filter(task => task.done).length} of {tasks.length} actions complete.</p>
     <progress aria-label="Action plan completion" max={Math.max(1, tasks.length)} value={tasks.filter(task => task.done).length} />
     <p role="status">{feedback}</p>
+    <button className="report-copy" disabled={!tasks.length} onClick={async () => {
+      try { await navigator.clipboard.writeText(tasks.map(task => (task.done ? '[x] ' : '[ ] ') + task.title).join('\n')); setFeedback('Action plan copied.'); }
+      catch { setFeedback('Clipboard unavailable. Save the plan as text.'); }
+    }}>Copy action plan</button>
     <ul className="report-list">{visible.map(task => <li className="glass" key={task.id}>
       <label><input type="checkbox" checked={task.done} onChange={event => {
         const done = event.target.checked;
