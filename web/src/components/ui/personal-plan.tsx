@@ -30,6 +30,10 @@ export default function PersonalPlan() {
         const done = event.target.checked;
         setTasks(previous => previous.map(item => item.id === task.id ? { ...item, done } : item));
       }} />{task.title}</label>
+      <label>Action text<input maxLength={300} value={task.title} onChange={event => {
+        const title = event.target.value;
+        setTasks(previous => previous.map(item => item.id === task.id ? { ...item, title } : item));
+      }} /></label>
       <label>Target date<input type="date" value={task.due ?? ''} onChange={event => {
         const due = event.target.value;
         setTasks(previous => previous.map(item => item.id === task.id ? { ...item, due } : item));
