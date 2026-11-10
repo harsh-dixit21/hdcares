@@ -17,6 +17,7 @@ export default function SituationJourney() {
   const [supportDraft, setSupportDraft] = useState('I’m here for you. Would it help if I listened, sat with you, or helped you look through your options?');
   const [remainingOnly, setRemainingOnly] = useState(false);
   const [clipboardMessage, setClipboardMessage] = useState('');
+  const [glossaryQuery, setGlossaryQuery] = useState('');
   const path = selected === null ? null : paths[selected];
   const count = selected === null ? 0 : checked[selected].filter(Boolean).length;
   return <section id="next-step" className="section situation-section" aria-labelledby="situation-title">
@@ -32,12 +33,13 @@ export default function SituationJourney() {
     </nav>
     <details className="backup-preview glass">
       <summary>Terms used in the tools</summary>
+      <label>Find a term<input type="search" value={glossaryQuery} onChange={event => setGlossaryQuery(event.target.value)} /></label>
       <dl>{[
         ['Fingerprint', 'A value calculated from a file. The demo compares exact file contents.'],
         ['Participating platform', 'A service that checks uploads against registered fingerprints under its own policies.'],
         ['Report reference', 'An identifier a platform gives you after you submit a report.'],
         ['Backup', 'A file you download so you can restore your notes later.']
-      ].map(([term, meaning]) => <div key={term}><dt><strong>{term}</strong></dt><dd>{meaning}</dd></div>)}</dl>
+      ].filter(([term, meaning]) => (term + ' ' + meaning).toLowerCase().includes(glossaryQuery.trim().toLowerCase())).map(([term, meaning]) => <div key={term}><dt><strong>{term}</strong></dt><dd>{meaning}</dd></div>)}</dl>
     </details>
     <div className="situation-options" role="group" aria-label="Choose your situation">{paths.map(({ title, icon: Icon }, index) => <button key={title} className="glass" aria-pressed={selected === index} aria-controls="situation-details" onClick={() => setSelected(index)}><Icon size={25} strokeWidth={1.3} /><span>{title}<small className="route-progress">{checked[index].filter(Boolean).length} of {steps[index].length} reviewed</small></span><ArrowUpRight size={18} /></button>)}</div>
     <div id="situation-details" aria-live="polite">{path && selected !== null ? <motion.div className="situation-detail glass" key={selected} initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}>
