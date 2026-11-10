@@ -13,6 +13,7 @@ import { filterReportNotes, sortReportNotes, reportStatusCounts, type StatusFilt
 
 export default function ReportOrganizer() {
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [preparation, setPreparation] = useState<string[]>([]);
   const [notes, setNotes] = useState<ReportNote[]>([]);
   const [drafts, setDrafts] = useState<Record<string, string>>({});
   const [error, setError] = useState('');
@@ -301,6 +302,14 @@ export default function ReportOrganizer() {
     <button className="report-copy" disabled={!notes.some(note => drafts[note.id] !== undefined)} onClick={() =>
       downloadText('follow-up-drafts.txt', notes.filter(note => drafts[note.id] !== undefined)
         .map(note => [note.platform, drafts[note.id]].join('\n')).join('\n\n'))}>Save all edited drafts</button>
+    <details className="backup-preview glass"><summary>Prepare to submit a report</summary>
+      {['Check the content location is correct', 'Review the relevant platform reporting process', 'Review the facts and details you intend to submit', 'Choose where to keep the report reference'].map(step =>
+        <label key={step}><input type="checkbox" checked={preparation.includes(step)} onChange={event => {
+          const checked = event.target.checked;
+          setPreparation(previous => checked ? [...previous, step] : previous.filter(item => item !== step));
+        }} />{step}</label>)}
+      <p>{preparation.length} of 4 preparation steps reviewed.</p>
+    </details>
     <ul id="report-results" className="report-list">{pageNotes.map(note => { const index = notes.findIndex(item => item.id === note.id); return <li className="glass" key={note.id}>
       <label>Select location<input type="checkbox" checked={selectedIds.has(note.id)} onChange={event => {
         const selected = event.target.checked;
