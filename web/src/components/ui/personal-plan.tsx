@@ -8,6 +8,8 @@ export default function PersonalPlan() {
     window.addEventListener('beforeunload', warn);
     return () => window.removeEventListener('beforeunload', warn);
   }, [tasks.length]);
+  const [view, setView] = useState('all');
+  const visible = tasks.filter(task => view === 'all' || task.done === (view === 'done'));
   return <section id="personal-plan" className="section report-organizer">
     <h2>My action plan</h2><p className="organizer-privacy">Plan your next actions here. Tasks stay in this page’s memory until you close or reload it.</p>
     <form className="personal-step" onSubmit={event => {
@@ -18,7 +20,10 @@ export default function PersonalPlan() {
       setTasks(previous => [...previous, { id: crypto.randomUUID(), title, done: false }]);
       form.reset();
     }}><label>Next action<input name="task" required maxLength={300} autoComplete="off" /></label><button className="report-copy">Add action</button></form>
-    <ul className="report-list">{tasks.map(task => <li className="glass" key={task.id}>
+    <label>Show actions<select value={view} onChange={event => setView(event.target.value)}>
+      <option value="all">All actions</option><option value="pending">Pending</option><option value="done">Completed</option>
+    </select></label>
+    <ul className="report-list">{visible.map(task => <li className="glass" key={task.id}>
       <label><input type="checkbox" checked={task.done} onChange={event => {
         const done = event.target.checked;
         setTasks(previous => previous.map(item => item.id === task.id ? { ...item, done } : item));
