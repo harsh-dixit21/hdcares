@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { downloadText } from '@/lib/download-text';
 type Task = { id: string; title: string; done: boolean; due?: string };
 export default function PersonalPlan() {
   const [removed, setRemoved] = useState<Task | null>(null);
@@ -30,6 +31,8 @@ export default function PersonalPlan() {
       setTasks(previous => previous.some(item => item.id === removed.id) ? previous : [...previous, removed]);
       setRemoved(null);
     }}>Undo last action removal</button>}
+    <button className="report-copy" disabled={!tasks.length} onClick={() =>
+      downloadText('my-actions.txt', tasks.map(task => (task.done ? '[x] ' : '[ ] ') + task.title + (task.due ? ' — ' + task.due : '')).join('\n'))}>Save action plan</button>
     <ul className="report-list">{visible.map(task => <li className="glass" key={task.id}>
       <label><input type="checkbox" checked={task.done} onChange={event => {
         const done = event.target.checked;
