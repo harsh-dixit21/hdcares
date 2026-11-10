@@ -33,6 +33,8 @@ export default function PersonalPlan() {
     }}>Undo last action removal</button>}
     <button className="report-copy" disabled={!tasks.length} onClick={() =>
       downloadText('my-actions.txt', tasks.map(task => (task.done ? '[x] ' : '[ ] ') + task.title + (task.due ? ' — ' + task.due : '')).join('\n'))}>Save action plan</button>
+    <p role="status">{tasks.filter(task => task.done).length} of {tasks.length} actions complete.</p>
+    <progress aria-label="Action plan completion" max={Math.max(1, tasks.length)} value={tasks.filter(task => task.done).length} />
     <ul className="report-list">{visible.map(task => <li className="glass" key={task.id}>
       <label><input type="checkbox" checked={task.done} onChange={event => {
         const done = event.target.checked;
