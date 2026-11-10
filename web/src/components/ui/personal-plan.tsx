@@ -5,6 +5,7 @@ type Task = { id: string; title: string; done: boolean; due?: string };
 export default function PersonalPlan() {
   const [removed, setRemoved] = useState<Task | null>(null);
   const [feedback, setFeedback] = useState('');
+  const [confirmClear, setConfirmClear] = useState(false);
   const [tasks, setTasks] = useState<Task[]>([]);
   useEffect(() => {
     if (!tasks.length) return;
@@ -42,6 +43,11 @@ export default function PersonalPlan() {
       try { await navigator.clipboard.writeText(tasks.map(task => (task.done ? '[x] ' : '[ ] ') + task.title).join('\n')); setFeedback('Action plan copied.'); }
       catch { setFeedback('Clipboard unavailable. Save the plan as text.'); }
     }}>Copy action plan</button>
+    {tasks.length > 0 && <div>{confirmClear ? <>
+      <p>Clear every action and the removal recovery copy?</p>
+      <button className="report-copy" onClick={() => { setTasks([]); setRemoved(null); setConfirmClear(false); }}>Confirm clear plan</button>
+      <button className="report-copy" onClick={() => setConfirmClear(false)}>Keep my plan</button>
+    </> : <button className="report-copy" onClick={() => setConfirmClear(true)}>Clear plan</button>}</div>}
     <ul className="report-list">{visible.map(task => <li className="glass" key={task.id}>
       <label><input type="checkbox" checked={task.done} onChange={event => {
         const done = event.target.checked;
