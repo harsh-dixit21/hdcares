@@ -298,6 +298,9 @@ export default function ReportOrganizer() {
     </details>
     <button className="report-copy" disabled={!visibleNotes.length} onClick={() => downloadText('domain-status-summary.txt',
       visibleNotes.map(note => new URL(note.url).hostname + ' — ' + note.status).join('\n'))}>Save domain-only summary</button>
+    <button className="report-copy" disabled={!notes.some(note => drafts[note.id] !== undefined)} onClick={() =>
+      downloadText('follow-up-drafts.txt', notes.filter(note => drafts[note.id] !== undefined)
+        .map(note => [note.platform, drafts[note.id]].join('\n')).join('\n\n'))}>Save all edited drafts</button>
     <ul id="report-results" className="report-list">{pageNotes.map(note => { const index = notes.findIndex(item => item.id === note.id); return <li className="glass" key={note.id}>
       <label>Select location<input type="checkbox" checked={selectedIds.has(note.id)} onChange={event => {
         const selected = event.target.checked;
