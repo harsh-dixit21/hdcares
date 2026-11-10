@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 type Task = { id: string; title: string; done: boolean; due?: string };
 export default function PersonalPlan() {
+  const [removed, setRemoved] = useState<Task | null>(null);
   const [tasks, setTasks] = useState<Task[]>([]);
   useEffect(() => {
     if (!tasks.length) return;
@@ -25,6 +26,10 @@ export default function PersonalPlan() {
       <option value="all">All actions</option><option value="pending">Pending</option><option value="done">Completed</option>
     </select></label>
     <label><input type="checkbox" checked={dateSort} onChange={event => setDateSort(event.target.checked)} />Sort by target date</label>
+    {removed && <button className="report-copy" onClick={() => {
+      setTasks(previous => previous.some(item => item.id === removed.id) ? previous : [...previous, removed]);
+      setRemoved(null);
+    }}>Undo last action removal</button>}
     <ul className="report-list">{visible.map(task => <li className="glass" key={task.id}>
       <label><input type="checkbox" checked={task.done} onChange={event => {
         const done = event.target.checked;
@@ -34,6 +39,9 @@ export default function PersonalPlan() {
         const title = event.target.value;
         setTasks(previous => previous.map(item => item.id === task.id ? { ...item, title } : item));
       }} /></label>
+      <button className="report-copy" onClick={() => {
+        setRemoved(task); setTasks(previous => previous.filter(item => item.id !== task.id));
+      }}>Remove action</button>
       <label>Target date<input type="date" value={task.due ?? ''} onChange={event => {
         const due = event.target.value;
         setTasks(previous => previous.map(item => item.id === task.id ? { ...item, due } : item));
