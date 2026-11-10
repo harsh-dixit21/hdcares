@@ -1,8 +1,10 @@
 import { useEffect, useState } from 'react';
 import { downloadText } from '@/lib/download-text';
+import { followUpCalendar } from '@/lib/follow-up-calendar';
 type Task = { id: string; title: string; done: boolean; due?: string };
 export default function PersonalPlan() {
   const [removed, setRemoved] = useState<Task | null>(null);
+  const [feedback, setFeedback] = useState('');
   const [tasks, setTasks] = useState<Task[]>([]);
   useEffect(() => {
     if (!tasks.length) return;
@@ -35,6 +37,7 @@ export default function PersonalPlan() {
       downloadText('my-actions.txt', tasks.map(task => (task.done ? '[x] ' : '[ ] ') + task.title + (task.due ? ' — ' + task.due : '')).join('\n'))}>Save action plan</button>
     <p role="status">{tasks.filter(task => task.done).length} of {tasks.length} actions complete.</p>
     <progress aria-label="Action plan completion" max={Math.max(1, tasks.length)} value={tasks.filter(task => task.done).length} />
+    <p role="status">{feedback}</p>
     <ul className="report-list">{visible.map(task => <li className="glass" key={task.id}>
       <label><input type="checkbox" checked={task.done} onChange={event => {
         const done = event.target.checked;
@@ -47,6 +50,10 @@ export default function PersonalPlan() {
       <button className="report-copy" onClick={() => {
         setRemoved(task); setTasks(previous => previous.filter(item => item.id !== task.id));
       }}>Remove action</button>
+      <button className="report-copy" disabled={!task.due} onClick={() => {
+        try { downloadText('action-reminder.ics', followUpCalendar(task.due ?? ''), 'text/calendar;charset=utf-8'); }
+        catch { setFeedback('Choose a valid target date.'); }
+      }}>Save generic calendar reminder</button>
       <label>Target date<input type="date" value={task.due ?? ''} onChange={event => {
         const due = event.target.value;
         setTasks(previous => previous.map(item => item.id === task.id ? { ...item, due } : item));
