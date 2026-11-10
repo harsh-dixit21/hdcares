@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-type Task = { id: string; title: string; done: boolean };
+type Task = { id: string; title: string; done: boolean; due?: string };
 export default function PersonalPlan() {
   const [tasks, setTasks] = useState<Task[]>([]);
   useEffect(() => {
@@ -23,6 +23,10 @@ export default function PersonalPlan() {
         const done = event.target.checked;
         setTasks(previous => previous.map(item => item.id === task.id ? { ...item, done } : item));
       }} />{task.title}</label>
+      <label>Target date<input type="date" value={task.due ?? ''} onChange={event => {
+        const due = event.target.value;
+        setTasks(previous => previous.map(item => item.id === task.id ? { ...item, due } : item));
+      }} /></label>
     </li>)}</ul>
   </section>;
 }
