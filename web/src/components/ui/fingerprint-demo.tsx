@@ -3,6 +3,7 @@ import { motion } from 'motion/react';
 import { Fingerprint, LockKeyhole, RotateCcw } from 'lucide-react';
 import { demoArt, demoFingerprint } from '@/lib/demo-fingerprint';
 import './product-demos.css';
+import { downloadText } from '@/lib/download-text';
 import PracticePlatform from './practice-platform';
 
 export default function FingerprintDemo() {
@@ -61,6 +62,8 @@ export default function FingerprintDemo() {
           try { await navigator.clipboard.writeText(digest); setResult('Fingerprint copied.'); }
           catch { setError('Clipboard unavailable. Select the displayed fingerprint to copy it.'); }
         }}>Copy sample fingerprint</button>}
+        {digest && <button className="report-copy" onClick={() => downloadText('sample-fingerprint.txt',
+          [demoArt[sample].name, 'SHA-256 / built-in artwork', digest].join('\n'))}>Save sample fingerprint</button>}
         {digest && <details className="compare-panel">
           <summary>Verify a fingerprint</summary>
           <label>SHA-256 value<input value={enteredHash} maxLength={128} spellCheck={false}
