@@ -296,6 +296,8 @@ export default function ReportOrganizer() {
       <ol>{[...visibleNotes].sort((a, b) => (a.date || '9999').localeCompare(b.date || '9999')).map(note =>
         <li key={note.id}><time>{note.date || 'Undated'}</time> — {note.platform} — {note.status}</li>)}</ol>
     </details>
+    <button className="report-copy" disabled={!visibleNotes.length} onClick={() => downloadText('domain-status-summary.txt',
+      visibleNotes.map(note => new URL(note.url).hostname + ' — ' + note.status).join('\n'))}>Save domain-only summary</button>
     <ul id="report-results" className="report-list">{pageNotes.map(note => { const index = notes.findIndex(item => item.id === note.id); return <li className="glass" key={note.id}>
       <label>Select location<input type="checkbox" checked={selectedIds.has(note.id)} onChange={event => {
         const selected = event.target.checked;
