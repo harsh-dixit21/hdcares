@@ -292,6 +292,10 @@ export default function ReportOrganizer() {
       </select></label>
       <button className="report-copy" disabled={page === pages} onClick={() => setRequestedPage(page + 1)}>Next</button>
     </nav>}
+    <details className="backup-preview glass"><summary>Observation timeline</summary>
+      <ol>{[...visibleNotes].sort((a, b) => (a.date || '9999').localeCompare(b.date || '9999')).map(note =>
+        <li key={note.id}><time>{note.date || 'Undated'}</time> — {note.platform} — {note.status}</li>)}</ol>
+    </details>
     <ul id="report-results" className="report-list">{pageNotes.map(note => { const index = notes.findIndex(item => item.id === note.id); return <li className="glass" key={note.id}>
       <label>Select location<input type="checkbox" checked={selectedIds.has(note.id)} onChange={event => {
         const selected = event.target.checked;
