@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { downloadText } from '@/lib/download-text';
 import { followUpCalendar } from '@/lib/follow-up-calendar';
-type Task = { id: string; title: string; done: boolean; due?: string };
+import { readPlanBackup, type PlanTask as Task } from '@/lib/plan-backup';
 export default function PersonalPlan() {
   const [removed, setRemoved] = useState<Task | null>(null);
   const [feedback, setFeedback] = useState('');
@@ -48,6 +48,24 @@ export default function PersonalPlan() {
       <button className="report-copy" onClick={() => { setTasks([]); setRemoved(null); setConfirmClear(false); }}>Confirm clear plan</button>
       <button className="report-copy" onClick={() => setConfirmClear(false)}>Keep my plan</button>
     </> : <button className="report-copy" onClick={() => setConfirmClear(true)}>Clear plan</button>}</div>}
+    <button className="report-copy" disabled={!tasks.length} onClick={() => downloadText('plan-backup.json',
+      JSON.stringify({ format: 'hdcares-plan', version: 1, tasks }), 'application/json')}>Back up plan</button>
+    <label>Restore plan file<input type="file" accept=".json" onChange={async event => {
+      const file = event.target.files?.[0]; event.target.value = '';
+      if (!file) return;
+      try {
+        if (file.size > 500000) throw new Error('File is too large.');
+        const incoming = readPlanBackup(await file.text());
+        setTasks(previous => {
+          const merged = [...previous];
+          for (const task of incoming) if (!merged.some(item => item.title === task.title && item.due === task.due)) merged.push(task);
+          if (merged.length > 500) { setFeedback('Too many actions. Maximum 500.'); return previous; }
+          return merged;
+        });
+        setFeedback('Plan file read. Existing actions were retained.');
+      } catch { setFeedback('Choose a valid HD Cares plan backup under 500 KB.'); }
+    }} /></label>
+    <p className="demo-disclosure">Plan backups contain your action text and dates as unencrypted JSON.</p>
     <ul className="report-list">{visible.map(task => <li className="glass" key={task.id}>
       <label><input type="checkbox" checked={task.done} onChange={event => {
         const done = event.target.checked;
