@@ -1,4 +1,4 @@
-import { createContext, useContext, useRef, useState, type ReactNode } from 'react';
+import { useEffect, createContext, useContext, useRef, useState, type ReactNode } from 'react';
 import { AnimatePresence, MotionConfig, motion, useInView, useMotionValue, useScroll, useSpring } from 'motion/react';
 import { ArrowDown, ArrowUpRight, Check, ChevronDown, Fingerprint, Heart, Home, LifeBuoy, LockKeyhole, Minus, Plus, ScanLine, Shield, ShieldCheck, Github, X } from 'lucide-react';
 import LiquidSculptureHero from '@/components/ui/liquid-sculpture-hero';
@@ -34,6 +34,21 @@ function Brand() {
 }
 
 function Header() {
+  useEffect(() => {
+    const navigate = (event: KeyboardEvent) => {
+      if (!event.altKey || event.ctrlKey || event.metaKey || event.repeat) return;
+      const targets: Record<string, string> = { '1': 'next-step', '2': 'report-organizer', '3': 'personal-plan' };
+      const id = targets[event.key];
+      if (!id) return;
+      event.preventDefault();
+      const target = document.getElementById(id);
+      target?.scrollIntoView();
+      target?.setAttribute('tabindex', '-1');
+      target?.focus({ preventScroll: true });
+    };
+    window.addEventListener('keydown', navigate);
+    return () => window.removeEventListener('keydown', navigate);
+  }, []);
   const [menu, setMenu] = useState(false);
   const menuButton = useRef<HTMLButtonElement>(null);
   const links = [{ id: 'home', label: 'Home', icon: Home }, { id: 'next-step', label: 'Tools', icon: LifeBuoy }, { id: 'privacy', label: 'The approach', icon: Fingerprint }, { id: 'journey', label: 'How it works', icon: ScanLine }, { id: 'support', label: 'Support', icon: Heart }];

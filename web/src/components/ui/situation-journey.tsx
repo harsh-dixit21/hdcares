@@ -25,6 +25,7 @@ export default function SituationJourney() {
     <button className="report-copy" onClick={() => downloadText('all-checklists.txt',
       paths.map((path, route) => [path.title, ...steps[route].map((step, i) =>
         (checked[route][i] ? '[x] ' : '[ ] ') + step)].join('\n')).join('\n\n'))}>Save all checklists</button>
+    <details><summary>Keyboard shortcuts</summary><p>Alt+1 opens Tools, Alt+2 opens Report organizer, and Alt+3 opens My action plan. Browser shortcuts may take precedence.</p></details>
     <nav aria-label="Tool shortcuts" className="tool-shortcuts">
       <a href="#fingerprint-demo">Fingerprint demo</a>
       <a href="#report-organizer">Report organizer</a>
