@@ -197,6 +197,13 @@ export default function ReportOrganizer() {
     <input ref={fileInput} className="sr-only" type="file" accept=".json,application/json" aria-label="Choose an HD Cares backup" onChange={event => { const file = event.target.files?.[0]; event.target.value = ''; void readBackup(file); }} />
     <p className="demo-disclosure">Save backup creates an unencrypted JSON file you can restore later. It contains your links and references. Keep it private. Files are read locally; nothing is uploaded.</p>
     {pending !== null && <div className="backup-preview glass"><h3>Review your {previewSource}</h3>
+      <details><summary>Review duplicate details</summary>
+        <ul>{(pending ?? []).filter(incoming => notes.some(note => note.url === incoming.url)).map(incoming => {
+          const current = notes.find(note => note.url === incoming.url)!;
+          return <li key={incoming.id}>{incoming.url}<br />Current status: {current.status}; incoming: {incoming.status}<br />
+            Current reference: {current.reference || 'None'}; incoming: {incoming.reference || 'None'}</li>;
+        })}</ul>
+      </details>
       <details><summary>Choose entries ({selectedIncoming.length} of {pending.length})</summary>
         <div className="backup-actions">
           <button onClick={() => setExcluded(new Set())}>Choose all</button>
