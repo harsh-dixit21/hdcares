@@ -206,6 +206,7 @@ export default function ReportOrganizer() {
       </details>
       <details><summary>Choose entries ({selectedIncoming.length} of {pending.length})</summary>
         <div className="backup-actions">
+          <button onClick={() => setExcluded(new Set(pending.filter(incoming => notes.some(note => note.url === incoming.url)).map(note => note.id)))}>Choose new URLs only</button>
           <button onClick={() => setExcluded(new Set())}>Choose all</button>
           <button onClick={() => setExcluded(new Set(pending.map(note => note.id)))}>Choose none</button>
         </div>
