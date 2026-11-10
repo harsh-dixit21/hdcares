@@ -32,12 +32,13 @@ export default function PracticePlatform({ sample, digest }: Props) {
     try {
       const matches = await Promise.all(demoArt.map(async art => {
         const hash = await demoFingerprint(art.svg);
-        return participates && registrations.some(entry => entry.digest === hash) ? art.name : null;
+        return !removedPosts.includes(art.name) && participates && registrations.some(entry => entry.digest === hash) ? art.name : null;
       }));
       setScanResult(matches.filter((name): name is NonNullable<typeof name> => name !== null));
     } catch { setScanResult(null); setUploadResult('Could not scan the example posts.'); }
     finally { setScanning(false); }
   }
+  const [removedPosts, setRemovedPosts] = useState<string[]>([]);
   const registered = registrations.some(item => item.digest === digest);
   return <section className="backup-preview glass" aria-label="Practice platform">
     <h3>Practice platform</h3>
@@ -62,9 +63,17 @@ export default function PracticePlatform({ sample, digest }: Props) {
       downloadText('practice-registrations.txt', ['Simulated registrations for built-in artwork',
         ...registrations.map(item => item.name + '\n' + item.digest)].join('\n\n'))}>Save practice registrations</button>
     <button className="report-copy" disabled={checking || scanning} onClick={() => {
-      setRegistrations([]); setEvents([]); setUploadResult(''); setScanResult(null);
+      setRegistrations([]); setEvents([]); setRemovedPosts([]); setUploadResult(''); setScanResult(null);
       setParticipates(true); setEditedUpload(false); setUploadChoice(0);
     }}>Reset practice platform</button>
+    <details><summary>Practice published-post removal</summary>
+      <p>This changes the example collection in this page only.</p>
+      <ul>{demoArt.filter(art => !removedPosts.includes(art.name)).map(art => <li key={art.name}>{art.name}
+        <button className="report-copy" disabled={!scanResult?.includes(art.name)} onClick={() =>
+          setRemovedPosts(previous => [...previous, art.name])}>Remove matched example post</button>
+      </li>)}</ul>
+      <button className="report-copy" disabled={!removedPosts.length} onClick={() => setRemovedPosts([])}>Restore example posts</button>
+    </details>
     <p role="status">{uploadResult}</p>
     <details><summary>Upload history ({events.length})</summary><ol>{events.map((event, i) => <li key={i}>{event}</li>)}</ol></details>
     <button className="report-copy" disabled={scanning} onClick={scanPosts}>Scan two practice posts</button>

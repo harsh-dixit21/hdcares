@@ -5,7 +5,7 @@ export function readPlanBackup(text: string): PlanTask[] {
   const data = JSON.parse(text);
   if (data?.format !== 'hdcares-plan' || data.version !== 1 || !Array.isArray(data.tasks) || data.tasks.length > 500) throw new Error('Unsupported plan backup.');
   return data.tasks.map((task: Record<string, unknown>) => {
-    if (!task || typeof task.title !== 'string' || !task.title.trim() || task.title.length > 300 || typeof task.done !== 'boolean') throw new Error('Invalid action.');
+    if (!task || typeof task.title !== 'string' || task.title.length > 300 || typeof task.done !== 'boolean') throw new Error('Invalid action.');
     if (task.due !== undefined && (typeof task.due !== 'string' || !validObservationDate(task.due, '9999-12-31'))) throw new Error('Invalid target date.');
     return { id: crypto.randomUUID(), title: task.title, done: task.done, due: task.due as string | undefined };
   });

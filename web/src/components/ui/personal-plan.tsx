@@ -8,11 +8,11 @@ export default function PersonalPlan() {
   const [confirmClear, setConfirmClear] = useState(false);
   const [tasks, setTasks] = useState<Task[]>([]);
   useEffect(() => {
-    if (!tasks.length) return;
+    if (!tasks.length && !removed) return;
     const warn = (event: BeforeUnloadEvent) => { event.preventDefault(); event.returnValue = ''; };
     window.addEventListener('beforeunload', warn);
     return () => window.removeEventListener('beforeunload', warn);
-  }, [tasks.length]);
+  }, [tasks.length, removed]);
   const [view, setView] = useState('all');
   const [dateSort, setDateSort] = useState(false);
   const visible = tasks.filter(task => view === 'all' || task.done === (view === 'done')).sort((a, b) => dateSort ? (a.due || '9999').localeCompare(b.due || '9999') : 0);
@@ -23,6 +23,7 @@ export default function PersonalPlan() {
       const form = event.currentTarget;
       const title = String(new FormData(form).get('task') ?? '').trim();
       if (!title) return;
+      if (tasks.length >= 500) { setFeedback('Save or clear actions before adding more. Maximum 500.'); return; }
       setTasks(previous => [...previous, { id: crypto.randomUUID(), title, done: false }]);
       form.reset();
     }}><label>Next action<input name="task" required maxLength={300} autoComplete="off" /></label><button className="report-copy">Add action</button></form>
@@ -59,10 +60,10 @@ export default function PersonalPlan() {
         setTasks(previous => {
           const merged = [...previous];
           for (const task of incoming) if (!merged.some(item => item.title === task.title && item.due === task.due)) merged.push(task);
-          if (merged.length > 500) { setFeedback('Too many actions. Maximum 500.'); return previous; }
+          if (merged.length > 500) return previous;
           return merged;
         });
-        setFeedback('Plan file read. Existing actions were retained.');
+        setFeedback('Plan file validated. Existing actions retained. Imports exceeding 500 total actions are skipped.');
       } catch { setFeedback('Choose a valid HD Cares plan backup under 500 KB.'); }
     }} /></label>
     <p className="demo-disclosure">Plan backups contain your action text and dates as unencrypted JSON.</p>
