@@ -115,6 +115,9 @@ export default function PersonalPlan() {
       setTasks(previous => previous.map(task => ids.has(task.id) ? { ...task, done: true } : task));
       setFeedback('Visible actions marked complete.');
     }}>Complete visible actions</button>
+    <button className="report-copy" disabled={!visible.length} onClick={() => downloadText('visible-actions.txt',
+      visible.map(task => [task.done ? '[x]' : '[ ]', task.title, task.category, task.priority === 'High' ? 'High priority' : '', task.due]
+        .filter(Boolean).join('  ')).join('\n'))}>Save visible actions</button>
     <ul className="report-list">{visible.map(task => <li className="glass" key={task.id}>
       <label><input type="checkbox" checked={task.done} onChange={event => {
         const done = event.target.checked;
