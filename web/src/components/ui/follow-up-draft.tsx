@@ -8,9 +8,12 @@ export default function FollowUpDraft({ note, edited, onEdit }: Props) {
   const template = ['Hello,', 'I am following up about my report to ' + note.platform + '.',
     note.reference && 'My report reference is ' + note.reference + '.',
     'Could you let me know the status and whether you need anything else from me?'].filter(Boolean).join('\n');
+  const subject = 'Follow-up on report' + (note.reference ? ' ' + note.reference : '');
   const draft = edited ?? template;
   return <details><summary>Draft a follow-up request</summary>
-    <label>Suggested subject<input readOnly value={'Follow-up on report' + (note.reference ? ' ' + note.reference : '')} onFocus={event => event.target.select()} /></label>
+    <label>Suggested subject<input readOnly value={subject} onFocus={event => event.target.select()} /></label>
+    <button className="report-copy" disabled={!draft.trim()} onClick={() =>
+      downloadText('follow-up-letter.txt', ['Subject: ' + subject.replace(/[\r\n]/g, ' '), '', draft].join('\n'))}>Save subject and message</button>
     <label>Message to review<textarea rows={5} value={draft} maxLength={4000}
       onChange={event => onEdit(event.target.value)} /></label>
     <button className="report-copy" disabled={!draft.trim()} onClick={async () => {
