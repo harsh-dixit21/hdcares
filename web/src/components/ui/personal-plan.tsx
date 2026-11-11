@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { downloadText } from '@/lib/download-text';
 import { followUpCalendar } from '@/lib/follow-up-calendar';
+import { localToday } from '@/lib/report-date';
 import { readPlanBackup, type PlanTask as Task } from '@/lib/plan-backup';
 export default function PersonalPlan() {
   const [removed, setRemoved] = useState<Task | null>(null);
@@ -16,7 +17,12 @@ export default function PersonalPlan() {
   const [view, setView] = useState('all');
   const [dateSort, setDateSort] = useState(false);
   const [search, setSearch] = useState('');
-  const visible = tasks.filter(task => task.title.toLowerCase().includes(search.trim().toLowerCase())).filter(task => view === 'all' || task.done === (view === 'done')).sort((a, b) => dateSort ? (a.due || '9999').localeCompare(b.due || '9999') : 0);
+  const today = localToday();
+  const visible = tasks.filter(task => {
+    if (view === 'overdue') return !task.done && !!task.due && task.due < today;
+    if (view === 'today') return !task.done && task.due === today;
+    return view === 'all' || task.done === (view === 'done');
+  }).filter(task => task.title.toLowerCase().includes(search.trim().toLowerCase())).sort((a, b) => dateSort ? (a.due || '9999').localeCompare(b.due || '9999') : 0);
   return <section id="personal-plan" className="section report-organizer">
     <h2>My action plan</h2><p className="organizer-privacy">Plan your next actions here. Tasks stay in this page’s memory until you close or reload it.</p>
     <form className="personal-step" onSubmit={event => {
@@ -30,7 +36,7 @@ export default function PersonalPlan() {
     }}><label>Next action<input name="task" required maxLength={300} autoComplete="off" /></label><button className="report-copy">Add action</button></form>
     <label>Search actions<input type="search" value={search} onChange={event => setSearch(event.target.value)} /></label>
     <label>Show actions<select value={view} onChange={event => setView(event.target.value)}>
-      <option value="all">All actions</option><option value="pending">Pending</option><option value="done">Completed</option>
+      <option value="all">All actions</option><option value="pending">Pending</option><option value="done">Completed</option><option value="overdue">Overdue</option><option value="today">Due today</option>
     </select></label>
     <label><input type="checkbox" checked={dateSort} onChange={event => setDateSort(event.target.checked)} />Sort by target date</label>
     {removed && <button className="report-copy" onClick={() => {
