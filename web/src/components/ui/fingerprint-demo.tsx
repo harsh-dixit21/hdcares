@@ -76,6 +76,9 @@ export default function FingerprintDemo() {
             enteredHash.trim().toLowerCase() === digest ? 'Matches this sample.' : 'Different from this sample.'
           )}</p>
         </details>}
+        {comparedDigest && <button className="report-copy" onClick={() => downloadText('fingerprint-comparison.txt',
+          [demoArt[sample].name, 'Original SHA-256: ' + digest, 'Comparison SHA-256: ' + comparedDigest,
+            digest === comparedDigest ? 'Exact match' : 'Different fingerprints'].join('\n'))}>Save comparison results</button>}
         {comparedDigest && <div className="digest-output">
           <span>COMPARISON FINGERPRINT</span>
           <code aria-label={comparedDigest}>{Array.from(comparedDigest, (digit, index) =>
