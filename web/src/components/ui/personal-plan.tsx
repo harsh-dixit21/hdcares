@@ -99,6 +99,11 @@ export default function PersonalPlan() {
       } catch { setFeedback('Choose a valid HD Cares plan backup under 500 KB.'); }
     }} /></label>
     <p className="demo-disclosure">Plan backups contain your action text, notes, and dates as unencrypted JSON.</p>
+    <button className="report-copy" disabled={!visible.some(task => !task.done)} onClick={() => {
+      const ids = new Set(visible.map(task => task.id));
+      setTasks(previous => previous.map(task => ids.has(task.id) ? { ...task, done: true } : task));
+      setFeedback('Visible actions marked complete.');
+    }}>Complete visible actions</button>
     <ul className="report-list">{visible.map(task => <li className="glass" key={task.id}>
       <label><input type="checkbox" checked={task.done} onChange={event => {
         const done = event.target.checked;
