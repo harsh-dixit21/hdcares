@@ -18,12 +18,20 @@ export default function PersonalPlan() {
   const [dateSort, setDateSort] = useState(false);
   const [search, setSearch] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('');
+  const [focusOnly, setFocusOnly] = useState(false);
   const today = localToday();
-  const visible = tasks.filter(task => !categoryFilter || (task.category ?? "Uncategorized") === categoryFilter).filter(task => {
+  const matching = tasks.filter(task => !categoryFilter || (task.category ?? "Uncategorized") === categoryFilter).filter(task => {
     if (view === 'overdue') return !task.done && !!task.due && task.due < today;
     if (view === 'today') return !task.done && task.due === today;
     return view === 'all' || task.done === (view === 'done');
   }).filter(task => task.title.toLowerCase().includes(search.trim().toLowerCase())).sort((a, b) => dateSort ? (a.due || '9999').localeCompare(b.due || '9999') : 0);
+  const visible = focusOnly ? matching.filter(task => !task.done).sort((a, b) => {
+    if (a.priority !== b.priority) {
+      if (a.priority === 'High') return -1;
+      if (b.priority === 'High') return 1;
+    }
+    return (a.due || '9999').localeCompare(b.due || '9999');
+  }).slice(0, 1) : matching;
   return <section id="personal-plan" className="section report-organizer">
     <h2>My action plan</h2><p className="organizer-privacy">Plan your next actions here. Tasks stay in this page’s memory until you close or reload it.</p>
     <form className="personal-step" onSubmit={event => {
@@ -39,6 +47,7 @@ export default function PersonalPlan() {
       <option value="">All categories</option><option>Uncategorized</option>
       {actionCategories.map(category => <option key={category}>{category}</option>)}
     </select></label>
+    <label><input type="checkbox" checked={focusOnly} onChange={event => setFocusOnly(event.target.checked)} />Focus on one pending action</label>
     <label>Search actions<input type="search" value={search} onChange={event => setSearch(event.target.value)} /></label>
     <label>Show actions<select value={view} onChange={event => setView(event.target.value)}>
       <option value="all">All actions</option><option value="pending">Pending</option><option value="done">Completed</option><option value="overdue">Overdue</option><option value="today">Due today</option>
