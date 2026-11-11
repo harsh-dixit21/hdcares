@@ -78,6 +78,10 @@ export default function PracticePlatform({ sample, digest }: Props) {
     <details><summary>Upload history ({events.length})</summary><ol>{events.map((event, i) => <li key={i}>{event}</li>)}</ol></details>
     <button className="report-copy" disabled={scanning} onClick={scanPosts}>Scan two practice posts</button>
     {scanResult && <p role="status">Last scan: {scanResult.length ? scanResult.join(', ') + ' matched.' : 'No matches.'}</p>}
+    <button className="report-copy" disabled={!scanResult} onClick={() =>
+      downloadText('practice-collection.txt', ['Simulated collection', ...demoArt.map(art =>
+        art.name + ' — ' + (removedPosts.includes(art.name) ? 'Removed from the practice collection' : 'Present')),
+        'Matches in last scan: ' + (scanResult?.join(', ') || 'None')].join('\n'))}>Save collection and scan</button>
     <button className="report-copy" disabled={!uploadResult && !scanResult} onClick={() => {
       const lines = ['HD Cares practice session', 'Built-in artwork only. All outcomes are simulated.',
         'Current registrations: ' + (registrations.map(item => item.name).join(', ') || 'None'),
