@@ -9,6 +9,7 @@ export default function PracticePlatform({ sample, digest }: Props) {
   const [registrations, setRegistrations] = useState<Registration[]>([]);
   const [participates, setParticipates] = useState(true);
   const [editedUpload, setEditedUpload] = useState(false);
+  const [historyFilter, setHistoryFilter] = useState('');
   const [events, setEvents] = useState<string[]>([]);
   const [uploadChoice, setUploadChoice] = useState(0);
   const [uploadResult, setUploadResult] = useState('');
@@ -64,7 +65,7 @@ export default function PracticePlatform({ sample, digest }: Props) {
         ...registrations.map(item => item.name + '\n' + item.digest)].join('\n\n'))}>Save practice registrations</button>
     <button className="report-copy" disabled={checking || scanning} onClick={() => {
       setRegistrations([]); setEvents([]); setRemovedPosts([]); setUploadResult(''); setScanResult(null);
-      setParticipates(true); setEditedUpload(false); setUploadChoice(0);
+      setParticipates(true); setEditedUpload(false); setUploadChoice(0); setHistoryFilter("");
     }}>Reset practice platform</button>
     <details><summary>Practice published-post removal</summary>
       <p>This changes the example collection in this page only.</p>
@@ -75,7 +76,9 @@ export default function PracticePlatform({ sample, digest }: Props) {
       <button className="report-copy" disabled={!removedPosts.length} onClick={() => setRemovedPosts([])}>Restore example posts</button>
     </details>
     <p role="status">{uploadResult}</p>
-    <details><summary>Upload history ({events.length})</summary><ol>{events.map((event, i) => <li key={i}>{event}</li>)}</ol></details>
+    <details><summary>Upload history ({events.length})</summary><label>Upload outcome<select value={historyFilter} onChange={event => setHistoryFilter(event.target.value)}>
+      <option value="">All outcomes</option><option value="blocked">Blocked</option><option value="allowed">Allowed</option>
+    </select></label><ol>{events.filter(event => !historyFilter || event.endsWith(' ' + historyFilter)).map((event, i) => <li key={i}>{event}</li>)}</ol></details>
     <button className="report-copy" disabled={scanning} onClick={scanPosts}>Scan two practice posts</button>
     {scanResult && <p role="status">Last scan: {scanResult.length ? scanResult.join(', ') + ' matched.' : 'No matches.'}</p>}
     <button className="report-copy" disabled={!scanResult} onClick={() =>

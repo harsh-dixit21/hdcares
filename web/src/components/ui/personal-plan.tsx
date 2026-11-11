@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { downloadText } from '@/lib/download-text';
 import { followUpCalendar } from '@/lib/follow-up-calendar';
 import { localToday } from '@/lib/report-date';
-import { actionCategories, readPlanBackup, type PlanTask as Task } from '@/lib/plan-backup';
+import { actionCategories, MAX_PLAN_BACKUP_BYTES, readPlanBackup, type PlanTask as Task } from '@/lib/plan-backup';
 export default function PersonalPlan() {
   const [removed, setRemoved] = useState<Task | null>(null);
   const [feedback, setFeedback] = useState('');
@@ -98,7 +98,7 @@ export default function PersonalPlan() {
       const file = event.target.files?.[0]; event.target.value = '';
       if (!file) return;
       try {
-        if (file.size > 500000) throw new Error('File is too large.');
+        if (file.size > MAX_PLAN_BACKUP_BYTES) throw new Error('File is too large.');
         const incoming = readPlanBackup(await file.text());
         setTasks(previous => {
           const merged = [...previous];
@@ -107,7 +107,7 @@ export default function PersonalPlan() {
           return merged;
         });
         setFeedback('Plan file validated. Existing actions retained. Imports exceeding 500 total actions are skipped.');
-      } catch { setFeedback('Choose a valid HD Cares plan backup under 500 KB.'); }
+      } catch { setFeedback('Choose a valid HD Cares plan backup under 3 MB.'); }
     }} /></label>
     <p className="demo-disclosure">Plan backups contain your action text, notes, and dates as unencrypted JSON.</p>
     <button className="report-copy" disabled={!visible.some(task => !task.done)} onClick={() => {
