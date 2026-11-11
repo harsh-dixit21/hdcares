@@ -347,6 +347,12 @@ export default function ReportOrganizer() {
         return next;
       })} />
       <button className="report-copy" onClick={() => void copyLocation(note)}>Copy link</button>
+      <button className="report-copy" onClick={async () => {
+        const clean = new URL(note.url);
+        clean.search = ''; clean.hash = '';
+        try { await navigator.clipboard.writeText(clean.href); setMessage('Copied the link without its query or fragment.'); }
+        catch { setMessage('Clipboard access was unavailable.'); }
+      }}>Copy link without query or fragment</button>
       <label>Platform or website<input maxLength={100} value={note.platform} autoComplete="off" onChange={event => { const platform = event.target.value; setNotes(previous => previous.map(item => item.id === note.id ? { ...item, platform } : item)); }} onBlur={() => setNotes(previous => previous.map(item => item.id === note.id ? { ...item, platform: item.platform.trim() || new URL(item.url).hostname } : item))} /></label>
       <label>Date observed<input type="date" max={localToday()} value={note.date} onChange={event => { const date = event.target.value; if (!validObservationDate(date)) { setMessage('Choose an observation date on or before today.'); return; } setNotes(previous => previous.map(item => item.id === note.id ? { ...item, date } : item)); }} /></label>
       <label>Report reference<input maxLength={200} autoComplete="off" value={note.reference} onChange={event => { const reference = event.target.value; setNotes(previous => previous.map(item => item.id === note.id ? { ...item, reference } : item)); }} /></label></div>
