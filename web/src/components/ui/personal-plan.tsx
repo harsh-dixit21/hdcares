@@ -17,8 +17,9 @@ export default function PersonalPlan() {
   const [view, setView] = useState('all');
   const [dateSort, setDateSort] = useState(false);
   const [search, setSearch] = useState('');
+  const [categoryFilter, setCategoryFilter] = useState('');
   const today = localToday();
-  const visible = tasks.filter(task => {
+  const visible = tasks.filter(task => !categoryFilter || (task.category ?? "Uncategorized") === categoryFilter).filter(task => {
     if (view === 'overdue') return !task.done && !!task.due && task.due < today;
     if (view === 'today') return !task.done && task.due === today;
     return view === 'all' || task.done === (view === 'done');
@@ -34,6 +35,10 @@ export default function PersonalPlan() {
       setTasks(previous => [...previous, { id: crypto.randomUUID(), title, done: false }]);
       form.reset();
     }}><label>Next action<input name="task" required maxLength={300} autoComplete="off" /></label><button className="report-copy">Add action</button></form>
+    <label>Filter action category<select value={categoryFilter} onChange={event => setCategoryFilter(event.target.value)}>
+      <option value="">All categories</option><option>Uncategorized</option>
+      {actionCategories.map(category => <option key={category}>{category}</option>)}
+    </select></label>
     <label>Search actions<input type="search" value={search} onChange={event => setSearch(event.target.value)} /></label>
     <label>Show actions<select value={view} onChange={event => setView(event.target.value)}>
       <option value="all">All actions</option><option value="pending">Pending</option><option value="done">Completed</option><option value="overdue">Overdue</option><option value="today">Due today</option>
