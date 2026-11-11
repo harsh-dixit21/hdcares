@@ -32,6 +32,16 @@ export default function PersonalPlan() {
     }
     return (a.due || '9999').localeCompare(b.due || '9999');
   }).slice(0, 1) : matching;
+  function moveAction(id: string, offset: number) {
+    setTasks(previous => {
+      const index = previous.findIndex(task => task.id === id);
+      const destination = index + offset;
+      if (index < 0 || destination < 0 || destination >= previous.length) return previous;
+      const next = [...previous];
+      [next[index], next[destination]] = [next[destination], next[index]];
+      return next;
+    });
+  }
   return <section id="personal-plan" className="section report-organizer">
     <h2>My action plan</h2><p className="organizer-privacy">Plan your next actions here. Tasks stay in this page’s memory until you close or reload it.</p>
     <form className="personal-step" onSubmit={event => {
@@ -113,6 +123,10 @@ export default function PersonalPlan() {
         const context = event.target.value;
         setTasks(previous => previous.map(item => item.id === task.id ? { ...item, context } : item));
       }} /></label></details>
+      {!dateSort && !focusOnly && view === 'all' && !search && !categoryFilter && <div className="backup-actions">
+        <button className="report-copy" disabled={tasks[0]?.id === task.id} onClick={() => moveAction(task.id, -1)}>Move up</button>
+        <button className="report-copy" disabled={tasks.at(-1)?.id === task.id} onClick={() => moveAction(task.id, 1)}>Move down</button>
+      </div>}
       <label>Category<select value={task.category ?? ''} onChange={event => {
         const category = actionCategories.find(value => value === event.target.value);
         setTasks(previous => previous.map(item => item.id === task.id ? { ...item, category } : item));
