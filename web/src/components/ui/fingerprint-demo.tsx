@@ -51,6 +51,8 @@ export default function FingerprintDemo() {
       <div className="sample-panel"><span className="demo-label">01 / CHOOSE SAMPLE ARTWORK</span>
         <div className="sample-options">{demoArt.map((art, index) => <button key={art.name} aria-pressed={sample === index} onClick={() => reset(index)}>{art.name}</button>)}</div>
         <motion.img key={sample} initial={{ opacity: 0, rotateY: -12 }} animate={{ opacity: 1, rotateY: 0 }} className="demo-art" src={`data:image/svg+xml,${encodeURIComponent(demoArt[sample].svg)}`} alt={`Abstract landscape: ${demoArt[sample].name}`} />
+        <button className="report-copy" onClick={() => downloadText('fingerprint-sample.svg', demoArt[sample].svg,
+          'image/svg+xml')}>Save original sample artwork</button>
         <p className="demo-note">Input size: {new TextEncoder().encode(demoArt[sample].svg).length} bytes</p>
         <p className="demo-note"><LockKeyhole size={14} /> Built-in samples only. No upload required.</p>
       </div>
