@@ -330,6 +330,8 @@ export default function ReportOrganizer() {
       {relatedGroups.map(([path, group]) => <div key={path}><strong>{path}</strong>
         <ul>{group.map(note => <li key={note.id}>{note.url}</li>)}</ul></div>)}
     </details>}
+    <button className="report-copy" disabled={!visibleNotes.length} onClick={() =>
+      downloadText('content-links.txt', visibleNotes.map(note => note.url).join('\n'))}>Save matching links only</button>
     <ul id="report-results" className="report-list">{pageNotes.map(note => { const index = notes.findIndex(item => item.id === note.id); return <li className="glass" key={note.id}>
       <label>Select location<input type="checkbox" checked={selectedIds.has(note.id)} onChange={event => {
         const selected = event.target.checked;
