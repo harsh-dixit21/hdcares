@@ -1,6 +1,6 @@
 import { reportStatuses, type ReportNote } from './report-notes.ts';
 
-export type StatusFilter = 'All statuses' | ReportNote['status'];
+export type StatusFilter = 'All statuses' | 'Unresolved' | ReportNote['status'];
 export type ReportSort = 'Added order' | 'Newest observed' | 'Oldest observed' | 'Platform';
 
 export function sortReportNotes(notes: ReportNote[], order: ReportSort): ReportNote[] {
@@ -16,7 +16,8 @@ export function sortReportNotes(notes: ReportNote[], order: ReportSort): ReportN
 export function filterReportNotes(notes: ReportNote[], query: string, status: StatusFilter): ReportNote[] {
   const words = query.trim().toLowerCase().split(/\s+/).filter(Boolean);
   return notes.filter(note => {
-    if (status !== 'All statuses' && note.status !== status) return false;
+    if (status === 'Unresolved' && note.status === 'Resolved') return false;
+    if (status !== 'All statuses' && status !== 'Unresolved' && note.status !== status) return false;
     const text = [note.platform, note.url, note.reference, note.date].join(' ').toLowerCase();
     return words.every(word => text.includes(word));
   });
