@@ -75,7 +75,9 @@ export default function FingerprintDemo() {
           )}</p>
         </details>}
         {comparedDigest && <div className="digest-output">
-          <span>COMPARISON FINGERPRINT</span><code>{comparedDigest}</code>
+          <span>COMPARISON FINGERPRINT</span>
+          <code aria-label={comparedDigest}>{Array.from(comparedDigest, (digit, index) =>
+            digit === digest[index] ? digit : <mark key={index}>{digit}</mark>)}</code>
           <p>{Array.from(comparedDigest).filter((digit, i) => digit !== digest[i]).length} of 64 hexadecimal digits differ.</p>
         </div>}
         <p className="demo-result" role="status">{result}</p>{error && <p role="alert" className="demo-error">{error}</p>}
