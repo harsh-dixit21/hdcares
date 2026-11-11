@@ -15,7 +15,8 @@ export default function PersonalPlan() {
   }, [tasks.length, removed]);
   const [view, setView] = useState('all');
   const [dateSort, setDateSort] = useState(false);
-  const visible = tasks.filter(task => view === 'all' || task.done === (view === 'done')).sort((a, b) => dateSort ? (a.due || '9999').localeCompare(b.due || '9999') : 0);
+  const [search, setSearch] = useState('');
+  const visible = tasks.filter(task => task.title.toLowerCase().includes(search.trim().toLowerCase())).filter(task => view === 'all' || task.done === (view === 'done')).sort((a, b) => dateSort ? (a.due || '9999').localeCompare(b.due || '9999') : 0);
   return <section id="personal-plan" className="section report-organizer">
     <h2>My action plan</h2><p className="organizer-privacy">Plan your next actions here. Tasks stay in this page’s memory until you close or reload it.</p>
     <form className="personal-step" onSubmit={event => {
@@ -27,6 +28,7 @@ export default function PersonalPlan() {
       setTasks(previous => [...previous, { id: crypto.randomUUID(), title, done: false }]);
       form.reset();
     }}><label>Next action<input name="task" required maxLength={300} autoComplete="off" /></label><button className="report-copy">Add action</button></form>
+    <label>Search actions<input type="search" value={search} onChange={event => setSearch(event.target.value)} /></label>
     <label>Show actions<select value={view} onChange={event => setView(event.target.value)}>
       <option value="all">All actions</option><option value="pending">Pending</option><option value="done">Completed</option>
     </select></label>
