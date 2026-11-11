@@ -81,7 +81,7 @@ export default function PersonalPlan() {
         const incoming = readPlanBackup(await file.text());
         setTasks(previous => {
           const merged = [...previous];
-          for (const task of incoming) if (!merged.some(item => item.title === task.title && item.due === task.due)) merged.push(task);
+          for (const task of incoming) if (!merged.some(item => item.id === task.id)) merged.push(task);
           if (merged.length > 500) return previous;
           return merged;
         });
@@ -98,6 +98,10 @@ export default function PersonalPlan() {
         const title = event.target.value;
         setTasks(previous => previous.map(item => item.id === task.id ? { ...item, title } : item));
       }} /></label>
+      <button className="report-copy" disabled={tasks.length >= 500} onClick={() => {
+        setTasks(previous => previous.length < 500 ? [...previous, { ...task, id: crypto.randomUUID(), done: false }] : previous);
+        setFeedback('Copied action added as pending.');
+      }}>Duplicate action</button>
       <button className="report-copy" onClick={() => {
         setRemoved(task); setTasks(previous => previous.filter(item => item.id !== task.id));
       }}>Remove action</button>

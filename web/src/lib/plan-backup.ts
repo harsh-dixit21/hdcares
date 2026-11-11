@@ -13,6 +13,7 @@ export function readPlanBackup(text: string): PlanTask[] {
     const category = actionCategories.find(value => value === task.category);
     if (task.category !== undefined && !category) throw new Error('Invalid category.');
     if (task.context !== undefined && (typeof task.context !== "string" || task.context.length > 500)) throw new Error("Invalid action notes.");
-    return { context: task.context as string | undefined, category, priority: task.priority, id: crypto.randomUUID(), title: task.title, done: task.done, due: task.due as string | undefined };
+    const id = typeof task.id === 'string' && /^[0-9a-f-]{36}$/i.test(task.id) ? task.id : crypto.randomUUID();
+    return { context: task.context as string | undefined, category, priority: task.priority, id, title: task.title, done: task.done, due: task.due as string | undefined };
   });
 }
