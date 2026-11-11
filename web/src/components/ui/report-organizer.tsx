@@ -67,6 +67,13 @@ export default function ReportOrganizer() {
   const page = Math.min(requestedPage, pages);
   const pageNotes = visibleNotes.slice((page - 1) * pageSize, page * pageSize);
   const selectedNotes = notes.filter(note => selectedIds.has(note.id));
+  const relatedLinks = new Map<string, ReportNote[]>();
+  for (const note of notes) {
+    const url = new URL(note.url);
+    const path = url.origin + url.pathname;
+    relatedLinks.set(path, [...(relatedLinks.get(path) ?? []), note]);
+  }
+  const relatedGroups = [...relatedLinks].filter(([, group]) => group.length > 1);
   const counts = reportStatusCounts(notes);
   function resetFilters() { setOlderOnly(false); setFromDate(''); setThroughDate(''); setRequestedPage(1); setQuery(''); setStatusFilter('All statuses'); setPlatformFilter(''); setMissingDetail('any'); }
   async function copyLocation(note: ReportNote) {
@@ -318,6 +325,11 @@ export default function ReportOrganizer() {
         }} />{step}</label>)}
       <p>{preparation.length} of 4 preparation steps reviewed.</p>
     </details>
+    {relatedGroups.length > 0 && <details className="backup-preview glass"><summary>Review links that share a path</summary>
+      <p>Different query parameters can identify different content. Review each link before removing anything.</p>
+      {relatedGroups.map(([path, group]) => <div key={path}><strong>{path}</strong>
+        <ul>{group.map(note => <li key={note.id}>{note.url}</li>)}</ul></div>)}
+    </details>}
     <ul id="report-results" className="report-list">{pageNotes.map(note => { const index = notes.findIndex(item => item.id === note.id); return <li className="glass" key={note.id}>
       <label>Select location<input type="checkbox" checked={selectedIds.has(note.id)} onChange={event => {
         const selected = event.target.checked;
