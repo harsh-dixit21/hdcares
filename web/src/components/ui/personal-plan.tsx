@@ -79,7 +79,7 @@ export default function PersonalPlan() {
         setFeedback('Plan file validated. Existing actions retained. Imports exceeding 500 total actions are skipped.');
       } catch { setFeedback('Choose a valid HD Cares plan backup under 500 KB.'); }
     }} /></label>
-    <p className="demo-disclosure">Plan backups contain your action text and dates as unencrypted JSON.</p>
+    <p className="demo-disclosure">Plan backups contain your action text, notes, and dates as unencrypted JSON.</p>
     <ul className="report-list">{visible.map(task => <li className="glass" key={task.id}>
       <label><input type="checkbox" checked={task.done} onChange={event => {
         const done = event.target.checked;
@@ -96,6 +96,10 @@ export default function PersonalPlan() {
         try { downloadText('action-reminder.ics', followUpCalendar(task.due ?? ''), 'text/calendar;charset=utf-8'); }
         catch { setFeedback('Choose a valid target date.'); }
       }}>Save generic calendar reminder</button>
+      <details><summary>Action notes</summary><label>Private context<textarea rows={3} maxLength={500} value={task.context ?? ''} onChange={event => {
+        const context = event.target.value;
+        setTasks(previous => previous.map(item => item.id === task.id ? { ...item, context } : item));
+      }} /></label></details>
       <label>Category<select value={task.category ?? ''} onChange={event => {
         const category = actionCategories.find(value => value === event.target.value);
         setTasks(previous => previous.map(item => item.id === task.id ? { ...item, category } : item));
