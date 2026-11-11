@@ -14,6 +14,7 @@ import { filterReportNotes, sortReportNotes, reportStatusCounts, type StatusFilt
 export default function ReportOrganizer() {
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [preparation, setPreparation] = useState<string[]>([]);
+  const [hostFilter, setHostFilter] = useState('');
   const [notes, setNotes] = useState<ReportNote[]>([]);
   const [drafts, setDrafts] = useState<Record<string, string>>({});
   const [error, setError] = useState('');
@@ -54,6 +55,7 @@ export default function ReportOrganizer() {
   const cutoff = new Date(); cutoff.setDate(cutoff.getDate() - 7);
   const platforms = [...new Set(notes.map(note => note.platform))].sort((a, b) => a.localeCompare(b));
   const matchingNotes = filterReportNotes(notes, query, statusFilter).filter(note => {
+    if (hostFilter && new URL(note.url).hostname !== hostFilter) return false;
     if (olderOnly && (note.status === 'Resolved' || !note.date || note.date > localToday(cutoff))) return false;
     if (fromDate && (!note.date || note.date < fromDate)) return false;
     if (throughDate && (!note.date || note.date > throughDate)) return false;
@@ -75,7 +77,7 @@ export default function ReportOrganizer() {
   }
   const relatedGroups = [...relatedLinks].filter(([, group]) => group.length > 1);
   const counts = reportStatusCounts(notes);
-  function resetFilters() { setOlderOnly(false); setFromDate(''); setThroughDate(''); setRequestedPage(1); setQuery(''); setStatusFilter('All statuses'); setPlatformFilter(''); setMissingDetail('any'); }
+  function resetFilters() { setHostFilter(""); setOlderOnly(false); setFromDate(''); setThroughDate(''); setRequestedPage(1); setQuery(''); setStatusFilter('All statuses'); setPlatformFilter(''); setMissingDetail('any'); }
   async function copyLocation(note: ReportNote) {
     try {
       await navigator.clipboard.writeText(note.url);
@@ -257,7 +259,9 @@ export default function ReportOrganizer() {
       <button className="report-copy" disabled={!visibleNotes.length} onClick={() => downloadText('report-locations.csv', reportCsv(visibleNotes), 'text/csv;charset=utf-8')}>Export matches as CSV</button>
       <details><summary>Website totals</summary>
         <ul>{[...new Set(notes.map(note => new URL(note.url).hostname))].sort().map(host =>
-          <li key={host}>{host}: {notes.filter(note => new URL(note.url).hostname === host).length} locations</li>)}</ul>
+          <li key={host}><button className="report-copy" aria-pressed={hostFilter === host} onClick={() => {
+            setHostFilter(previous => previous === host ? '' : host); setRequestedPage(1);
+          }}>{host}: {notes.filter(note => new URL(note.url).hostname === host).length} locations</button></li>)}</ul>
       </details>
       <label><input type="checkbox" checked={olderOnly} onChange={event => { setOlderOnly(event.target.checked); setRequestedPage(1); }} />Outstanding for at least seven days since observation</label>
       <label>Locations per page<select value={pageSize} onChange={event => { setPageSize(Number(event.target.value)); setRequestedPage(1); }}>
@@ -285,7 +289,7 @@ export default function ReportOrganizer() {
       <label>Website or platform<select value={platformFilter} onChange={event => { setPlatformFilter(event.target.value); setRequestedPage(1); }}><option value="">All platforms</option>{[...new Set([...platforms, ...(platformFilter ? [platformFilter] : [])])].map(platform => <option key={platform} value={platform}>{platform}</option>)}</select></label>
       <label>Sort locations<select value={sortOrder} onChange={event => { setSortOrder(event.target.value as ReportSort); setRequestedPage(1); }}>{['Added order', 'Newest observed', 'Oldest observed', 'Platform'].map(order => <option key={order}>{order}</option>)}</select></label>
       <div className="report-summary" aria-label="All locations by status">{reportStatuses.map(status => <span key={status}><strong>{counts[status]}</strong> {status}</span>)}</div>
-      <div className="report-filters"><label>Search your notes<input type="search" value={query} maxLength={200} autoComplete="off" placeholder="Website, link, reference, or date" onChange={event => { setQuery(event.target.value); setRequestedPage(1); }} aria-controls="report-results" /></label><label>Filter by status<select value={statusFilter} onChange={event => { setStatusFilter(event.target.value as StatusFilter); setRequestedPage(1); }} aria-controls="report-results"><option>All statuses</option>{reportStatuses.map(status => <option key={status}>{status}</option>)}</select></label><button onClick={resetFilters} disabled={!query && statusFilter === 'All statuses' && !platformFilter && missingDetail === 'any' && !fromDate && !throughDate && !olderOnly}>Reset filters</button></div>
+      <div className="report-filters"><label>Search your notes<input type="search" value={query} maxLength={200} autoComplete="off" placeholder="Website, link, reference, or date" onChange={event => { setQuery(event.target.value); setRequestedPage(1); }} aria-controls="report-results" /></label><label>Filter by status<select value={statusFilter} onChange={event => { setStatusFilter(event.target.value as StatusFilter); setRequestedPage(1); }} aria-controls="report-results"><option>All statuses</option>{reportStatuses.map(status => <option key={status}>{status}</option>)}</select></label><button onClick={resetFilters} disabled={!query && statusFilter === 'All statuses' && !platformFilter && missingDetail === 'any' && !fromDate && !throughDate && !olderOnly && !hostFilter}>Reset filters</button></div>
       <p className="report-result-count" role="status">{visibleNotes.length} of {notes.length} locations match. Downloads include matches across every page.</p>
     </div>}
     {!notes.length && <div className="organizer-empty">
