@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { downloadText } from '@/lib/download-text';
 import { followUpCalendar } from '@/lib/follow-up-calendar';
 import { localToday } from '@/lib/report-date';
-import { readPlanBackup, type PlanTask as Task } from '@/lib/plan-backup';
+import { actionCategories, readPlanBackup, type PlanTask as Task } from '@/lib/plan-backup';
 export default function PersonalPlan() {
   const [removed, setRemoved] = useState<Task | null>(null);
   const [feedback, setFeedback] = useState('');
@@ -91,6 +91,10 @@ export default function PersonalPlan() {
         try { downloadText('action-reminder.ics', followUpCalendar(task.due ?? ''), 'text/calendar;charset=utf-8'); }
         catch { setFeedback('Choose a valid target date.'); }
       }}>Save generic calendar reminder</button>
+      <label>Category<select value={task.category ?? ''} onChange={event => {
+        const category = actionCategories.find(value => value === event.target.value);
+        setTasks(previous => previous.map(item => item.id === task.id ? { ...item, category } : item));
+      }}><option value="">Uncategorized</option>{actionCategories.map(category => <option key={category}>{category}</option>)}</select></label>
       <label>Priority<select value={task.priority ?? 'Normal'} onChange={event => {
         const priority = event.target.value === 'High' ? 'High' : 'Normal';
         setTasks(previous => previous.map(item => item.id === task.id ? { ...item, priority } : item));
