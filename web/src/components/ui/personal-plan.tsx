@@ -91,6 +91,10 @@ export default function PersonalPlan() {
         try { downloadText('action-reminder.ics', followUpCalendar(task.due ?? ''), 'text/calendar;charset=utf-8'); }
         catch { setFeedback('Choose a valid target date.'); }
       }}>Save generic calendar reminder</button>
+      <label>Priority<select value={task.priority ?? 'Normal'} onChange={event => {
+        const priority = event.target.value === 'High' ? 'High' : 'Normal';
+        setTasks(previous => previous.map(item => item.id === task.id ? { ...item, priority } : item));
+      }}><option>Normal</option><option>High</option></select></label>
       <label>Target date<input type="date" value={task.due ?? ''} onChange={event => {
         const due = event.target.value;
         setTasks(previous => previous.map(item => item.id === task.id ? { ...item, due } : item));
