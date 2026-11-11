@@ -53,6 +53,17 @@ export default function PersonalPlan() {
       setTasks(previous => [...previous, { id: crypto.randomUUID(), title, done: false }]);
       form.reset();
     }}><label>Next action<input name="task" required maxLength={300} autoComplete="off" /></label><button className="report-copy">Add action</button></form>
+    <details><summary>Action templates</summary>
+      {([
+        ['Protection', 'Review the protection options that fit my situation'],
+        ['Reporting', 'Write down the locations I already know about'],
+        ['Support', 'Decide who I would feel comfortable asking for support']
+      ] as const).map(([category, title]) => <button className="report-copy" key={category} disabled={tasks.length >= 500}
+        onClick={() => {
+          setTasks(previous => previous.length < 500 ? [...previous, { id: crypto.randomUUID(), title, done: false, category }] : previous);
+          setFeedback('Template added. You can edit the action text.');
+        }}>{category} template</button>)}
+    </details>
     <label>Filter action category<select value={categoryFilter} onChange={event => setCategoryFilter(event.target.value)}>
       <option value="">All categories</option><option>Uncategorized</option>
       {actionCategories.map(category => <option key={category}>{category}</option>)}
