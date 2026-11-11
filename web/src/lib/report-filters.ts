@@ -1,10 +1,11 @@
 import { reportStatuses, type ReportNote } from './report-notes.ts';
 
 export type StatusFilter = 'All statuses' | 'Unresolved' | ReportNote['status'];
-export type ReportSort = 'Added order' | 'Newest observed' | 'Oldest observed' | 'Platform';
+export type ReportSort = 'Added order' | 'Newest observed' | 'Oldest observed' | 'Platform' | 'Workflow status';
 
 export function sortReportNotes(notes: ReportNote[], order: ReportSort): ReportNote[] {
   return [...notes].sort((a, b) => {
+    if (order === 'Workflow status') return reportStatuses.indexOf(a.status) - reportStatuses.indexOf(b.status);
     if (order === 'Platform') return a.platform.localeCompare(b.platform);
     if (order === 'Added order') return 0;
     if (!a.date) return b.date ? 1 : 0;
