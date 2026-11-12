@@ -11,7 +11,8 @@ export default function ActivityJournal() {
   const shown = entries.filter(entry => !category || (entry.type ?? 'Uncategorized') === category)
     .filter(entry => entry.text.toLowerCase().includes(query.trim().toLowerCase()))
     .sort((a, b) => oldestFirst ? a.day.localeCompare(b.day) : b.day.localeCompare(a.day));
-  const hasEntries = entries.length > 0;
+  const [removed, setRemoved] = useState<ActivityEntry | null>(null);
+  const hasEntries = entries.length > 0 || !!removed;
   useEffect(() => {
     if (!hasEntries) return;
     const warn = (event: BeforeUnloadEvent) => { event.preventDefault(); event.returnValue = ''; };
@@ -55,8 +56,15 @@ export default function ActivityJournal() {
     <label>Activity order<select value={oldestFirst ? 'oldest' : 'newest'} onChange={event => setOldestFirst(event.target.value === 'oldest')}>
       <option value="newest">Newest first</option><option value="oldest">Oldest first</option>
     </select></label>
+    {removed && <button className="report-copy" disabled={entries.length >= MAX_ACTIVITIES} onClick={() => {
+      setEntries(previous => [...previous, removed]); setRemoved(null); setStatus('Activity restored.');
+    }}>Undo activity removal</button>}
     <ol>{shown.map(entry => <li key={entry.id} className="backup-preview glass">
       <time dateTime={entry.day}>{entry.day}</time>{entry.type && <span> · {entry.type}</span>}<p style={{ whiteSpace: 'pre-wrap', overflowWrap: 'anywhere' }}>{entry.text}</p>
+      <button className="report-copy" onClick={() => {
+        setRemoved(entry); setEntries(previous => previous.filter(item => item.id !== entry.id));
+        setStatus('Activity removed. You can undo the last removal.');
+      }}>Remove activity</button>
       <details><summary>Edit activity</summary>
         <form className="personal-step" onSubmit={event => {
           event.preventDefault();
