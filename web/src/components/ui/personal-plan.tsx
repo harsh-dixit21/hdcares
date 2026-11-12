@@ -20,8 +20,9 @@ export default function PersonalPlan() {
   const [search, setSearch] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('');
   const [focusOnly, setFocusOnly] = useState(false);
+  const [highOnly, setHighOnly] = useState(false);
   const today = localToday();
-  const matching = tasks.filter(task => !categoryFilter || (task.category ?? "Uncategorized") === categoryFilter).filter(task => {
+  const matching = tasks.filter(task => !highOnly || task.priority === "High").filter(task => !categoryFilter || (task.category ?? "Uncategorized") === categoryFilter).filter(task => {
     if (view === 'overdue') return !task.done && !!task.due && task.due < today;
     if (view === 'today') return !task.done && task.due === today;
     return view === 'all' || task.done === (view === 'done');
@@ -79,6 +80,7 @@ export default function PersonalPlan() {
       {actionCategories.map(category => <option key={category}>{category}</option>)}
     </select></label>
     <label><input type="checkbox" checked={focusOnly} onChange={event => setFocusOnly(event.target.checked)} />Focus on one pending action</label>
+    <label><input type="checkbox" checked={highOnly} onChange={event => setHighOnly(event.target.checked)} />High-priority actions only</label>
     <label>Search actions<input type="search" value={search} onChange={event => setSearch(event.target.value)} /></label>
     <label>Show actions<select value={view} onChange={event => setView(event.target.value)}>
       <option value="all">All actions</option><option value="pending">Pending</option><option value="done">Completed</option><option value="overdue">Overdue</option><option value="today">Due today</option>
@@ -147,7 +149,7 @@ export default function PersonalPlan() {
         const context = event.target.value;
         setTasks(previous => previous.map(item => item.id === task.id ? { ...item, context } : item));
       }} /></label></details>
-      {!dateSort && !focusOnly && view === 'all' && !search && !categoryFilter && <div className="backup-actions">
+      {!dateSort && !focusOnly && view === 'all' && !search && !categoryFilter && !highOnly && <div className="backup-actions">
         <button className="report-copy" disabled={tasks[0]?.id === task.id} onClick={() => moveAction(task.id, -1)}>Move up</button>
         <button className="report-copy" disabled={tasks.at(-1)?.id === task.id} onClick={() => moveAction(task.id, 1)}>Move down</button>
       </div>}
