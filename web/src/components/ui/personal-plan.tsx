@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import LockedBackupTools from './locked-backup-tools';
 import { downloadText } from '@/lib/download-text';
 import { followUpCalendar } from '@/lib/follow-up-calendar';
 import { localToday } from '@/lib/report-date';
@@ -94,6 +95,8 @@ export default function PersonalPlan() {
     </> : <button className="report-copy" onClick={() => setConfirmClear(true)}>Clear plan</button>}</div>}
     <button className="report-copy" disabled={!tasks.length} onClick={() => downloadText('plan-backup.json',
       JSON.stringify({ format: 'hdcares-plan', version: 1, tasks }), 'application/json')}>Back up plan</button>
+    <LockedBackupTools label="action plan" filename="plan-encrypted.json" enabled={!!tasks.length}
+      serialize={() => JSON.stringify({ format: 'hdcares-plan', version: 1, tasks })} />
     <label>Restore plan file<input type="file" accept=".json" onChange={async event => {
       const file = event.target.files?.[0]; event.target.value = '';
       if (!file) return;
