@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import LockedBackupTools from './locked-backup-tools';
 import { downloadText } from '@/lib/download-text';
 import { followUpCalendar } from '@/lib/follow-up-calendar';
-import { localToday } from '@/lib/report-date';
+import { localToday, validObservationDate } from '@/lib/report-date';
 import { actionCategories, MAX_PLAN_BACKUP_BYTES, readPlanBackup, type PlanTask as Task } from '@/lib/plan-backup';
 export default function PersonalPlan() {
   const [removed, setRemoved] = useState<Task | null>(null);
@@ -143,6 +143,19 @@ export default function PersonalPlan() {
         <h3><time dateTime={day}>{day}</time></h3>
         <ul>{actions.map(task => <li key={task.id}>{task.title}</li>)}</ul>
       </div>)}
+    </details>
+    <details className="backup-preview glass"><summary>Reschedule visible actions</summary>
+      <form className="personal-step" onSubmit={event => {
+        event.preventDefault();
+        const due = String(new FormData(event.currentTarget).get('reschedule') ?? '');
+        if (!due || !validObservationDate(due, '9999-12-31')) return;
+        const ids = new Set(visible.filter(task => !task.done).map(task => task.id));
+        setTasks(previous => previous.map(task => ids.has(task.id) && !task.done ? { ...task, due } : task));
+        setFeedback('Updated the target date for ' + ids.size + ' pending actions.');
+      }}>
+        <label>New target date<input name="reschedule" type="date" required max="9999-12-31" /></label>
+        <button className="report-copy" disabled={!visible.some(task => !task.done)}>Reschedule pending actions shown</button>
+      </form>
     </details>
     <ul className="report-list">{visible.map(task => <li className="glass" key={task.id}>
       <label><input type="checkbox" checked={task.done} onChange={event => {
