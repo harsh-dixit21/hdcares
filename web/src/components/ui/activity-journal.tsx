@@ -81,6 +81,10 @@ export default function ActivityJournal() {
         } catch { setStatus('Choose a valid HD Cares journal backup under 2 MB.'); }
       }} /></label>
     </details>
+    <button className="report-copy" disabled={!shown.length} onClick={async () => {
+      try { await navigator.clipboard.writeText(activityTimeline(shown)); setStatus('Shown activities copied.'); }
+      catch { setStatus('Clipboard unavailable. Save the timeline as text instead.'); }
+    }}>Copy shown activities</button>
     <ol>{shown.map(entry => <li key={entry.id} className="backup-preview glass">
       <time dateTime={entry.day}>{entry.day}</time>{entry.type && <span> · {entry.type}</span>}<p style={{ whiteSpace: 'pre-wrap', overflowWrap: 'anywhere' }}>{entry.text}</p>
       <button className="report-copy" onClick={() => {
