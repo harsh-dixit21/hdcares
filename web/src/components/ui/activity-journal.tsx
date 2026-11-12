@@ -5,6 +5,8 @@ import { activityTypes, MAX_ACTIVITIES, type ActivityEntry } from '@/lib/activit
 export default function ActivityJournal() {
   const [entries, setEntries] = useState<ActivityEntry[]>([]);
   const [status, setStatus] = useState('');
+  const [category, setCategory] = useState('');
+  const shown = entries.filter(entry => !category || (entry.type ?? 'Uncategorized') === category);
   const hasEntries = entries.length > 0;
   useEffect(() => {
     if (!hasEntries) return;
@@ -40,7 +42,11 @@ export default function ActivityJournal() {
     </form>
     <p role="status">{status}</p>
     <p>{entries.length} of {MAX_ACTIVITIES} entries</p>
-    <ol>{entries.map(entry => <li key={entry.id} className="backup-preview glass">
+    <label>Filter activity category<select value={category} onChange={event => setCategory(event.target.value)}>
+      <option value="">All categories</option><option>Uncategorized</option>
+      {activityTypes.map(type => <option key={type}>{type}</option>)}
+    </select></label>
+    <ol>{shown.map(entry => <li key={entry.id} className="backup-preview glass">
       <time dateTime={entry.day}>{entry.day}</time>{entry.type && <span> · {entry.type}</span>}<p style={{ whiteSpace: 'pre-wrap', overflowWrap: 'anywhere' }}>{entry.text}</p>
       <details><summary>Edit activity</summary>
         <form className="personal-step" onSubmit={event => {
