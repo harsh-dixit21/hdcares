@@ -23,6 +23,21 @@ async function backupKey(password: string, salt: Uint8Array<ArrayBuffer>, operat
   );
 }
 
+export async function unlockBackup(text: string, password: string): Promise<string> {
+  if (encoder.encode(text).length > MAX_LOCKED_BYTES) throw new Error('Encrypted file is too large.');
+  const data = JSON.parse(text);
+  if (data?.format !== FORMAT || data.version !== 1 || typeof data.salt !== 'string' ||
+      typeof data.iv !== 'string' || typeof data.ciphertext !== 'string') throw new Error('Unsupported encrypted backup.');
+  const salt = decodeBytes(data.salt);
+  const iv = decodeBytes(data.iv);
+  const ciphertext = decodeBytes(data.ciphertext);
+  if (salt.length !== 16 || iv.length !== 12 || ciphertext.length < 16 ||
+      ciphertext.length > MAX_PLAINTEXT_BYTES + 16) throw new Error('Invalid encrypted backup.');
+  const key = await backupKey(password, salt, 'decrypt');
+  const bytes = await crypto.subtle.decrypt({ name: 'AES-GCM', iv }, key, ciphertext);
+  return new TextDecoder('utf-8', { fatal: true }).decode(bytes);
+}
+
 export async function lockBackup(text: string, password: string): Promise<string> {
   const bytes = encoder.encode(text);
   if (bytes.length > MAX_PLAINTEXT_BYTES) throw new Error('Backup is too large.');

@@ -205,7 +205,11 @@ export default function ReportOrganizer() {
       setMessage('Exported counts only. The file contains no links, platforms, dates, or references.');
     }}>Download status totals only</button>}
     <LockedBackupTools label="report" filename="report-encrypted.json" enabled={!!notes.length}
-      serialize={() => createReportBackup(notes)} />
+      serialize={() => createReportBackup(notes)} restore={text => {
+        const incoming = parseReportBackup(text);
+        importRequest.current++; setReading(false); setBackupError(''); setExcluded(new Set());
+        setPreviewSource('encrypted backup'); setPending(incoming);
+      }} />
     <input ref={fileInput} className="sr-only" type="file" accept=".json,application/json" aria-label="Choose an HD Cares backup" onChange={event => { const file = event.target.files?.[0]; event.target.value = ''; void readBackup(file); }} />
     <p className="demo-disclosure">Save backup creates an unencrypted JSON file you can restore later. It contains your links and references. Keep it private. Files are read locally; nothing is uploaded.</p>
     {pending !== null && <div className="backup-preview glass"><h3>Review your {previewSource}</h3>
