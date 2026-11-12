@@ -1,4 +1,5 @@
 import { useEffect, useState, type FormEvent } from 'react';
+import LockedBackupTools from './locked-backup-tools';
 import { localToday, validObservationDate } from '@/lib/report-date';
 import { downloadText } from "@/lib/download-text";
 import { createActivityBackup, readActivityBackup, mergeActivityBackup, MAX_JOURNAL_BACKUP_BYTES, activityTimeline, activityTypes, MAX_ACTIVITIES, type ActivityEntry } from '@/lib/activity-journal';
@@ -66,6 +67,8 @@ export default function ActivityJournal() {
       setEntries(previous => [...previous, removed]); setRemoved(null); setStatus('Activity restored.');
     }}>Undo activity removal</button>}
     <button className="report-copy" disabled={!shown.length} onClick={() => downloadText('activity-timeline.txt', activityTimeline(shown))}>Save shown activities</button>
+    <LockedBackupTools label="journal" filename="journal-encrypted.json" enabled={!!entries.length}
+      serialize={() => createActivityBackup(entries)} />
     <details><summary>Journal backup and restore</summary>
       <p>The JSON backup contains the full journal as readable text.</p>
       <button className="report-copy" disabled={!entries.length} onClick={() =>
