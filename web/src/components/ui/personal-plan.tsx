@@ -22,8 +22,12 @@ export default function PersonalPlan() {
   const [focusOnly, setFocusOnly] = useState(false);
   const [highOnly, setHighOnly] = useState(false);
   const today = localToday();
+  const nextWeek = new Date();
+  nextWeek.setDate(nextWeek.getDate() + 7);
+  const weekEnd = localToday(nextWeek);
   const matching = tasks.filter(task => !highOnly || task.priority === "High").filter(task => !categoryFilter || (task.category ?? "Uncategorized") === categoryFilter).filter(task => {
     if (view === 'overdue') return !task.done && !!task.due && task.due < today;
+    if (view === 'week') return !task.done && !!task.due && task.due >= today && task.due <= weekEnd;
     if (view === 'today') return !task.done && task.due === today;
     return view === 'all' || task.done === (view === 'done');
   }).filter(task => task.title.toLowerCase().includes(search.trim().toLowerCase())).sort((a, b) => dateSort ? (a.due || '9999').localeCompare(b.due || '9999') : 0);
@@ -83,7 +87,7 @@ export default function PersonalPlan() {
     <label><input type="checkbox" checked={highOnly} onChange={event => setHighOnly(event.target.checked)} />High-priority actions only</label>
     <label>Search actions<input type="search" value={search} onChange={event => setSearch(event.target.value)} /></label>
     <label>Show actions<select value={view} onChange={event => setView(event.target.value)}>
-      <option value="all">All actions</option><option value="pending">Pending</option><option value="done">Completed</option><option value="overdue">Overdue</option><option value="today">Due today</option>
+      <option value="all">All actions</option><option value="pending">Pending</option><option value="done">Completed</option><option value="overdue">Overdue</option><option value="today">Due today</option><option value="week">Due in the next seven days</option>
     </select></label>
     <label><input type="checkbox" checked={dateSort} onChange={event => setDateSort(event.target.checked)} />Sort by target date</label>
     {removed && <button className="report-copy" onClick={() => {
