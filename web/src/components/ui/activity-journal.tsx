@@ -39,6 +39,21 @@ export default function ActivityJournal() {
     <p>{entries.length} of {MAX_ACTIVITIES} entries</p>
     <ol>{entries.map(entry => <li key={entry.id} className="backup-preview glass">
       <time dateTime={entry.day}>{entry.day}</time><p style={{ whiteSpace: 'pre-wrap', overflowWrap: 'anywhere' }}>{entry.text}</p>
+      <details><summary>Edit activity</summary>
+        <form className="personal-step" onSubmit={event => {
+          event.preventDefault();
+          const data = new FormData(event.currentTarget);
+          const text = String(data.get('entry') ?? '').trim();
+          const day = String(data.get('day') ?? '');
+          if (!text || !day || !validObservationDate(day)) { setStatus('Enter activity text and a valid date.'); return; }
+          setEntries(previous => previous.map(item => item.id === entry.id ? { ...item, text, day } : item));
+          setStatus('Activity updated.');
+        }}>
+          <label>Corrected date<input name="day" type="date" required defaultValue={entry.day} max={localToday()} /></label>
+          <label>Corrected activity<textarea name="entry" defaultValue={entry.text} maxLength={1000} required /></label>
+          <button className="report-copy">Save activity changes</button>
+        </form>
+      </details>
     </li>)}</ol>
   </section>;
 }
