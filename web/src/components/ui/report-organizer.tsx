@@ -352,6 +352,15 @@ export default function ReportOrganizer() {
     </details>}
     <button className="report-copy" disabled={!visibleNotes.length} onClick={() =>
       downloadText('content-links.txt', visibleNotes.map(note => note.url).join('\n'))}>Save matching links only</button>
+    <button className="report-copy" disabled={!visibleNotes.length} onClick={() => {
+      const links = visibleNotes.map(note => {
+        const url = new URL(note.url);
+        url.search = '';
+        url.hash = '';
+        return url.href;
+      });
+      downloadText('links-without-query-or-fragment.txt', [...new Set(links)].join('\n'));
+    }}>Save links without query or fragment</button>
     <ul id="report-results" className="report-list">{pageNotes.map(note => { const index = notes.findIndex(item => item.id === note.id); return <li className="glass" key={note.id}>
       <label>Select location<input type="checkbox" checked={selectedIds.has(note.id)} onChange={event => {
         const selected = event.target.checked;
