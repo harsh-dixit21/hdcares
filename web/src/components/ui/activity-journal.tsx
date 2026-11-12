@@ -37,6 +37,12 @@ export default function ActivityJournal() {
     form.reset();
   }
 
+  function restoreJournal(text: string) {
+    const incoming = readActivityBackup(text);
+    setEntries(previous => mergeActivityBackup(previous, incoming));
+    setStatus('Journal file validated. Existing entries are kept. Imports exceeding 250 total entries are skipped.');
+  }
+
   return <section id="activity-journal" className="section report-organizer" aria-labelledby="journal-title">
     <div className="demo-intro"><h2 id="journal-title">Activity journal</h2>
       <p>Keep a record of what happened and the steps you took. Entries stay in this page’s memory.</p></div>
@@ -68,7 +74,7 @@ export default function ActivityJournal() {
     }}>Undo activity removal</button>}
     <button className="report-copy" disabled={!shown.length} onClick={() => downloadText('activity-timeline.txt', activityTimeline(shown))}>Save shown activities</button>
     <LockedBackupTools label="journal" filename="journal-encrypted.json" enabled={!!entries.length}
-      serialize={() => createActivityBackup(entries)} />
+      serialize={() => createActivityBackup(entries)} restore={restoreJournal} />
     <details><summary>Journal backup and restore</summary>
       <p>The JSON backup contains the full journal as readable text.</p>
       <button className="report-copy" disabled={!entries.length} onClick={() =>
@@ -78,9 +84,7 @@ export default function ActivityJournal() {
         if (!file) return;
         try {
           if (file.size > MAX_JOURNAL_BACKUP_BYTES) throw new Error('File too large.');
-          const incoming = readActivityBackup(await file.text());
-          setEntries(previous => mergeActivityBackup(previous, incoming));
-          setStatus('Journal file validated. Existing entries are kept. Imports exceeding 250 total entries are skipped.');
+          restoreJournal(await file.text());
         } catch { setStatus('Choose a valid HD Cares journal backup under 2 MB.'); }
       }} /></label>
     </details>
