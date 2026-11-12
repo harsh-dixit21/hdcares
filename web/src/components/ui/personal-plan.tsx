@@ -38,6 +38,14 @@ export default function PersonalPlan() {
     }
     return (a.due || '9999').localeCompare(b.due || '9999');
   }).slice(0, 1) : matching;
+  const dueAgenda = new Map<string, Task[]>();
+  for (const task of tasks) {
+    if (task.done || !task.due) continue;
+    const group = dueAgenda.get(task.due) ?? [];
+    group.push(task);
+    dueAgenda.set(task.due, group);
+  }
+
   function moveAction(id: string, offset: number) {
     setTasks(previous => {
       const index = previous.findIndex(task => task.id === id);
@@ -129,6 +137,13 @@ export default function PersonalPlan() {
     <button className="report-copy" disabled={!visible.length} onClick={() => downloadText('visible-actions.txt',
       visible.map(task => [task.done ? '[x]' : '[ ]', task.title, task.category, task.priority === 'High' ? 'High priority' : '', task.due]
         .filter(Boolean).join('  ')).join('\n'))}>Save visible actions</button>
+    <details className="backup-preview glass"><summary>Pending action agenda</summary>
+      {dueAgenda.size === 0 && <p>No pending actions have a target date.</p>}
+      {[...dueAgenda].sort(([a], [b]) => a.localeCompare(b)).map(([day, actions]) => <div key={day}>
+        <h3><time dateTime={day}>{day}</time></h3>
+        <ul>{actions.map(task => <li key={task.id}>{task.title}</li>)}</ul>
+      </div>)}
+    </details>
     <ul className="report-list">{visible.map(task => <li className="glass" key={task.id}>
       <label><input type="checkbox" checked={task.done} onChange={event => {
         const done = event.target.checked;
