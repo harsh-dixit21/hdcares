@@ -30,6 +30,7 @@ export default function SituationJourney() {
       <a href="#fingerprint-demo">Fingerprint demo</a>
       <a href="#report-organizer">Report organizer</a>
       <a href="#personal-plan">My action plan</a>
+      <a href="#activity-journal">Activity journal</a>
       <a href="#start">Specialist services</a>
     </nav>
     <details className="backup-preview glass">
