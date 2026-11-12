@@ -4,6 +4,7 @@ import { downloadText } from "@/lib/download-text";
 import { createActivityBackup, readActivityBackup, mergeActivityBackup, MAX_JOURNAL_BACKUP_BYTES, activityTimeline, activityTypes, MAX_ACTIVITIES, type ActivityEntry } from '@/lib/activity-journal';
 
 export default function ActivityJournal() {
+  const [hidden, setHidden] = useState(false);
   const [entries, setEntries] = useState<ActivityEntry[]>([]);
   const [status, setStatus] = useState('');
   const [category, setCategory] = useState('');
@@ -38,6 +39,10 @@ export default function ActivityJournal() {
   return <section id="activity-journal" className="section report-organizer" aria-labelledby="journal-title">
     <div className="demo-intro"><h2 id="journal-title">Activity journal</h2>
       <p>Keep a record of what happened and the steps you took. Entries stay in this page’s memory.</p></div>
+    <button className="report-copy" aria-expanded={!hidden} aria-controls="journal-content" onClick={() => setHidden(value => !value)}>
+      {hidden ? 'Show journal' : 'Hide journal'}
+    </button>
+    <div id="journal-content" hidden={hidden}>
     <form className="backup-preview glass personal-step" onSubmit={addEntry}>
       <label>Activity category<select name="type">
         <option value="">Uncategorized</option>{activityTypes.map(type => <option key={type}>{type}</option>)}
@@ -101,5 +106,6 @@ export default function ActivityJournal() {
         </form>
       </details>
     </li>)}</ol>
+    </div>
   </section>;
 }
