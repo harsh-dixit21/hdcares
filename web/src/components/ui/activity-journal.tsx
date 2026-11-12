@@ -70,7 +70,7 @@ export default function ActivityJournal() {
       <option value="newest">Newest first</option><option value="oldest">Oldest first</option>
     </select></label>
     {removed && <button className="report-copy" disabled={entries.length >= MAX_ACTIVITIES} onClick={() => {
-      setEntries(previous => [...previous, removed]); setRemoved(null); setStatus('Activity restored.');
+      setEntries(previous => previous.some(entry => entry.id === removed.id) ? previous : [...previous, removed]); setRemoved(null); setStatus('Activity restored.');
     }}>Undo activity removal</button>}
     <button className="report-copy" disabled={!shown.length} onClick={() => downloadText('activity-timeline.txt', activityTimeline(shown))}>Save shown activities</button>
     <LockedBackupTools label="journal" filename="journal-encrypted.json" enabled={!!entries.length}

@@ -68,6 +68,7 @@ export default function ReportOrganizer() {
     return true;
   });
   const visibleNotes = sortReportNotes(matchingNotes, sortOrder);
+  const chronology = sortReportNotes(visibleNotes, 'Oldest observed');
   const pages = Math.max(1, Math.ceil(visibleNotes.length / pageSize));
   const page = Math.min(requestedPage, pages);
   const pageNotes = visibleNotes.slice((page - 1) * pageSize, page * pageSize);
@@ -329,7 +330,10 @@ export default function ReportOrganizer() {
       <button className="report-copy" disabled={page === pages} onClick={() => setRequestedPage(page + 1)}>Next</button>
     </nav>}
     <details className="backup-preview glass"><summary>Observation timeline</summary>
-      <ol>{[...visibleNotes].sort((a, b) => (a.date || '9999').localeCompare(b.date || '9999')).map(note =>
+      <button className="report-copy" disabled={!chronology.length} onClick={() =>
+        downloadText('report-timeline.txt', chronology.map(note =>
+          [note.date || 'Undated', note.platform, note.status].join(' — ')).join('\n'))}>Save report timeline</button>
+      <ol>{chronology.map(note =>
         <li key={note.id}><time>{note.date || 'Undated'}</time> — {note.platform} — {note.status}</li>)}</ol>
     </details>
     <button className="report-copy" disabled={!visibleNotes.length} onClick={() => downloadText('domain-status-summary.txt',
