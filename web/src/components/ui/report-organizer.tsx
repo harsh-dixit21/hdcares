@@ -2,6 +2,7 @@ import { useEffect, useRef, useState, type FormEvent } from 'react';
 import { Download, Plus, Trash2, Undo2 } from 'lucide-react';
 import { exportReportNotes, reportStatuses, validateReportUrl, type ReportNote } from '@/lib/report-notes';
 import './report-organizer.css';
+import LockedBackupTools from './locked-backup-tools';
 import { reportCsv } from '@/lib/report-csv';
 import FollowUpDraft from './follow-up-draft';
 import { parsePastedLinks } from '@/lib/pasted-links';
@@ -203,6 +204,8 @@ export default function ReportOrganizer() {
       downloadText('status-counts.txt', ['Report status totals', ...totals].join('\n'));
       setMessage('Exported counts only. The file contains no links, platforms, dates, or references.');
     }}>Download status totals only</button>}
+    <LockedBackupTools label="report" filename="report-encrypted.json" enabled={!!notes.length}
+      serialize={() => createReportBackup(notes)} />
     <input ref={fileInput} className="sr-only" type="file" accept=".json,application/json" aria-label="Choose an HD Cares backup" onChange={event => { const file = event.target.files?.[0]; event.target.value = ''; void readBackup(file); }} />
     <p className="demo-disclosure">Save backup creates an unencrypted JSON file you can restore later. It contains your links and references. Keep it private. Files are read locally; nothing is uploaded.</p>
     {pending !== null && <div className="backup-preview glass"><h3>Review your {previewSource}</h3>
