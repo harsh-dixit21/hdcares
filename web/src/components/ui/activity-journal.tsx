@@ -1,6 +1,7 @@
 import { useEffect, useState, type FormEvent } from 'react';
 import { localToday, validObservationDate } from '@/lib/report-date';
-import { activityTypes, MAX_ACTIVITIES, type ActivityEntry } from '@/lib/activity-journal';
+import { downloadText } from "@/lib/download-text";
+import { activityTimeline, activityTypes, MAX_ACTIVITIES, type ActivityEntry } from '@/lib/activity-journal';
 
 export default function ActivityJournal() {
   const [entries, setEntries] = useState<ActivityEntry[]>([]);
@@ -59,6 +60,7 @@ export default function ActivityJournal() {
     {removed && <button className="report-copy" disabled={entries.length >= MAX_ACTIVITIES} onClick={() => {
       setEntries(previous => [...previous, removed]); setRemoved(null); setStatus('Activity restored.');
     }}>Undo activity removal</button>}
+    <button className="report-copy" disabled={!shown.length} onClick={() => downloadText('activity-timeline.txt', activityTimeline(shown))}>Save shown activities</button>
     <ol>{shown.map(entry => <li key={entry.id} className="backup-preview glass">
       <time dateTime={entry.day}>{entry.day}</time>{entry.type && <span> · {entry.type}</span>}<p style={{ whiteSpace: 'pre-wrap', overflowWrap: 'anywhere' }}>{entry.text}</p>
       <button className="report-copy" onClick={() => {
