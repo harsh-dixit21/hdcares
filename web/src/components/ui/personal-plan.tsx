@@ -43,6 +43,15 @@ export default function PersonalPlan() {
       return next;
     });
   }
+  function restorePlan(text: string) {
+    const incoming = readPlanBackup(text);
+    setTasks(previous => {
+      const merged = new Map(previous.map(task => [task.id, task]));
+      for (const task of incoming) if (!merged.has(task.id)) merged.set(task.id, task);
+      return merged.size > 500 ? previous : [...merged.values()];
+    });
+    setFeedback('Plan file validated. Existing actions are kept. Imports exceeding 500 total actions are skipped.');
+  }
   return <section id="personal-plan" className="section report-organizer">
     <h2>My action plan</h2><p className="organizer-privacy">Plan your next actions here. Tasks stay in this page’s memory until you close or reload it.</p>
     <form className="personal-step" onSubmit={event => {
@@ -96,20 +105,13 @@ export default function PersonalPlan() {
     <button className="report-copy" disabled={!tasks.length} onClick={() => downloadText('plan-backup.json',
       JSON.stringify({ format: 'hdcares-plan', version: 1, tasks }), 'application/json')}>Back up plan</button>
     <LockedBackupTools label="action plan" filename="plan-encrypted.json" enabled={!!tasks.length}
-      serialize={() => JSON.stringify({ format: 'hdcares-plan', version: 1, tasks })} />
+      serialize={() => JSON.stringify({ format: 'hdcares-plan', version: 1, tasks })} restore={restorePlan} />
     <label>Restore plan file<input type="file" accept=".json" onChange={async event => {
       const file = event.target.files?.[0]; event.target.value = '';
       if (!file) return;
       try {
         if (file.size > MAX_PLAN_BACKUP_BYTES) throw new Error('File is too large.');
-        const incoming = readPlanBackup(await file.text());
-        setTasks(previous => {
-          const merged = [...previous];
-          for (const task of incoming) if (!merged.some(item => item.id === task.id)) merged.push(task);
-          if (merged.length > 500) return previous;
-          return merged;
-        });
-        setFeedback('Plan file validated. Existing actions retained. Imports exceeding 500 total actions are skipped.');
+        restorePlan(await file.text());
       } catch { setFeedback('Choose a valid HD Cares plan backup under 3 MB.'); }
     }} /></label>
     <p className="demo-disclosure">Plan backups contain your action text, notes, and dates as unencrypted JSON.</p>
