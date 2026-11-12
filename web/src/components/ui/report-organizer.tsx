@@ -375,6 +375,8 @@ export default function ReportOrganizer() {
         else next[note.id] = value;
         return next;
       })} />
+      <button className="report-copy" onClick={() =>
+        downloadText('report-location.txt', exportReportNotes([note]))}>Save this location</button>
       <button className="report-copy" onClick={() => void copyLocation(note)}>Copy link</button>
       <button className="report-copy" onClick={async () => {
         const clean = new URL(note.url);
