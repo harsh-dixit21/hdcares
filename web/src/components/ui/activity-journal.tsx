@@ -7,8 +7,10 @@ export default function ActivityJournal() {
   const [status, setStatus] = useState('');
   const [category, setCategory] = useState('');
   const [query, setQuery] = useState('');
+  const [oldestFirst, setOldestFirst] = useState(false);
   const shown = entries.filter(entry => !category || (entry.type ?? 'Uncategorized') === category)
-    .filter(entry => entry.text.toLowerCase().includes(query.trim().toLowerCase()));
+    .filter(entry => entry.text.toLowerCase().includes(query.trim().toLowerCase()))
+    .sort((a, b) => oldestFirst ? a.day.localeCompare(b.day) : b.day.localeCompare(a.day));
   const hasEntries = entries.length > 0;
   useEffect(() => {
     if (!hasEntries) return;
@@ -50,6 +52,9 @@ export default function ActivityJournal() {
     </select></label>
     <label>Search activity<input type="search" value={query} onChange={event => setQuery(event.target.value)} /></label>
     <p role="status">{shown.length} activities shown.</p>
+    <label>Activity order<select value={oldestFirst ? 'oldest' : 'newest'} onChange={event => setOldestFirst(event.target.value === 'oldest')}>
+      <option value="newest">Newest first</option><option value="oldest">Oldest first</option>
+    </select></label>
     <ol>{shown.map(entry => <li key={entry.id} className="backup-preview glass">
       <time dateTime={entry.day}>{entry.day}</time>{entry.type && <span> · {entry.type}</span>}<p style={{ whiteSpace: 'pre-wrap', overflowWrap: 'anywhere' }}>{entry.text}</p>
       <details><summary>Edit activity</summary>
