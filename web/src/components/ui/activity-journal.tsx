@@ -1,7 +1,7 @@
 import { useEffect, useState, type FormEvent } from 'react';
 import { localToday, validObservationDate } from '@/lib/report-date';
 import { downloadText } from "@/lib/download-text";
-import { activityTimeline, activityTypes, MAX_ACTIVITIES, type ActivityEntry } from '@/lib/activity-journal';
+import { createActivityBackup, readActivityBackup, mergeActivityBackup, MAX_JOURNAL_BACKUP_BYTES, activityTimeline, activityTypes, MAX_ACTIVITIES, type ActivityEntry } from '@/lib/activity-journal';
 
 export default function ActivityJournal() {
   const [entries, setEntries] = useState<ActivityEntry[]>([]);
@@ -61,6 +61,21 @@ export default function ActivityJournal() {
       setEntries(previous => [...previous, removed]); setRemoved(null); setStatus('Activity restored.');
     }}>Undo activity removal</button>}
     <button className="report-copy" disabled={!shown.length} onClick={() => downloadText('activity-timeline.txt', activityTimeline(shown))}>Save shown activities</button>
+    <details><summary>Journal backup and restore</summary>
+      <p>The JSON backup contains the full journal as readable text.</p>
+      <button className="report-copy" disabled={!entries.length} onClick={() =>
+        downloadText('journal-backup.json', createActivityBackup(entries), 'application/json')}>Back up journal</button>
+      <label>Restore journal file<input type="file" accept=".json" onChange={async event => {
+        const file = event.target.files?.[0]; event.target.value = '';
+        if (!file) return;
+        try {
+          if (file.size > MAX_JOURNAL_BACKUP_BYTES) throw new Error('File too large.');
+          const incoming = readActivityBackup(await file.text());
+          setEntries(previous => mergeActivityBackup(previous, incoming));
+          setStatus('Journal file validated. Existing entries are kept. Imports exceeding 250 total entries are skipped.');
+        } catch { setStatus('Choose a valid HD Cares journal backup under 2 MB.'); }
+      }} /></label>
+    </details>
     <ol>{shown.map(entry => <li key={entry.id} className="backup-preview glass">
       <time dateTime={entry.day}>{entry.day}</time>{entry.type && <span> · {entry.type}</span>}<p style={{ whiteSpace: 'pre-wrap', overflowWrap: 'anywhere' }}>{entry.text}</p>
       <button className="report-copy" onClick={() => {
