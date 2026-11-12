@@ -6,7 +6,9 @@ export default function ActivityJournal() {
   const [entries, setEntries] = useState<ActivityEntry[]>([]);
   const [status, setStatus] = useState('');
   const [category, setCategory] = useState('');
-  const shown = entries.filter(entry => !category || (entry.type ?? 'Uncategorized') === category);
+  const [query, setQuery] = useState('');
+  const shown = entries.filter(entry => !category || (entry.type ?? 'Uncategorized') === category)
+    .filter(entry => entry.text.toLowerCase().includes(query.trim().toLowerCase()));
   const hasEntries = entries.length > 0;
   useEffect(() => {
     if (!hasEntries) return;
@@ -46,6 +48,8 @@ export default function ActivityJournal() {
       <option value="">All categories</option><option>Uncategorized</option>
       {activityTypes.map(type => <option key={type}>{type}</option>)}
     </select></label>
+    <label>Search activity<input type="search" value={query} onChange={event => setQuery(event.target.value)} /></label>
+    <p role="status">{shown.length} activities shown.</p>
     <ol>{shown.map(entry => <li key={entry.id} className="backup-preview glass">
       <time dateTime={entry.day}>{entry.day}</time>{entry.type && <span> · {entry.type}</span>}<p style={{ whiteSpace: 'pre-wrap', overflowWrap: 'anywhere' }}>{entry.text}</p>
       <details><summary>Edit activity</summary>
