@@ -78,7 +78,9 @@ function WorkspaceBackup() {
             entries: included.entries ? pending.entries : [],
           });
           setNotes(merged.notes); setTasks(merged.tasks); setEntries(merged.entries);
-          setPending(null); setStatus('Workspace restored.');
+          setPending(null);
+          setStatus('Added ' + (merged.notes.length - notes.length) + ' locations, ' +
+            (merged.tasks.length - tasks.length) + ' actions, and ' + (merged.entries.length - entries.length) + ' activities.');
         } catch { setStatus('This restore would exceed a workspace limit. No records were changed.'); }
       }}>Merge workspace backup</button>
       <button className="report-copy" onClick={() => { setPending(null); setStatus(''); }}>Cancel workspace restore</button>
