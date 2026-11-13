@@ -147,6 +147,11 @@ export default function PersonalPlan() {
       </div>)}
     </details>
     <details className="backup-preview glass"><summary>Reschedule visible actions</summary>
+      <button className="report-copy" disabled={!visible.some(task => !task.done && task.due)} onClick={() => {
+        const ids = new Set(visible.filter(task => !task.done && task.due).map(task => task.id));
+        setTasks(previous => previous.map(task => ids.has(task.id) && !task.done ? { ...task, due: undefined } : task));
+        setFeedback('Cleared target dates for ' + ids.size + ' pending actions.');
+      }}>Clear dates on shown pending actions</button>
       <form className="personal-step" onSubmit={event => {
         event.preventDefault();
         const due = String(new FormData(event.currentTarget).get('reschedule') ?? '');
