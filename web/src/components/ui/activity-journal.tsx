@@ -14,7 +14,8 @@ export default function ActivityJournal() {
   const [oldestFirst, setOldestFirst] = useState(false);
   const shown = entries.filter(entry => !category || (entry.type ?? 'Uncategorized') === category)
     .filter(entry => entry.text.toLowerCase().includes(query.trim().toLowerCase()))
-    .sort((a, b) => oldestFirst ? a.day.localeCompare(b.day) : b.day.localeCompare(a.day));
+    .sort((a, b) => Number(!!b.pinned) - Number(!!a.pinned) ||
+      (oldestFirst ? a.day.localeCompare(b.day) : b.day.localeCompare(a.day)));
   const [removed, setRemoved] = useState<ActivityEntry | null>(null);
   const hasEntries = entries.length > 0 || !!removed;
   useEffect(() => {
@@ -104,6 +105,8 @@ export default function ActivityJournal() {
         setTasks(previous => previous.length < 500 ? [...previous, task] : previous);
         setStatus('Pending action added to your plan.');
       }}>Add activity to action plan</button>
+      <button className="report-copy" aria-pressed={!!entry.pinned} onClick={() => setEntries(previous =>
+        previous.map(item => item.id === entry.id ? { ...item, pinned: !item.pinned } : item))}>Pin activity</button>
       <details><summary>Edit activity</summary>
         <form className="personal-step" onSubmit={event => {
           event.preventDefault();

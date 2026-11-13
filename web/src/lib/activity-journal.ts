@@ -2,7 +2,7 @@ import { validObservationDate } from './report-date.ts';
 
 export const activityTypes = ['Protection', 'Reporting', 'Support', 'Other'] as const;
 export type ActivityType = typeof activityTypes[number];
-export type ActivityEntry = { id: string; day: string; text: string; type?: ActivityType };
+export type ActivityEntry = { id: string; day: string; text: string; type?: ActivityType; pinned?: boolean };
 export const MAX_ACTIVITIES = 250;
 
 export const MAX_JOURNAL_BACKUP_BYTES = 2_000_000;
@@ -22,7 +22,8 @@ export function readActivityBackup(text: string): ActivityEntry[] {
         typeof entry.day !== 'string' || !entry.day || !validObservationDate(entry.day, '9999-12-31')) throw new Error('Invalid activity.');
     const type = activityTypes.find(item => item === entry.type);
     if (entry.type !== undefined && !type) throw new Error('Invalid activity category.');
-    return { id: entry.id.toLowerCase(), text: entry.text, day: entry.day, type };
+    if (entry.pinned !== undefined && typeof entry.pinned !== "boolean") throw new Error("Invalid pin.");
+    return { pinned: entry.pinned, id: entry.id.toLowerCase(), text: entry.text, day: entry.day, type };
   });
 }
 
