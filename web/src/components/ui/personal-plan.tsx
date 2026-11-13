@@ -4,12 +4,13 @@ import { downloadText } from '@/lib/download-text';
 import { followUpCalendar } from '@/lib/follow-up-calendar';
 import { localToday, validObservationDate } from '@/lib/report-date';
 import { actionCategories, MAX_PLAN_BACKUP_BYTES, readPlanBackup, type PlanTask as Task } from '@/lib/plan-backup';
+import { MAX_ACTIVITIES } from '@/lib/activity-journal';
 import { useCaseWorkspace } from './case-workspace';
 export default function PersonalPlan() {
   const [removed, setRemoved] = useState<Task | null>(null);
   const [feedback, setFeedback] = useState('');
   const [confirmClear, setConfirmClear] = useState(false);
-  const { tasks, setTasks } = useCaseWorkspace();
+  const { tasks, setTasks, entries, setEntries } = useCaseWorkspace();
   useEffect(() => {
     if (!tasks.length && !removed) return;
     const warn = (event: BeforeUnloadEvent) => { event.preventDefault(); event.returnValue = ''; };
@@ -163,6 +164,11 @@ export default function PersonalPlan() {
         const done = event.target.checked;
         setTasks(previous => previous.map(item => item.id === task.id ? { ...item, done } : item));
       }} />{task.title}</label>
+      {task.done && <button className="report-copy" disabled={entries.length >= MAX_ACTIVITIES || !task.title.trim()} onClick={() => {
+        const entry = { id: crypto.randomUUID(), day: localToday(), text: 'Completed: ' + task.title.trim(), type: task.category };
+        setEntries(previous => previous.length < MAX_ACTIVITIES ? [...previous, entry] : previous);
+        setFeedback('Completed action recorded in the journal.');
+      }}>Record completion in journal</button>}
       <label>Action text<input maxLength={300} value={task.title} onChange={event => {
         const title = event.target.value;
         setTasks(previous => previous.map(item => item.id === task.id ? { ...item, title } : item));
