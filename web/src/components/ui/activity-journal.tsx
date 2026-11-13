@@ -13,7 +13,10 @@ export default function ActivityJournal() {
   const [query, setQuery] = useState('');
   const [oldestFirst, setOldestFirst] = useState(false);
   const [pinnedOnly, setPinnedOnly] = useState(false);
+  const [startDay, setStartDay] = useState('');
+  const [endDay, setEndDay] = useState('');
   const shown = entries.filter(entry => !category || (entry.type ?? 'Uncategorized') === category)
+    .filter(entry => (!startDay || entry.day >= startDay) && (!endDay || entry.day <= endDay))
     .filter(entry => !pinnedOnly || entry.pinned)
     .filter(entry => entry.text.toLowerCase().includes(query.trim().toLowerCase()))
     .sort((a, b) => Number(!!b.pinned) - Number(!!a.pinned) ||
@@ -69,6 +72,11 @@ export default function ActivityJournal() {
       {activityTypes.map(type => <option key={type}>{type}</option>)}
     </select></label>
     <label><input type="checkbox" checked={pinnedOnly} onChange={event => setPinnedOnly(event.target.checked)} />Pinned activities only</label>
+    <fieldset className="report-dates"><legend>Activity period</legend>
+      <label>From date<input type="date" value={startDay} onChange={event => setStartDay(event.target.value)} /></label>
+      <label>Through date<input type="date" value={endDay} onChange={event => setEndDay(event.target.value)} /></label>
+      {startDay && endDay && startDay > endDay && <p role="status">The end date must be on or after the start date.</p>}
+    </fieldset>
     <label>Search activity<input type="search" value={query} onChange={event => setQuery(event.target.value)} /></label>
     <p role="status">{shown.length} activities shown.</p>
     <label>Activity order<select value={oldestFirst ? 'oldest' : 'newest'} onChange={event => setOldestFirst(event.target.value === 'oldest')}>
