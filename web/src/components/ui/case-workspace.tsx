@@ -3,6 +3,7 @@ import type { PlanTask } from '@/lib/plan-backup';
 import { createActivityBackup, type ActivityEntry } from '@/lib/activity-journal';
 import { createReportBackup } from '@/lib/report-backup';
 import type { ReportNote } from '@/lib/report-notes';
+import { MAX_WORKSPACE_BYTES, mergeWorkspace, readWorkspaceBackup, type WorkspaceData } from '@/lib/workspace-backup';
 import { downloadText } from '@/lib/download-text';
 
 type Workspace = {
@@ -29,7 +30,9 @@ export function CaseWorkspace({ children }: { children: ReactNode }) {
 }
 
 function WorkspaceBackup() {
-  const { notes, tasks, entries } = useCaseWorkspace();
+  const { notes, tasks, entries, setNotes, setTasks, setEntries } = useCaseWorkspace();
+  const [pending, setPending] = useState<WorkspaceData | null>(null);
+  const [status, setStatus] = useState('');
   const hasData = !!(notes.length || tasks.length || entries.length);
   const serialize = () => JSON.stringify({
     format: 'hdcares-workspace', version: 1,
@@ -42,6 +45,28 @@ function WorkspaceBackup() {
     <p>Save the report locations, action plan, and journal together. This download is readable JSON.</p>
     <button className="report-copy" disabled={!hasData} onClick={() =>
       downloadText('workspace-backup.json', serialize(), 'application/json')}>Back up workspace</button>
+    <label>Choose workspace backup<input type="file" accept=".json" onChange={async event => {
+      const file = event.target.files?.[0];
+      event.target.value = '';
+      if (!file) return;
+      setPending(null); setStatus('');
+      try {
+        if (file.size > MAX_WORKSPACE_BYTES) throw new Error('Workspace backup is too large.');
+        setPending(readWorkspaceBackup(await file.text()));
+      } catch { setStatus('Choose a valid HD Cares workspace backup under 10 MB.'); }
+    }} /></label>
+    {pending && <div>
+      <p>Review import: {pending.notes.length} locations, {pending.tasks.length} actions, {pending.entries.length} activities. Existing records take precedence.</p>
+      <button className="report-copy" onClick={() => {
+        try {
+          const merged = mergeWorkspace({ notes, tasks, entries }, pending);
+          setNotes(merged.notes); setTasks(merged.tasks); setEntries(merged.entries);
+          setPending(null); setStatus('Workspace restored.');
+        } catch { setStatus('This restore would exceed a workspace limit. No records were changed.'); }
+      }}>Merge workspace backup</button>
+      <button className="report-copy" onClick={() => { setPending(null); setStatus(''); }}>Cancel workspace restore</button>
+    </div>}
+    <p role="status">{status}</p>
   </details>;
 }
 
