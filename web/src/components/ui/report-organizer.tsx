@@ -16,12 +16,11 @@ import { MAX_ACTIVITIES } from '@/lib/activity-journal';
 import { useCaseWorkspace } from './case-workspace';
 
 export default function ReportOrganizer() {
-  const { tasks, setTasks, entries, setEntries } = useCaseWorkspace();
+  const { tasks, setTasks, entries, setEntries, notes, setNotes } = useCaseWorkspace();
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [preparation, setPreparation] = useState<string[]>([]);
   const [hostFilter, setHostFilter] = useState('');
   const [selectedOnly, setSelectedOnly] = useState(false);
-  const [notes, setNotes] = useState<ReportNote[]>([]);
   const [drafts, setDrafts] = useState<Record<string, string>>({});
   const [error, setError] = useState('');
   const [message, setMessage] = useState('');

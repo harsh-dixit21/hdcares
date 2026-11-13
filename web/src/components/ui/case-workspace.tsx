@@ -1,8 +1,13 @@
 import { createContext, useContext, useState, type Dispatch, type ReactNode, type SetStateAction } from 'react';
 import type { PlanTask } from '@/lib/plan-backup';
-import type { ActivityEntry } from '@/lib/activity-journal';
+import { createActivityBackup, type ActivityEntry } from '@/lib/activity-journal';
+import { createReportBackup } from '@/lib/report-backup';
+import type { ReportNote } from '@/lib/report-notes';
+import { downloadText } from '@/lib/download-text';
 
 type Workspace = {
+  notes: ReportNote[];
+  setNotes: Dispatch<SetStateAction<ReportNote[]>>;
   tasks: PlanTask[];
   setTasks: Dispatch<SetStateAction<PlanTask[]>>;
   entries: ActivityEntry[];
@@ -17,15 +22,35 @@ export function useCaseWorkspace() {
 }
 
 export function CaseWorkspace({ children }: { children: ReactNode }) {
+  const [notes, setNotes] = useState<ReportNote[]>([]);
   const [tasks, setTasks] = useState<PlanTask[]>([]);
   const [entries, setEntries] = useState<ActivityEntry[]>([]);
-  return <WorkspaceContext.Provider value={{ tasks, setTasks, entries, setEntries }}>{children}</WorkspaceContext.Provider>;
+  return <WorkspaceContext.Provider value={{ notes, setNotes, tasks, setTasks, entries, setEntries }}>{children}</WorkspaceContext.Provider>;
+}
+
+function WorkspaceBackup() {
+  const { notes, tasks, entries } = useCaseWorkspace();
+  const hasData = !!(notes.length || tasks.length || entries.length);
+  const serialize = () => JSON.stringify({
+    format: 'hdcares-workspace', version: 1,
+    reports: JSON.parse(createReportBackup(notes)),
+    plan: { format: 'hdcares-plan', version: 1, tasks },
+    journal: JSON.parse(createActivityBackup(entries)),
+  });
+  return <details className="backup-preview glass">
+    <summary>Workspace backup</summary>
+    <p>Save the report locations, action plan, and journal together. This download is readable JSON.</p>
+    <button className="report-copy" disabled={!hasData} onClick={() =>
+      downloadText('workspace-backup.json', serialize(), 'application/json')}>Back up workspace</button>
+  </details>;
 }
 
 export function WorkspaceOverview() {
-  const { tasks, entries } = useCaseWorkspace();
-  return <nav className="tool-shortcuts" aria-label="Workspace overview">
+  const { tasks, entries, notes } = useCaseWorkspace();
+  return <><nav className="tool-shortcuts" aria-label="Workspace overview">
     <a href="#personal-plan">Action plan · {tasks.filter(task => !task.done).length} pending</a>
     <a href="#activity-journal">Activity journal · {entries.length} entries</a>
-  </nav>;
+  </nav>
+  <WorkspaceBackup />
+  </>;
 }
