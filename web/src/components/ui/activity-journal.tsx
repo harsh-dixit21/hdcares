@@ -124,6 +124,7 @@ export default function ActivityJournal() {
       }}>Add activity to action plan</button>
       <button className="report-copy" aria-pressed={!!entry.pinned} onClick={() => setEntries(previous =>
         previous.map(item => item.id === entry.id ? { ...item, pinned: !item.pinned } : item))}>Pin activity</button>
+      <button className="report-copy" onClick={() => downloadText('activity-entry.txt', activityTimeline([entry]))}>Save this activity</button>
       <details><summary>Edit activity</summary>
         <form className="personal-step" onSubmit={event => {
           event.preventDefault();
