@@ -32,12 +32,12 @@ export function CaseWorkspace({ children }: { children: ReactNode }) {
 
 function WorkspaceBackup() {
   const { notes, tasks, entries, setNotes, setTasks, setEntries } = useCaseWorkspace();
-  const [pending, setPending] = useState<WorkspaceData | null>(null);
+  const [pending, setPending] = useState<(WorkspaceData & { createdAt?: string }) | null>(null);
   const [included, setIncluded] = useState({ notes: true, tasks: true, entries: true });
   const [status, setStatus] = useState('');
   const hasData = !!(notes.length || tasks.length || entries.length);
   const serialize = () => JSON.stringify({
-    format: 'hdcares-workspace', version: 1,
+    format: 'hdcares-workspace', version: 1, createdAt: new Date().toISOString(),
     reports: JSON.parse(createReportBackup(notes)),
     plan: { format: 'hdcares-plan', version: 1, tasks },
     journal: JSON.parse(createActivityBackup(entries)),
@@ -63,6 +63,7 @@ function WorkspaceBackup() {
     }} /></label>
     {pending && <div>
       <p>Review import: {pending.notes.length} locations, {pending.tasks.length} actions, {pending.entries.length} activities. Existing records take precedence.</p>
+      {pending.createdAt && <p>Backup created {new Date(pending.createdAt).toLocaleString()}.</p>}
       <fieldset><legend>Restore from this file</legend>
         {([['notes', 'Report locations'], ['tasks', 'Personal actions'], ['entries', 'Journal activities']] as const).map(([key, label]) =>
           <label key={key}><input type="checkbox" checked={included[key]} onChange={event => {

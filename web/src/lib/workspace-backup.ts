@@ -6,11 +6,12 @@ import type { ReportNote } from './report-notes.ts';
 export const MAX_WORKSPACE_BYTES = 10_000_000;
 export type WorkspaceData = { notes: ReportNote[]; tasks: PlanTask[]; entries: ActivityEntry[] };
 
-export function readWorkspaceBackup(text: string): WorkspaceData {
+export function readWorkspaceBackup(text: string): WorkspaceData & { createdAt?: string } {
   if (new TextEncoder().encode(text).length > MAX_WORKSPACE_BYTES) throw new Error('Workspace backup is too large.');
   const data = JSON.parse(text);
   if (data?.format !== 'hdcares-workspace' || data.version !== 1) throw new Error('Unsupported workspace backup.');
   return {
+    createdAt: typeof data.createdAt === 'string' && Number.isFinite(Date.parse(data.createdAt)) ? data.createdAt : undefined,
     notes: parseReportBackup(JSON.stringify(data.reports)),
     tasks: readPlanBackup(JSON.stringify(data.plan)),
     entries: readActivityBackup(JSON.stringify(data.journal)),
