@@ -7,7 +7,7 @@ import { createActivityBackup, readActivityBackup, mergeActivityBackup, MAX_JOUR
 import { useCaseWorkspace } from './case-workspace';
 export default function ActivityJournal() {
   const [hidden, setHidden] = useState(false);
-  const { entries, setEntries } = useCaseWorkspace();
+  const { entries, setEntries, tasks, setTasks } = useCaseWorkspace();
   const [status, setStatus] = useState('');
   const [category, setCategory] = useState('');
   const [query, setQuery] = useState('');
@@ -99,6 +99,11 @@ export default function ActivityJournal() {
         setRemoved(entry); setEntries(previous => previous.filter(item => item.id !== entry.id));
         setStatus('Activity removed. You can undo the last removal.');
       }}>Remove activity</button>
+      <button className="report-copy" disabled={tasks.length >= 500} onClick={() => {
+        const task = { id: crypto.randomUUID(), title: entry.text.replace(/\s+/g, ' ').slice(0, 300), done: false, category: entry.type };
+        setTasks(previous => previous.length < 500 ? [...previous, task] : previous);
+        setStatus('Pending action added to your plan.');
+      }}>Add activity to action plan</button>
       <details><summary>Edit activity</summary>
         <form className="personal-step" onSubmit={event => {
           event.preventDefault();
