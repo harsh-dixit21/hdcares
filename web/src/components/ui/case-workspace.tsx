@@ -46,7 +46,10 @@ function WorkspaceBackup() {
     <p>Save the report locations, action plan, and journal together. This download is readable JSON.</p>
     <button className="report-copy" disabled={!hasData} onClick={() =>
       downloadText('workspace-backup.json', serialize(), 'application/json')}>Back up workspace</button>
-    <LockedBackupTools label="workspace" filename="workspace-encrypted.json" enabled={hasData} serialize={serialize} />
+    <LockedBackupTools label="workspace" filename="workspace-encrypted.json" enabled={hasData} serialize={serialize} restore={text => {
+      setPending(readWorkspaceBackup(text));
+      setStatus('');
+    }} />
     <label>Choose workspace backup<input type="file" accept=".json" onChange={async event => {
       const file = event.target.files?.[0];
       event.target.value = '';
