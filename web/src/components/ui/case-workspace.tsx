@@ -93,6 +93,7 @@ function WorkspaceBackup() {
 export function WorkspaceOverview() {
   const { tasks, entries, notes } = useCaseWorkspace();
   return <><nav className="tool-shortcuts" aria-label="Workspace overview">
+    <a href="#report-organizer">Reports · {notes.filter(note => note.status !== 'Resolved').length} unresolved</a>
     <a href="#personal-plan">Action plan · {tasks.filter(task => !task.done).length} pending</a>
     <a href="#activity-journal">Activity journal · {entries.length} entries</a>
   </nav>
