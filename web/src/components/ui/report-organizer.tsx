@@ -411,6 +411,10 @@ export default function ReportOrganizer() {
         setEntries(previous => previous.length < MAX_ACTIVITIES ? [...previous, entry] : previous);
         setMessage('Report status recorded in the journal.');
       }}>Record status in journal</button>
+      <button className="report-copy" disabled={!note.reference.trim()} onClick={async () => {
+        try { await navigator.clipboard.writeText(note.reference); setMessage('Report reference copied.'); }
+        catch { setMessage('Clipboard access was unavailable.'); }
+      }}>Copy report reference</button>
       <button className="report-copy" onClick={() => void copyLocation(note)}>Copy link</button>
       <button className="report-copy" onClick={async () => {
         const clean = new URL(note.url);
