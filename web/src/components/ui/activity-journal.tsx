@@ -78,6 +78,9 @@ export default function ActivityJournal() {
       {startDay && endDay && startDay > endDay && <p role="status">The end date must be on or after the start date.</p>}
     </fieldset>
     <label>Search activity<input type="search" value={query} onChange={event => setQuery(event.target.value)} /></label>
+    <button className="report-copy" disabled={!category && !query && !pinnedOnly && !startDay && !endDay} onClick={() => {
+      setCategory(''); setQuery(''); setPinnedOnly(false); setStartDay(''); setEndDay('');
+    }}>Reset journal filters</button>
     <p role="status">{shown.length} activities shown.</p>
     <label>Activity order<select value={oldestFirst ? 'oldest' : 'newest'} onChange={event => setOldestFirst(event.target.value === 'oldest')}>
       <option value="newest">Newest first</option><option value="oldest">Oldest first</option>
