@@ -67,6 +67,9 @@ export default function ActivityJournal() {
     </form>
     <p role="status">{status}</p>
     <p>{entries.length} of {MAX_ACTIVITIES} entries</p>
+    <details><summary>Activity totals by category</summary>
+      <ul>{[...activityTypes, 'Uncategorized'].map(type => <li key={type}>{type}: {entries.filter(entry => (entry.type ?? 'Uncategorized') === type).length}</li>)}</ul>
+    </details>
     <label>Filter activity category<select value={category} onChange={event => setCategory(event.target.value)}>
       <option value="">All categories</option><option>Uncategorized</option>
       {activityTypes.map(type => <option key={type}>{type}</option>)}
