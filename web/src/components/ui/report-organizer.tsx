@@ -12,7 +12,10 @@ import { localToday, validObservationDate } from '@/lib/report-date';
 import { createReportBackup, parseReportBackup, mergeReportNotes, previewReportBackup, MAX_BACKUP_BYTES, MAX_REPORT_NOTES } from '@/lib/report-backup';
 import { filterReportNotes, sortReportNotes, reportStatusCounts, type StatusFilter, type ReportSort } from '@/lib/report-filters';
 
+import { useCaseWorkspace } from './case-workspace';
+
 export default function ReportOrganizer() {
+  const { tasks, setTasks } = useCaseWorkspace();
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [preparation, setPreparation] = useState<string[]>([]);
   const [hostFilter, setHostFilter] = useState('');
@@ -395,6 +398,12 @@ export default function ReportOrganizer() {
       })} />
       <button className="report-copy" onClick={() =>
         downloadText('report-location.txt', exportReportNotes([note]))}>Save this location</button>
+      <button className="report-copy" disabled={tasks.length >= 500} onClick={() => {
+        const task = { id: crypto.randomUUID(), title: 'Follow up with ' + note.platform, done: false, category: 'Reporting' as const,
+          context: [note.url, note.reference].filter(Boolean).join('\n').slice(0, 500) };
+        setTasks(previous => previous.length < 500 ? [...previous, task] : previous);
+        setMessage('Follow-up action added to your plan.');
+      }}>Plan a follow-up</button>
       <button className="report-copy" onClick={() => void copyLocation(note)}>Copy link</button>
       <button className="report-copy" onClick={async () => {
         const clean = new URL(note.url);
