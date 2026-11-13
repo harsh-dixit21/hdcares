@@ -12,10 +12,11 @@ import { localToday, validObservationDate } from '@/lib/report-date';
 import { createReportBackup, parseReportBackup, mergeReportNotes, previewReportBackup, MAX_BACKUP_BYTES, MAX_REPORT_NOTES } from '@/lib/report-backup';
 import { filterReportNotes, sortReportNotes, reportStatusCounts, type StatusFilter, type ReportSort } from '@/lib/report-filters';
 
+import { MAX_ACTIVITIES } from '@/lib/activity-journal';
 import { useCaseWorkspace } from './case-workspace';
 
 export default function ReportOrganizer() {
-  const { tasks, setTasks } = useCaseWorkspace();
+  const { tasks, setTasks, entries, setEntries } = useCaseWorkspace();
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [preparation, setPreparation] = useState<string[]>([]);
   const [hostFilter, setHostFilter] = useState('');
@@ -404,6 +405,13 @@ export default function ReportOrganizer() {
         setTasks(previous => previous.length < 500 ? [...previous, task] : previous);
         setMessage('Follow-up action added to your plan.');
       }}>Plan a follow-up</button>
+      <button className="report-copy" disabled={entries.length >= MAX_ACTIVITIES} onClick={() => {
+        const entry = { id: crypto.randomUUID(), day: localToday(),
+          text: [note.platform, note.status, note.reference && 'Reference: ' + note.reference].filter(Boolean).join(' · '),
+          type: 'Reporting' as const };
+        setEntries(previous => previous.length < MAX_ACTIVITIES ? [...previous, entry] : previous);
+        setMessage('Report status recorded in the journal.');
+      }}>Record status in journal</button>
       <button className="report-copy" onClick={() => void copyLocation(note)}>Copy link</button>
       <button className="report-copy" onClick={async () => {
         const clean = new URL(note.url);
