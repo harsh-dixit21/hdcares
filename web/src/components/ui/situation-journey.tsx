@@ -10,8 +10,10 @@ const paths = [
   { title: 'I’m helping someone', icon: Heart, heading: 'Let their choices lead.', intro: 'You can offer practical support without asking to see their private images.', steps: ['Listen and ask what kind of help they would like.', 'Offer to explore support options together, at their pace.', 'Let them decide what information to share and which steps to take.'], link: '#support', action: 'Explore support' },
 ] as const;
 
-import { WorkspaceOverview } from './case-workspace';
+import { WorkspaceOverview, useCaseWorkspace } from './case-workspace';
 export default function SituationJourney() {
+  const { tasks, setTasks } = useCaseWorkspace();
+  const [planMessage, setPlanMessage] = useState('');
   const [selected, setSelected] = useState<number | null>(null);
   const [checked, setChecked] = useState<boolean[][]>(() => paths.map(() => [false, false, false]));
   const [steps, setSteps] = useState<string[][]>(() => paths.map(path => [...path.steps]));
@@ -62,6 +64,22 @@ export default function SituationJourney() {
       </div>}
       <button className="report-copy" disabled={count === steps[selected].length} onClick={() =>
         setChecked(previous => previous.map((items, route) => route === selected ? items.map(() => true) : items))}>Mark all steps reviewed</button>
+      <div>
+        <button className="report-copy" disabled={count === steps[selected].length || tasks.length >= 500} onClick={() => {
+          const category = (['Protection', 'Reporting', 'Support'] as const)[selected];
+          const pending = steps[selected].filter((step, i) => step.trim() && !checked[selected][i])
+            .map(title => ({ id: crypto.randomUUID(), title: title.trim().slice(0, 300), done: false, category }));
+          const known = new Set(tasks.filter(task => !task.done).map(task => task.title));
+          const additions = pending.filter(task => {
+            if (known.has(task.title)) return false;
+            known.add(task.title);
+            return true;
+          }).slice(0, 500 - tasks.length);
+          setTasks(previous => [...previous, ...additions].slice(0, 500));
+          setPlanMessage(additions.length + ' pending actions added.');
+        }}>Add remaining steps to plan</button>
+        <p role="status">{planMessage}</p>
+      </div>
       <form className="personal-step" onSubmit={event => {
         event.preventDefault();
         const form = event.currentTarget;
