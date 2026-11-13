@@ -130,6 +130,10 @@ export default function ActivityJournal() {
         setEntries(previous => previous.length < MAX_ACTIVITIES ? [...previous, copy] : previous);
         setStatus('A copy was added with today’s date.');
       }}>Duplicate activity for today</button>
+      <button className="report-copy" onClick={async () => {
+        try { await navigator.clipboard.writeText(activityTimeline([entry])); setStatus('Activity copied.'); }
+        catch { setStatus('Clipboard unavailable. Save this activity as text instead.'); }
+      }}>Copy this activity</button>
       <details><summary>Edit activity</summary>
         <form className="personal-step" onSubmit={event => {
           event.preventDefault();
