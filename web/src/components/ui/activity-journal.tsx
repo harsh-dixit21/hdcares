@@ -12,7 +12,9 @@ export default function ActivityJournal() {
   const [category, setCategory] = useState('');
   const [query, setQuery] = useState('');
   const [oldestFirst, setOldestFirst] = useState(false);
+  const [pinnedOnly, setPinnedOnly] = useState(false);
   const shown = entries.filter(entry => !category || (entry.type ?? 'Uncategorized') === category)
+    .filter(entry => !pinnedOnly || entry.pinned)
     .filter(entry => entry.text.toLowerCase().includes(query.trim().toLowerCase()))
     .sort((a, b) => Number(!!b.pinned) - Number(!!a.pinned) ||
       (oldestFirst ? a.day.localeCompare(b.day) : b.day.localeCompare(a.day)));
@@ -66,6 +68,7 @@ export default function ActivityJournal() {
       <option value="">All categories</option><option>Uncategorized</option>
       {activityTypes.map(type => <option key={type}>{type}</option>)}
     </select></label>
+    <label><input type="checkbox" checked={pinnedOnly} onChange={event => setPinnedOnly(event.target.checked)} />Pinned activities only</label>
     <label>Search activity<input type="search" value={query} onChange={event => setQuery(event.target.value)} /></label>
     <p role="status">{shown.length} activities shown.</p>
     <label>Activity order<select value={oldestFirst ? 'oldest' : 'newest'} onChange={event => setOldestFirst(event.target.value === 'oldest')}>
