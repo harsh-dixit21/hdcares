@@ -35,16 +35,25 @@ function WorkspaceBackup() {
   const [pending, setPending] = useState<(WorkspaceData & { createdAt?: string }) | null>(null);
   const [included, setIncluded] = useState({ notes: true, tasks: true, entries: true });
   const [status, setStatus] = useState('');
-  const hasData = !!(notes.length || tasks.length || entries.length);
+  const [exportParts, setExportParts] = useState({ notes: true, tasks: true, entries: true });
+  const hasData = !!((exportParts.notes && notes.length) || (exportParts.tasks && tasks.length) ||
+    (exportParts.entries && entries.length));
   const serialize = () => JSON.stringify({
     format: 'hdcares-workspace', version: 1, createdAt: new Date().toISOString(),
-    reports: JSON.parse(createReportBackup(notes)),
-    plan: { format: 'hdcares-plan', version: 1, tasks },
-    journal: JSON.parse(createActivityBackup(entries)),
+    reports: JSON.parse(createReportBackup(exportParts.notes ? notes : [])),
+    plan: { format: 'hdcares-plan', version: 1, tasks: exportParts.tasks ? tasks : [] },
+    journal: JSON.parse(createActivityBackup(exportParts.entries ? entries : [])),
   });
   return <details className="backup-preview glass">
     <summary>Workspace backup</summary>
     <p>Save the report locations, action plan, and journal together. This download is readable JSON.</p>
+    <fieldset><legend>Include in download</legend>
+      {([['notes', 'Report locations'], ['tasks', 'Personal actions'], ['entries', 'Journal activities']] as const).map(([key, label]) =>
+        <label key={key}><input type="checkbox" checked={exportParts[key]} onChange={event => {
+          const checked = event.target.checked;
+          setExportParts(previous => ({ ...previous, [key]: checked }));
+        }} />{label}</label>)}
+    </fieldset>
     <button className="report-copy" disabled={!hasData} onClick={() =>
       downloadText('workspace-backup.json', serialize(), 'application/json')}>Back up workspace</button>
     <LockedBackupTools label="workspace" filename="workspace-encrypted.json" enabled={hasData} serialize={serialize} restore={text => {
