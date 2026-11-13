@@ -4,11 +4,12 @@ import { downloadText } from '@/lib/download-text';
 import { followUpCalendar } from '@/lib/follow-up-calendar';
 import { localToday, validObservationDate } from '@/lib/report-date';
 import { actionCategories, MAX_PLAN_BACKUP_BYTES, readPlanBackup, type PlanTask as Task } from '@/lib/plan-backup';
+import { useCaseWorkspace } from './case-workspace';
 export default function PersonalPlan() {
   const [removed, setRemoved] = useState<Task | null>(null);
   const [feedback, setFeedback] = useState('');
   const [confirmClear, setConfirmClear] = useState(false);
-  const [tasks, setTasks] = useState<Task[]>([]);
+  const { tasks, setTasks } = useCaseWorkspace();
   useEffect(() => {
     if (!tasks.length && !removed) return;
     const warn = (event: BeforeUnloadEvent) => { event.preventDefault(); event.returnValue = ''; };

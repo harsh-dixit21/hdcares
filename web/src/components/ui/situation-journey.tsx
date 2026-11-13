@@ -10,6 +10,7 @@ const paths = [
   { title: 'I’m helping someone', icon: Heart, heading: 'Let their choices lead.', intro: 'You can offer practical support without asking to see their private images.', steps: ['Listen and ask what kind of help they would like.', 'Offer to explore support options together, at their pace.', 'Let them decide what information to share and which steps to take.'], link: '#support', action: 'Explore support' },
 ] as const;
 
+import { WorkspaceOverview } from './case-workspace';
 export default function SituationJourney() {
   const [selected, setSelected] = useState<number | null>(null);
   const [checked, setChecked] = useState<boolean[][]>(() => paths.map(() => [false, false, false]));
@@ -26,11 +27,10 @@ export default function SituationJourney() {
       paths.map((path, route) => [path.title, ...steps[route].map((step, i) =>
         (checked[route][i] ? '[x] ' : '[ ] ') + step)].join('\n')).join('\n\n'))}>Save all checklists</button>
     <details><summary>Keyboard shortcuts</summary><p>Alt+1 opens Tools, Alt+2 opens Report organizer, and Alt+3 opens My action plan. Browser shortcuts may take precedence.</p></details>
+    <WorkspaceOverview />
     <nav aria-label="Tool shortcuts" className="tool-shortcuts">
       <a href="#fingerprint-demo">Fingerprint demo</a>
       <a href="#report-organizer">Report organizer</a>
-      <a href="#personal-plan">My action plan</a>
-      <a href="#activity-journal">Activity journal</a>
       <a href="#start">Specialist services</a>
     </nav>
     <details className="backup-preview glass">

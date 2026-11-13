@@ -10,6 +10,7 @@ import FingerprintDemo from '@/components/ui/fingerprint-demo';
 import ReportOrganizer from '@/components/ui/report-organizer';
 import PersonalPlan from '@/components/ui/personal-plan';
 import ActivityJournal from '@/components/ui/activity-journal';
+import { CaseWorkspace } from '@/components/ui/case-workspace';
 import { downloadText } from '@/lib/download-text';
 import { matchesFaq } from '@/lib/faq-search';
 import VisualBoundary from '@/components/ui/visual-boundary';
@@ -156,10 +157,10 @@ function FAQ() {
 
 export default function App() {
   const { scrollYProgress } = useScroll();
-  return <MotionEnabled.Provider value={true}><MotionConfig reducedMotion="never"><div className="app motion-enabled">
+  return <CaseWorkspace><MotionEnabled.Provider value={true}><MotionConfig reducedMotion="never"><div className="app motion-enabled">
     <a className="skip-link" href="#main">Skip to content</a><motion.div className="page-progress" style={{ scaleX: scrollYProgress }} />
     <Header />
     <main id="main"><VisualBoundary><div className="hero-sequence"><Hero /><PerspectiveTunnelHero /></div></VisualBoundary><VisualBoundary><CourageHero /></VisualBoundary><div className="content-flow"><SituationJourney /><Privacy /><FingerprintDemo /><Journey /><ReportOrganizer /><PersonalPlan /><ActivityJournal /><Support /><Start /><FAQ /></div></main>
     <footer className="footer"><div className="footer-main"><Brand /><p>Your story is <em>still yours.</em></p><a href="#home" className="back-top glass" aria-label="Back to top"><ArrowUpRight size={21} /></a></div><div className="footer-bottom"><span>© {new Date().getFullYear()} HD Cares · Product concept</span><span>Designed around dignity.</span><a href="https://guglielmogiannattasio.it" target="_blank" rel="noreferrer">Sculpture engine by Guglielmo Giannattasio <ArrowUpRight size={10} /></a><a href="https://github.com/harsh-dixit21" target="_blank" rel="noopener noreferrer" aria-label="Harsh Dixit on GitHub (opens in a new tab)"><Github size={14} /> Harsh Dixit on GitHub <ArrowUpRight size={10} /></a></div></footer>
-  </div></MotionConfig></MotionEnabled.Provider>;
+  </div></MotionConfig></MotionEnabled.Provider></CaseWorkspace>;
 }

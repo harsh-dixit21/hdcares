@@ -4,9 +4,10 @@ import { localToday, validObservationDate } from '@/lib/report-date';
 import { downloadText } from "@/lib/download-text";
 import { createActivityBackup, readActivityBackup, mergeActivityBackup, MAX_JOURNAL_BACKUP_BYTES, activityTimeline, activityTypes, MAX_ACTIVITIES, type ActivityEntry } from '@/lib/activity-journal';
 
+import { useCaseWorkspace } from './case-workspace';
 export default function ActivityJournal() {
   const [hidden, setHidden] = useState(false);
-  const [entries, setEntries] = useState<ActivityEntry[]>([]);
+  const { entries, setEntries } = useCaseWorkspace();
   const [status, setStatus] = useState('');
   const [category, setCategory] = useState('');
   const [query, setQuery] = useState('');
