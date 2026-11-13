@@ -125,6 +125,11 @@ export default function ActivityJournal() {
       <button className="report-copy" aria-pressed={!!entry.pinned} onClick={() => setEntries(previous =>
         previous.map(item => item.id === entry.id ? { ...item, pinned: !item.pinned } : item))}>Pin activity</button>
       <button className="report-copy" onClick={() => downloadText('activity-entry.txt', activityTimeline([entry]))}>Save this activity</button>
+      <button className="report-copy" disabled={entries.length >= MAX_ACTIVITIES} onClick={() => {
+        const copy = { ...entry, id: crypto.randomUUID(), day: localToday(), pinned: false };
+        setEntries(previous => previous.length < MAX_ACTIVITIES ? [...previous, copy] : previous);
+        setStatus('A copy was added with today’s date.');
+      }}>Duplicate activity for today</button>
       <details><summary>Edit activity</summary>
         <form className="personal-step" onSubmit={event => {
           event.preventDefault();
