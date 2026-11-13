@@ -7,6 +7,7 @@ import { actionCategories, MAX_PLAN_BACKUP_BYTES, readPlanBackup, type PlanTask 
 import { MAX_ACTIVITIES } from '@/lib/activity-journal';
 import { useCaseWorkspace } from './case-workspace';
 export default function PersonalPlan() {
+  const [concealed, setConcealed] = useState(false);
   const [removed, setRemoved] = useState<Task | null>(null);
   const [feedback, setFeedback] = useState('');
   const [confirmClear, setConfirmClear] = useState(false);
@@ -69,6 +70,10 @@ export default function PersonalPlan() {
   }
   return <section id="personal-plan" className="section report-organizer">
     <h2>My action plan</h2><p className="organizer-privacy">Plan your next actions here. Tasks stay in this page’s memory until you close or reload it.</p>
+    <button className="report-copy" aria-expanded={!concealed} aria-controls="personal-plan-content" onClick={() => setConcealed(value => !value)}>
+      {concealed ? 'Show action plan' : 'Hide action plan'}
+    </button>
+    <div id="personal-plan-content" hidden={concealed}>
     <form className="personal-step" onSubmit={event => {
       event.preventDefault();
       const form = event.currentTarget;
@@ -210,5 +215,6 @@ export default function PersonalPlan() {
         setTasks(previous => previous.map(item => item.id === task.id ? { ...item, due } : item));
       }} /></label>
     </li>)}</ul>
+    </div>
   </section>;
 }
