@@ -1,7 +1,7 @@
 const FORMAT = 'hdcares-encrypted-backup';
 const encoder = new TextEncoder();
-export const MAX_LOCKED_BYTES = 6_000_000;
-const MAX_PLAINTEXT_BYTES = 4_000_000;
+export const MAX_LOCKED_BYTES = 14_000_000;
+const MAX_PLAINTEXT_BYTES = 10_000_000;
 
 function encodeBytes(bytes: Uint8Array): string {
   let binary = '';

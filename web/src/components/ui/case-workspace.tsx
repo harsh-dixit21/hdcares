@@ -4,6 +4,7 @@ import { createActivityBackup, type ActivityEntry } from '@/lib/activity-journal
 import { createReportBackup } from '@/lib/report-backup';
 import type { ReportNote } from '@/lib/report-notes';
 import { MAX_WORKSPACE_BYTES, mergeWorkspace, readWorkspaceBackup, type WorkspaceData } from '@/lib/workspace-backup';
+import LockedBackupTools from './locked-backup-tools';
 import { downloadText } from '@/lib/download-text';
 
 type Workspace = {
@@ -45,6 +46,7 @@ function WorkspaceBackup() {
     <p>Save the report locations, action plan, and journal together. This download is readable JSON.</p>
     <button className="report-copy" disabled={!hasData} onClick={() =>
       downloadText('workspace-backup.json', serialize(), 'application/json')}>Back up workspace</button>
+    <LockedBackupTools label="workspace" filename="workspace-encrypted.json" enabled={hasData} serialize={serialize} />
     <label>Choose workspace backup<input type="file" accept=".json" onChange={async event => {
       const file = event.target.files?.[0];
       event.target.value = '';

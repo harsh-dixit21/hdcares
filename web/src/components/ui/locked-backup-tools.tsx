@@ -33,7 +33,7 @@ export default function LockedBackupTools({ label, filename, enabled, serialize,
     const data = new FormData(form);
     const file = data.get('backup');
     if (!(file instanceof File) || !file.size || file.size > MAX_LOCKED_BYTES) {
-      setMessage('Choose an encrypted backup under 6 MB.'); return;
+      setMessage('Choose an encrypted backup under 14 MB.'); return;
     }
     running.current = true;
     setBusy(true);
