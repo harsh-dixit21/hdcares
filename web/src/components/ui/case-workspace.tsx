@@ -33,6 +33,7 @@ export function CaseWorkspace({ children }: { children: ReactNode }) {
 function WorkspaceBackup() {
   const { notes, tasks, entries, setNotes, setTasks, setEntries } = useCaseWorkspace();
   const [pending, setPending] = useState<WorkspaceData | null>(null);
+  const [included, setIncluded] = useState({ notes: true, tasks: true, entries: true });
   const [status, setStatus] = useState('');
   const hasData = !!(notes.length || tasks.length || entries.length);
   const serialize = () => JSON.stringify({
@@ -47,7 +48,7 @@ function WorkspaceBackup() {
     <button className="report-copy" disabled={!hasData} onClick={() =>
       downloadText('workspace-backup.json', serialize(), 'application/json')}>Back up workspace</button>
     <LockedBackupTools label="workspace" filename="workspace-encrypted.json" enabled={hasData} serialize={serialize} restore={text => {
-      setPending(readWorkspaceBackup(text));
+      setPending(readWorkspaceBackup(text)); setIncluded({ notes: true, tasks: true, entries: true });
       setStatus('');
     }} />
     <label>Choose workspace backup<input type="file" accept=".json" onChange={async event => {
@@ -57,14 +58,25 @@ function WorkspaceBackup() {
       setPending(null); setStatus('');
       try {
         if (file.size > MAX_WORKSPACE_BYTES) throw new Error('Workspace backup is too large.');
-        setPending(readWorkspaceBackup(await file.text()));
+        setPending(readWorkspaceBackup(await file.text())); setIncluded({ notes: true, tasks: true, entries: true });
       } catch { setStatus('Choose a valid HD Cares workspace backup under 10 MB.'); }
     }} /></label>
     {pending && <div>
       <p>Review import: {pending.notes.length} locations, {pending.tasks.length} actions, {pending.entries.length} activities. Existing records take precedence.</p>
-      <button className="report-copy" onClick={() => {
+      <fieldset><legend>Restore from this file</legend>
+        {([['notes', 'Report locations'], ['tasks', 'Personal actions'], ['entries', 'Journal activities']] as const).map(([key, label]) =>
+          <label key={key}><input type="checkbox" checked={included[key]} onChange={event => {
+            const checked = event.target.checked;
+            setIncluded(previous => ({ ...previous, [key]: checked }));
+          }} />{label}</label>)}
+      </fieldset>
+      <button className="report-copy" disabled={!Object.values(included).some(Boolean)} onClick={() => {
         try {
-          const merged = mergeWorkspace({ notes, tasks, entries }, pending);
+          const merged = mergeWorkspace({ notes, tasks, entries }, {
+            notes: included.notes ? pending.notes : [],
+            tasks: included.tasks ? pending.tasks : [],
+            entries: included.entries ? pending.entries : [],
+          });
           setNotes(merged.notes); setTasks(merged.tasks); setEntries(merged.entries);
           setPending(null); setStatus('Workspace restored.');
         } catch { setStatus('This restore would exceed a workspace limit. No records were changed.'); }
