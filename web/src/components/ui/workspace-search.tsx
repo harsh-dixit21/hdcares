@@ -10,14 +10,14 @@ export default function WorkspaceSearch({ notes, tasks, entries }: WorkspaceData
     ...tasks.map(task => ({ key: 'action-' + task.id, type: 'Actions', title: task.title || 'Untitled action', description: task.category ?? '', search: task.context ?? '', link: '#personal-plan' })),
     ...entries.map(entry => ({ key: 'journal-' + entry.id, type: 'Journal', title: entry.text, description: entry.day, search: entry.type ?? '', link: '#activity-journal' })),
   ];
-  const matches = words.length ? records.filter(record => {
+  const matches = records.filter(record => {
     const content = [record.title, record.description, record.search].join(' ').toLowerCase();
     return (!type || type === record.type) && words.every(word => content.includes(word));
-  }) : [];
+  });
   return <details className="backup-preview glass">
     <summary>Search workspace</summary>
     <label>Find records <input type="search" value={query} maxLength={200} autoComplete="off" onChange={event => setQuery(event.target.value)} /></label>
-    {words.length > 0 && <p role="status">{matches.length} matching records</p>}
+    <p role="status">{matches.length} matching records</p>
     <label>Record type <select value={type} onChange={event => setType(event.target.value)}>
       <option value="">All records</option><option>Reports</option><option>Actions</option><option>Journal</option>
     </select></label>
