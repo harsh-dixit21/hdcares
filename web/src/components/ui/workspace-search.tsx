@@ -6,15 +6,16 @@ export default function WorkspaceSearch({ notes, tasks, entries }: WorkspaceData
   const [type, setType] = useState('');
   const [requestedPage, setPage] = useState(1);
   const [alphabetical, setAlphabetical] = useState(false);
+  const [openOnly, setOpenOnly] = useState(false);
   const words = query.trim().toLowerCase().split(/\s+/).filter(Boolean);
   const records = [
-    ...notes.map(note => ({ key: 'report-' + note.id, type: 'Reports', title: note.platform, description: note.url, search: note.reference + ' ' + note.status, link: '#report-organizer' })),
-    ...tasks.map(task => ({ key: 'action-' + task.id, type: 'Actions', title: task.title || 'Untitled action', description: task.category ?? '', search: task.context ?? '', link: '#personal-plan' })),
-    ...entries.map(entry => ({ key: 'journal-' + entry.id, type: 'Journal', title: entry.text, description: entry.day, search: entry.type ?? '', link: '#activity-journal' })),
+    ...notes.map(note => ({ key: 'report-' + note.id, type: 'Reports', closed: note.status === 'Resolved', title: note.platform, description: note.url, search: note.reference + ' ' + note.status, link: '#report-organizer' })),
+    ...tasks.map(task => ({ key: 'action-' + task.id, type: 'Actions', closed: task.done, title: task.title || 'Untitled action', description: task.category ?? '', search: task.context ?? '', link: '#personal-plan' })),
+    ...entries.map(entry => ({ key: 'journal-' + entry.id, type: 'Journal', closed: false, title: entry.text, description: entry.day, search: entry.type ?? '', link: '#activity-journal' })),
   ];
   const matches = records.filter(record => {
     const content = [record.title, record.description, record.search].join(' ').toLowerCase();
-    return (!type || type === record.type) && words.every(word => content.includes(word));
+    return (!openOnly || !record.closed) && (!type || type === record.type) && words.every(word => content.includes(word));
   });
   if (alphabetical) matches.sort((a, b) => a.title.localeCompare(b.title));
   const pages = Math.max(1, Math.ceil(matches.length / 10));
@@ -29,6 +30,9 @@ export default function WorkspaceSearch({ notes, tasks, entries }: WorkspaceData
     <label><input type="checkbox" checked={alphabetical} onChange={event => {
       setAlphabetical(event.target.checked); setPage(1);
     }} />Sort records by title</label>
+    <label><input type="checkbox" checked={openOnly} onChange={event => {
+      setOpenOnly(event.target.checked); setPage(1);
+    }} />Hide completed actions and resolved reports</label>
     <ul>{matches.slice((page - 1) * 10, page * 10).map(record => <li key={record.key}>
       <a href={record.link}>{record.title}</a><p>{record.type} · {record.description}</p>
     </li>)}</ul>
