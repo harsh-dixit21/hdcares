@@ -58,6 +58,21 @@ function WorkspaceBackup() {
     plan: { format: 'hdcares-plan', version: 1, tasks: exportParts.tasks ? tasks : [] },
     journal: JSON.parse(createActivityBackup(exportParts.entries ? entries : [])),
   });
+  const incoming = pending ? {
+    details: included.details ? pending.details : undefined,
+    notes: included.notes ? pending.notes : [],
+    tasks: included.tasks ? pending.tasks : [],
+    entries: included.entries ? pending.entries : [],
+  } : null;
+  let merged: WorkspaceData | null = null;
+  if (incoming) {
+    try { merged = mergeWorkspace({ notes, tasks, entries, details }, incoming); }
+    catch { /* A capacity error is displayed below. */ }
+  }
+  const added = merged ? [merged.notes.length - notes.length, merged.tasks.length - tasks.length,
+    merged.entries.length - entries.length] : null;
+  const skipped = incoming && added ? incoming.notes.length + incoming.tasks.length + incoming.entries.length -
+    added.reduce((sum, count) => sum + count, 0) : 0;
   return <details className="backup-preview glass">
     <summary>Workspace backup</summary>
     <p>Save the report locations, action plan, and journal together. This download is readable JSON.</p>
@@ -94,19 +109,15 @@ function WorkspaceBackup() {
             setIncluded(previous => ({ ...previous, [key]: checked }));
           }} />{label}</label>)}
       </fieldset>
-      <button className="report-copy" disabled={!Object.values(included).some(Boolean)} onClick={() => {
-        try {
-          const merged = mergeWorkspace({ notes, tasks, entries, details }, {
-            details: included.details ? pending.details : undefined,
-            notes: included.notes ? pending.notes : [],
-            tasks: included.tasks ? pending.tasks : [],
-            entries: included.entries ? pending.entries : [],
-          });
+      <p>{added ? 'Ready to add ' + added[0] + ' locations, ' + added[1] + ' actions, and ' + added[2] +
+        ' activities. Duplicate records skipped: ' + skipped + '.' : 'The selected import would exceed a workspace limit.'}</p>
+      <button className="report-copy" disabled={!merged || !Object.values(included).some(Boolean)} onClick={() => {
+        if (merged) {
           setNotes(merged.notes); setTasks(merged.tasks); setEntries(merged.entries); setDetails(merged.details ?? {});
           setPending(null);
           setStatus('Added ' + (merged.notes.length - notes.length) + ' locations, ' +
             (merged.tasks.length - tasks.length) + ' actions, and ' + (merged.entries.length - entries.length) + ' activities.');
-        } catch { setStatus('This restore would exceed a workspace limit. No records were changed.'); }
+        }
       }}>Merge workspace backup</button>
       <button className="report-copy" onClick={() => { setPending(null); setStatus(''); }}>Cancel workspace restore</button>
     </div>}
