@@ -4,6 +4,7 @@ import { readActivityBackup, MAX_ACTIVITIES, type ActivityEntry } from './activi
 import type { ReportNote } from './report-notes.ts';
 
 export const MAX_WORKSPACE_BYTES = 10_000_000;
+export type CaseDetails = { title?: string };
 export type WorkspaceData = { notes: ReportNote[]; tasks: PlanTask[]; entries: ActivityEntry[] };
 
 export function readWorkspaceBackup(text: string): WorkspaceData & { createdAt?: string } {

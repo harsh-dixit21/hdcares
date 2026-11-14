@@ -4,11 +4,15 @@ import { createActivityBackup, type ActivityEntry } from '@/lib/activity-journal
 import { createReportBackup } from '@/lib/report-backup';
 import type { ReportNote } from '@/lib/report-notes';
 import { MAX_WORKSPACE_BYTES, mergeWorkspace, readWorkspaceBackup, type WorkspaceData } from '@/lib/workspace-backup';
+import CaseDetailsPanel from './case-details';
+import type { CaseDetails } from '@/lib/workspace-backup';
 import WorkspaceSearch from './workspace-search';
 import LockedBackupTools from './locked-backup-tools';
 import { downloadText } from '@/lib/download-text';
 
 type Workspace = {
+  details: CaseDetails;
+  setDetails: Dispatch<SetStateAction<CaseDetails>>;
   notes: ReportNote[];
   setNotes: Dispatch<SetStateAction<ReportNote[]>>;
   tasks: PlanTask[];
@@ -25,10 +29,11 @@ export function useCaseWorkspace() {
 }
 
 export function CaseWorkspace({ children }: { children: ReactNode }) {
+  const [details, setDetails] = useState<CaseDetails>({});
   const [notes, setNotes] = useState<ReportNote[]>([]);
   const [tasks, setTasks] = useState<PlanTask[]>([]);
   const [entries, setEntries] = useState<ActivityEntry[]>([]);
-  return <WorkspaceContext.Provider value={{ notes, setNotes, tasks, setTasks, entries, setEntries }}>{children}</WorkspaceContext.Provider>;
+  return <WorkspaceContext.Provider value={{ details, setDetails, notes, setNotes, tasks, setTasks, entries, setEntries }}>{children}</WorkspaceContext.Provider>;
 }
 
 function WorkspaceBackup() {
@@ -101,12 +106,13 @@ function WorkspaceBackup() {
 }
 
 export function WorkspaceOverview() {
-  const { tasks, entries, notes } = useCaseWorkspace();
+  const { tasks, entries, notes, details, setDetails } = useCaseWorkspace();
   return <><nav className="tool-shortcuts" aria-label="Workspace overview">
     <a href="#report-organizer">Reports · {notes.filter(note => note.status !== 'Resolved').length} unresolved</a>
     <a href="#personal-plan">Action plan · {tasks.filter(task => !task.done).length} pending</a>
     <a href="#activity-journal">Activity journal · {entries.length} entries</a>
   </nav>
+  <CaseDetailsPanel value={details} onChange={setDetails} />
   <WorkspaceSearch notes={notes} tasks={tasks} entries={entries} />
   <WorkspaceBackup />
   </>;
