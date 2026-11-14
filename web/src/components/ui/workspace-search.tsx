@@ -5,6 +5,7 @@ export default function WorkspaceSearch({ notes, tasks, entries }: WorkspaceData
   const [query, setQuery] = useState('');
   const [type, setType] = useState('');
   const [requestedPage, setPage] = useState(1);
+  const [alphabetical, setAlphabetical] = useState(false);
   const words = query.trim().toLowerCase().split(/\s+/).filter(Boolean);
   const records = [
     ...notes.map(note => ({ key: 'report-' + note.id, type: 'Reports', title: note.platform, description: note.url, search: note.reference + ' ' + note.status, link: '#report-organizer' })),
@@ -15,6 +16,7 @@ export default function WorkspaceSearch({ notes, tasks, entries }: WorkspaceData
     const content = [record.title, record.description, record.search].join(' ').toLowerCase();
     return (!type || type === record.type) && words.every(word => content.includes(word));
   });
+  if (alphabetical) matches.sort((a, b) => a.title.localeCompare(b.title));
   const pages = Math.max(1, Math.ceil(matches.length / 10));
   const page = Math.min(requestedPage, pages);
   return <details className="backup-preview glass">
@@ -24,6 +26,9 @@ export default function WorkspaceSearch({ notes, tasks, entries }: WorkspaceData
     <label>Record type <select value={type} onChange={event => { setType(event.target.value); setPage(1); }}>
       <option value="">All records</option><option>Reports</option><option>Actions</option><option>Journal</option>
     </select></label>
+    <label><input type="checkbox" checked={alphabetical} onChange={event => {
+      setAlphabetical(event.target.checked); setPage(1);
+    }} />Sort records by title</label>
     <ul>{matches.slice((page - 1) * 10, page * 10).map(record => <li key={record.key}>
       <a href={record.link}>{record.title}</a><p>{record.type} · {record.description}</p>
     </li>)}</ul>
