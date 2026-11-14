@@ -1,5 +1,7 @@
 import { caseStages, type CaseDetails as Details } from '@/lib/workspace-backup';
 
+import { downloadText } from '@/lib/download-text';
+
 export default function CaseDetails({ value, onChange }: { value: Details; onChange: (value: Details) => void }) {
   return <details className="backup-preview glass">
     <summary>Case details</summary>
@@ -14,5 +16,8 @@ export default function CaseDetails({ value, onChange }: { value: Details; onCha
       onChange={event => onChange({ ...value, reference: event.target.value })} /></label>
     <label>Case summary <textarea rows={4} maxLength={1500} value={value.summary ?? ''} autoComplete="off"
       onChange={event => onChange({ ...value, summary: event.target.value })} /></label>
+    <button className="report-copy" disabled={!Object.values(value).some(item => item?.trim())} onClick={() =>
+      downloadText('case-details.txt', [value.title, value.reference && 'Reference: ' + value.reference,
+        value.stage && 'Stage: ' + value.stage, value.summary].filter(Boolean).join('\n\n'))}>Save case details</button>
   </details>;
 }
