@@ -4,6 +4,7 @@ import { createActivityBackup, type ActivityEntry } from '@/lib/activity-journal
 import { createReportBackup } from '@/lib/report-backup';
 import type { ReportNote } from '@/lib/report-notes';
 import { MAX_WORKSPACE_BYTES, mergeWorkspace, readWorkspaceBackup, type WorkspaceData } from '@/lib/workspace-backup';
+import WorkspaceSearch from './workspace-search';
 import LockedBackupTools from './locked-backup-tools';
 import { downloadText } from '@/lib/download-text';
 
@@ -106,6 +107,7 @@ export function WorkspaceOverview() {
     <a href="#personal-plan">Action plan · {tasks.filter(task => !task.done).length} pending</a>
     <a href="#activity-journal">Activity journal · {entries.length} entries</a>
   </nav>
+  <WorkspaceSearch notes={notes} tasks={tasks} entries={entries} />
   <WorkspaceBackup />
   </>;
 }
