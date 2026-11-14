@@ -78,6 +78,10 @@ function WorkspaceBackup() {
     <summary>Workspace backup</summary>
     <p>Save the report locations, action plan, and journal together. This download is readable JSON.</p>
     <fieldset><legend>Include in download</legend>
+      <div className="backup-actions">
+        <button className="report-copy" onClick={() => setExportParts({ notes: true, tasks: true, entries: true, details: true })}>Include all in backup</button>
+        <button className="report-copy" onClick={() => setExportParts({ notes: false, tasks: false, entries: false, details: false })}>Exclude all from backup</button>
+      </div>
       {([['notes', 'Report locations'], ['tasks', 'Personal actions'], ['entries', 'Journal activities'], ['details', 'Case details']] as const).map(([key, label]) =>
         <label key={key}><input type="checkbox" checked={exportParts[key]} onChange={event => {
           const checked = event.target.checked;
