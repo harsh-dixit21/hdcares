@@ -37,15 +37,16 @@ export function CaseWorkspace({ children }: { children: ReactNode }) {
 }
 
 function WorkspaceBackup() {
-  const { notes, tasks, entries, setNotes, setTasks, setEntries } = useCaseWorkspace();
+  const { notes, tasks, entries, details, setNotes, setTasks, setEntries } = useCaseWorkspace();
   const [pending, setPending] = useState<(WorkspaceData & { createdAt?: string }) | null>(null);
   const [included, setIncluded] = useState({ notes: true, tasks: true, entries: true });
   const [status, setStatus] = useState('');
-  const [exportParts, setExportParts] = useState({ notes: true, tasks: true, entries: true });
+  const [exportParts, setExportParts] = useState({ notes: true, tasks: true, entries: true, details: true });
   const hasData = !!((exportParts.notes && notes.length) || (exportParts.tasks && tasks.length) ||
-    (exportParts.entries && entries.length));
+    (exportParts.entries && entries.length) || (exportParts.details && Object.values(details).some(Boolean)));
   const serialize = () => JSON.stringify({
     format: 'hdcares-workspace', version: 1, createdAt: new Date().toISOString(),
+    details: exportParts.details ? details : undefined,
     reports: JSON.parse(createReportBackup(exportParts.notes ? notes : [])),
     plan: { format: 'hdcares-plan', version: 1, tasks: exportParts.tasks ? tasks : [] },
     journal: JSON.parse(createActivityBackup(exportParts.entries ? entries : [])),
@@ -54,7 +55,7 @@ function WorkspaceBackup() {
     <summary>Workspace backup</summary>
     <p>Save the report locations, action plan, and journal together. This download is readable JSON.</p>
     <fieldset><legend>Include in download</legend>
-      {([['notes', 'Report locations'], ['tasks', 'Personal actions'], ['entries', 'Journal activities']] as const).map(([key, label]) =>
+      {([['notes', 'Report locations'], ['tasks', 'Personal actions'], ['entries', 'Journal activities'], ['details', 'Case details']] as const).map(([key, label]) =>
         <label key={key}><input type="checkbox" checked={exportParts[key]} onChange={event => {
           const checked = event.target.checked;
           setExportParts(previous => ({ ...previous, [key]: checked }));
