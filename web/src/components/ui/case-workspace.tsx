@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, type Dispatch, type ReactNode, type SetStateAction } from 'react';
+import { useEffect, createContext, useContext, useState, type Dispatch, type ReactNode, type SetStateAction } from 'react';
 import type { PlanTask } from '@/lib/plan-backup';
 import { createActivityBackup, type ActivityEntry } from '@/lib/activity-journal';
 import { createReportBackup } from '@/lib/report-backup';
@@ -33,6 +33,13 @@ export function CaseWorkspace({ children }: { children: ReactNode }) {
   const [notes, setNotes] = useState<ReportNote[]>([]);
   const [tasks, setTasks] = useState<PlanTask[]>([]);
   const [entries, setEntries] = useState<ActivityEntry[]>([]);
+  const hasDetails = Object.values(details).some(value => !!value?.trim());
+  useEffect(() => {
+    if (!hasDetails) return;
+    const warn = (event: BeforeUnloadEvent) => { event.preventDefault(); event.returnValue = ''; };
+    window.addEventListener('beforeunload', warn);
+    return () => window.removeEventListener('beforeunload', warn);
+  }, [hasDetails]);
   return <WorkspaceContext.Provider value={{ details, setDetails, notes, setNotes, tasks, setTasks, entries, setEntries }}>{children}</WorkspaceContext.Provider>;
 }
 
