@@ -10,5 +10,7 @@ export default function CaseDetails({ value, onChange }: { value: Details; onCha
       onChange({ ...value, stage: caseStages.find(stage => stage === event.target.value) })}>
       <option value="">Choose a stage</option>{caseStages.map(stage => <option key={stage}>{stage}</option>)}
     </select></label>
+    <label>Case summary <textarea rows={4} maxLength={1500} value={value.summary ?? ''} autoComplete="off"
+      onChange={event => onChange({ ...value, summary: event.target.value })} /></label>
   </details>;
 }
