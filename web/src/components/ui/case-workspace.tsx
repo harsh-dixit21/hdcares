@@ -110,6 +110,10 @@ function WorkspaceBackup() {
             setIncluded(previous => ({ ...previous, [key]: checked }));
           }} />{label}</label>)}
       </fieldset>
+      {included.notes && pending.notes.length > 0 && <details><summary>Review incoming report domains</summary>
+        <ul>{[...new Set(pending.notes.map(note => new URL(note.url).hostname))].sort().map(domain =>
+          <li key={domain}>{domain}</li>)}</ul>
+      </details>}
       {included.details && pending.details && <details><summary>Review case fields</summary>
         <dl>{Object.entries(pending.details).filter(([, value]) => value?.trim()).map(([key, value]) => {
           const current = details[key as keyof CaseDetails];
