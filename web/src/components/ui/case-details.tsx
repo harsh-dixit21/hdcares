@@ -4,6 +4,7 @@ import { caseStages, type CaseDetails as Details } from '@/lib/workspace-backup'
 import { downloadText } from '@/lib/download-text';
 
 export default function CaseDetails({ value, onChange }: { value: Details; onChange: (value: Details) => void }) {
+  const [feedback, setFeedback] = useState('');
   const [confirm, setConfirm] = useState(false);
   return <details className="backup-preview glass">
     <summary>Case details</summary>
@@ -21,6 +22,11 @@ export default function CaseDetails({ value, onChange }: { value: Details; onCha
     <button className="report-copy" disabled={!Object.values(value).some(item => item?.trim())} onClick={() =>
       downloadText('case-details.txt', [value.title, value.reference && 'Reference: ' + value.reference,
         value.stage && 'Stage: ' + value.stage, value.summary].filter(Boolean).join('\n\n'))}>Save case details</button>
+    <button className="report-copy" disabled={!value.reference?.trim()} onClick={async () => {
+      try { await navigator.clipboard.writeText(value.reference ?? ''); setFeedback('Case reference copied.'); }
+      catch { setFeedback('Clipboard unavailable. Select the case reference and copy it manually.'); }
+    }}>Copy case reference</button>
+    <p role="status">{feedback}</p>
     {confirm ? <div>
       <p>Clear the title, reference, stage, and summary?</p>
       <button className="report-copy" onClick={() => { onChange({}); setConfirm(false); }}>Clear case details</button>
