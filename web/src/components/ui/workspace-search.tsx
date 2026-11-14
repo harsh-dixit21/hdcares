@@ -33,6 +33,9 @@ export default function WorkspaceSearch({ notes, tasks, entries }: WorkspaceData
     <label><input type="checkbox" checked={openOnly} onChange={event => {
       setOpenOnly(event.target.checked); setPage(1);
     }} />Hide completed actions and resolved reports</label>
+    <button className="report-copy" disabled={!query && !type && !alphabetical && !openOnly} onClick={() => {
+      setQuery(''); setType(''); setAlphabetical(false); setOpenOnly(false); setPage(1);
+    }}>Reset workspace search</button>
     <ul>{matches.slice((page - 1) * 10, page * 10).map(record => <li key={record.key}>
       <a href={record.link}>{record.title}</a><p>{record.type} · {record.description}</p>
     </li>)}</ul>
