@@ -110,6 +110,13 @@ function WorkspaceBackup() {
             setIncluded(previous => ({ ...previous, [key]: checked }));
           }} />{label}</label>)}
       </fieldset>
+      {included.details && pending.details && <details><summary>Review case fields</summary>
+        <dl>{Object.entries(pending.details).filter(([, value]) => value?.trim()).map(([key, value]) => {
+          const current = details[key as keyof CaseDetails];
+          return <div key={key}><dt>{key}</dt><dd style={{ overflowWrap: 'anywhere' }}>{current?.trim() ?
+            'Keeping current value: ' + current : 'Will import: ' + value}</dd></div>;
+        })}</dl>
+      </details>}
       <p>{added ? 'Ready to add ' + added[0] + ' locations, ' + added[1] + ' actions, and ' + added[2] +
         ' activities. Duplicate records skipped: ' + skipped + '.' : 'The selected import would exceed a workspace limit.'}</p>
       <button className="report-copy" disabled={!merged || !Object.values(included).some(Boolean)} onClick={() => {
