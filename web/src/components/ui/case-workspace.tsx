@@ -47,6 +47,7 @@ function WorkspaceBackup() {
   const { notes, tasks, entries, details, setDetails, setNotes, setTasks, setEntries } = useCaseWorkspace();
   const [pending, setPending] = useState<(WorkspaceData & { createdAt?: string }) | null>(null);
   const [included, setIncluded] = useState({ notes: true, tasks: true, entries: true, details: true });
+  const [undo, setUndo] = useState<{ before: WorkspaceData; after: WorkspaceData } | null>(null);
   const [status, setStatus] = useState('');
   const [exportParts, setExportParts] = useState({ notes: true, tasks: true, entries: true, details: true });
   const hasData = !!((exportParts.notes && notes.length) || (exportParts.tasks && tasks.length) ||
@@ -113,6 +114,7 @@ function WorkspaceBackup() {
         ' activities. Duplicate records skipped: ' + skipped + '.' : 'The selected import would exceed a workspace limit.'}</p>
       <button className="report-copy" disabled={!merged || !Object.values(included).some(Boolean)} onClick={() => {
         if (merged) {
+          setUndo({ before: { notes, tasks, entries, details }, after: merged });
           setNotes(merged.notes); setTasks(merged.tasks); setEntries(merged.entries); setDetails(merged.details ?? {});
           setPending(null);
           setStatus('Added ' + (merged.notes.length - notes.length) + ' locations, ' +
@@ -121,6 +123,11 @@ function WorkspaceBackup() {
       }}>Merge workspace backup</button>
       <button className="report-copy" onClick={() => { setPending(null); setStatus(''); }}>Cancel workspace restore</button>
     </div>}
+    {undo && notes === undo.after.notes && tasks === undo.after.tasks && entries === undo.after.entries &&
+      details === undo.after.details && <button className="report-copy" onClick={() => {
+        setNotes(undo.before.notes); setTasks(undo.before.tasks); setEntries(undo.before.entries);
+        setDetails(undo.before.details ?? {}); setUndo(null); setStatus('Workspace merge undone.');
+      }}>Undo workspace merge</button>}
     <p role="status">{status}</p>
   </details>;
 }
