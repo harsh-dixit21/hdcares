@@ -116,6 +116,8 @@ function WorkspaceBackup() {
       </details>}
       {included.tasks && pending.tasks.length > 0 && <p>Actions in file: {pending.tasks.filter(task => !task.done).length} pending,
         {' '}{pending.tasks.filter(task => task.done).length} completed.</p>}
+      {included.entries && pending.entries.length > 0 && <p>Journal dates in file: {pending.entries.map(entry => entry.day).sort().at(0)}
+        {' to '}{pending.entries.map(entry => entry.day).sort().at(-1)}.</p>}
       {included.details && pending.details && <details><summary>Review case fields</summary>
         <dl>{Object.entries(pending.details).filter(([, value]) => value?.trim()).map(([key, value]) => {
           const current = details[key as keyof CaseDetails];
