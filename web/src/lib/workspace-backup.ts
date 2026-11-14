@@ -48,6 +48,10 @@ function mergeById<T extends { id: string }>(current: T[], incoming: T[], capaci
 
 export function mergeWorkspace(current: WorkspaceData, incoming: WorkspaceData): WorkspaceData {
   return {
+    details: {
+      ...incoming.details,
+      ...Object.fromEntries(Object.entries(current.details ?? {}).filter(([, value]) => value?.trim())),
+    },
     notes: mergeReportNotes(current.notes, incoming.notes),
     tasks: mergeById(current.tasks, incoming.tasks, 500),
     entries: mergeById(current.entries, incoming.entries, MAX_ACTIVITIES),

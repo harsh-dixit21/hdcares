@@ -37,9 +37,9 @@ export function CaseWorkspace({ children }: { children: ReactNode }) {
 }
 
 function WorkspaceBackup() {
-  const { notes, tasks, entries, details, setNotes, setTasks, setEntries } = useCaseWorkspace();
+  const { notes, tasks, entries, details, setDetails, setNotes, setTasks, setEntries } = useCaseWorkspace();
   const [pending, setPending] = useState<(WorkspaceData & { createdAt?: string }) | null>(null);
-  const [included, setIncluded] = useState({ notes: true, tasks: true, entries: true });
+  const [included, setIncluded] = useState({ notes: true, tasks: true, entries: true, details: true });
   const [status, setStatus] = useState('');
   const [exportParts, setExportParts] = useState({ notes: true, tasks: true, entries: true, details: true });
   const hasData = !!((exportParts.notes && notes.length) || (exportParts.tasks && tasks.length) ||
@@ -64,7 +64,7 @@ function WorkspaceBackup() {
     <button className="report-copy" disabled={!hasData} onClick={() =>
       downloadText('workspace-backup.json', serialize(), 'application/json')}>Back up workspace</button>
     <LockedBackupTools label="workspace" filename="workspace-encrypted.json" enabled={hasData} serialize={serialize} restore={text => {
-      setPending(readWorkspaceBackup(text)); setIncluded({ notes: true, tasks: true, entries: true });
+      setPending(readWorkspaceBackup(text)); setIncluded({ notes: true, tasks: true, entries: true, details: true });
       setStatus('');
     }} />
     <label>Choose workspace backup<input type="file" accept=".json" onChange={async event => {
@@ -74,14 +74,14 @@ function WorkspaceBackup() {
       setPending(null); setStatus('');
       try {
         if (file.size > MAX_WORKSPACE_BYTES) throw new Error('Workspace backup is too large.');
-        setPending(readWorkspaceBackup(await file.text())); setIncluded({ notes: true, tasks: true, entries: true });
+        setPending(readWorkspaceBackup(await file.text())); setIncluded({ notes: true, tasks: true, entries: true, details: true });
       } catch { setStatus('Choose a valid HD Cares workspace backup under 10 MB.'); }
     }} /></label>
     {pending && <div>
       <p>Review import: {pending.notes.length} locations, {pending.tasks.length} actions, {pending.entries.length} activities. Existing records take precedence.</p>
       {pending.createdAt && <p>Backup created {new Date(pending.createdAt).toLocaleString()}.</p>}
       <fieldset><legend>Restore from this file</legend>
-        {([['notes', 'Report locations'], ['tasks', 'Personal actions'], ['entries', 'Journal activities']] as const).map(([key, label]) =>
+        {([['notes', 'Report locations'], ['tasks', 'Personal actions'], ['entries', 'Journal activities'], ['details', 'Case details']] as const).map(([key, label]) =>
           <label key={key}><input type="checkbox" checked={included[key]} onChange={event => {
             const checked = event.target.checked;
             setIncluded(previous => ({ ...previous, [key]: checked }));
@@ -89,12 +89,13 @@ function WorkspaceBackup() {
       </fieldset>
       <button className="report-copy" disabled={!Object.values(included).some(Boolean)} onClick={() => {
         try {
-          const merged = mergeWorkspace({ notes, tasks, entries }, {
+          const merged = mergeWorkspace({ notes, tasks, entries, details }, {
+            details: included.details ? pending.details : undefined,
             notes: included.notes ? pending.notes : [],
             tasks: included.tasks ? pending.tasks : [],
             entries: included.entries ? pending.entries : [],
           });
-          setNotes(merged.notes); setTasks(merged.tasks); setEntries(merged.entries);
+          setNotes(merged.notes); setTasks(merged.tasks); setEntries(merged.entries); setDetails(merged.details ?? {});
           setPending(null);
           setStatus('Added ' + (merged.notes.length - notes.length) + ' locations, ' +
             (merged.tasks.length - tasks.length) + ' actions, and ' + (merged.entries.length - entries.length) + ' activities.');
