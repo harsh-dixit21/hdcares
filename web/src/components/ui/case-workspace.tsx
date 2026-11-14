@@ -156,6 +156,13 @@ export function WorkspaceOverview() {
   </nav>
   <CaseDetailsPanel value={details} onChange={setDetails} />
   <WorkspaceSearch notes={notes} tasks={tasks} entries={entries} />
+  <button className="report-copy" onClick={() => downloadText('workspace-counts.txt', [
+    'HD Cares workspace counts', 'Report locations: ' + notes.length,
+    'Unresolved reports: ' + notes.filter(note => note.status !== 'Resolved').length,
+    'Pending actions: ' + tasks.filter(task => !task.done).length,
+    'Completed actions: ' + tasks.filter(task => task.done).length,
+    'Journal activities: ' + entries.length,
+  ].join('\n'))}>Save workspace counts</button>
   <WorkspaceBackup />
   </>;
 }
