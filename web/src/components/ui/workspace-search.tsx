@@ -11,6 +11,7 @@ export default function WorkspaceSearch({ notes, tasks, entries }: WorkspaceData
   const [datedOnly, setDatedOnly] = useState(false);
   const [from, setFrom] = useState('');
   const [through, setThrough] = useState('');
+  const [pageSize, setPageSize] = useState(10);
   const words = query.trim().toLowerCase().split(/\s+/).filter(Boolean);
   const records = [
     ...notes.map(note => ({ key: 'report-' + note.id, type: 'Reports', day: note.date, closed: note.status === 'Resolved', title: note.platform, description: note.url, search: note.reference + ' ' + note.status, link: '#report-organizer' })),
@@ -27,7 +28,7 @@ export default function WorkspaceSearch({ notes, tasks, entries }: WorkspaceData
     if (!a.day || !b.day) return Number(!a.day) - Number(!b.day);
     return dateOrder === 'old' ? a.day.localeCompare(b.day) : b.day.localeCompare(a.day);
   });
-  const pages = Math.max(1, Math.ceil(matches.length / 10));
+  const pages = Math.max(1, Math.ceil(matches.length / pageSize));
   const page = Math.min(requestedPage, pages);
   return <details className="backup-preview glass">
     <summary>Search workspace</summary>
@@ -56,7 +57,10 @@ export default function WorkspaceSearch({ notes, tasks, entries }: WorkspaceData
       <label>Through<input type="date" value={through} onChange={event => { setThrough(event.target.value); setPage(1); }} /></label>
       {from && through && from > through && <p role="status">Choose an end date on or after the start date.</p>}
     </fieldset>
-    <ul>{matches.slice((page - 1) * 10, page * 10).map(record => <li key={record.key}>
+    <label>Records per page<select value={pageSize} onChange={event => {
+      setPageSize(Number(event.target.value)); setPage(1);
+    }}>{[10, 25, 50].map(size => <option key={size}>{size}</option>)}</select></label>
+    <ul>{matches.slice((page - 1) * pageSize, page * pageSize).map(record => <li key={record.key}>
       <a href={record.link}>{record.title}</a><p>{record.type} · {record.description}{record.day && record.day !== record.description && <> · <time dateTime={record.day}>{record.day}</time></>}</p>
     </li>)}</ul>
     {pages > 1 && <nav className="backup-actions" aria-label="Workspace results pages">
