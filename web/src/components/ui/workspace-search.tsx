@@ -8,6 +8,7 @@ export default function WorkspaceSearch({ notes, tasks, entries }: WorkspaceData
   const [alphabetical, setAlphabetical] = useState(false);
   const [openOnly, setOpenOnly] = useState(false);
   const [dateOrder, setDateOrder] = useState('');
+  const [datedOnly, setDatedOnly] = useState(false);
   const words = query.trim().toLowerCase().split(/\s+/).filter(Boolean);
   const records = [
     ...notes.map(note => ({ key: 'report-' + note.id, type: 'Reports', day: note.date, closed: note.status === 'Resolved', title: note.platform, description: note.url, search: note.reference + ' ' + note.status, link: '#report-organizer' })),
@@ -16,7 +17,7 @@ export default function WorkspaceSearch({ notes, tasks, entries }: WorkspaceData
   ];
   const matches = records.filter(record => {
     const content = [record.title, record.description, record.search].join(' ').toLowerCase();
-    return (!openOnly || !record.closed) && (!type || type === record.type) && words.every(word => content.includes(word));
+    return (!datedOnly || !!record.day) && (!openOnly || !record.closed) && (!type || type === record.type) && words.every(word => content.includes(word));
   });
   if (alphabetical) matches.sort((a, b) => a.title.localeCompare(b.title));
   if (dateOrder) matches.sort((a, b) => {
@@ -38,12 +39,15 @@ export default function WorkspaceSearch({ notes, tasks, entries }: WorkspaceData
     <label><input type="checkbox" checked={openOnly} onChange={event => {
       setOpenOnly(event.target.checked); setPage(1);
     }} />Hide completed actions and resolved reports</label>
-    <button className="report-copy" disabled={!query && !type && !alphabetical && !openOnly && !dateOrder} onClick={() => {
-      setQuery(''); setType(''); setAlphabetical(false); setOpenOnly(false); setDateOrder(''); setPage(1);
+    <button className="report-copy" disabled={!query && !type && !alphabetical && !openOnly && !dateOrder && !datedOnly} onClick={() => {
+      setQuery(''); setType(''); setAlphabetical(false); setOpenOnly(false); setDateOrder(''); setDatedOnly(false); setPage(1);
     }}>Reset workspace search</button>
     <label>Order by record date<select value={dateOrder} onChange={event => {
       setDateOrder(event.target.value); setPage(1);
     }}><option value="">Use current order</option><option value="new">Newest first</option><option value="old">Oldest first</option></select></label>
+    <label><input type="checkbox" checked={datedOnly} onChange={event => {
+      setDatedOnly(event.target.checked); setPage(1);
+    }} />Dated records only</label>
     <ul>{matches.slice((page - 1) * 10, page * 10).map(record => <li key={record.key}>
       <a href={record.link}>{record.title}</a><p>{record.type} · {record.description}</p>
     </li>)}</ul>
