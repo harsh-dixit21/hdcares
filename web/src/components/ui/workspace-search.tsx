@@ -65,7 +65,9 @@ export default function WorkspaceSearch({ notes, tasks, entries }: WorkspaceData
     </li>)}</ul>
     {pages > 1 && <nav className="backup-actions" aria-label="Workspace results pages">
       <button className="report-copy" disabled={page <= 1} onClick={() => setPage(page - 1)}>Previous results</button>
-      <span>Page {page} of {pages}</span>
+      <label>Result page<select value={page} onChange={event => setPage(Number(event.target.value))}>
+        {Array.from({ length: pages }, (_, i) => <option key={i} value={i + 1}>{i + 1} of {pages}</option>)}
+      </select></label>
       <button className="report-copy" disabled={page >= pages} onClick={() => setPage(page + 1)}>Next results</button>
     </nav>}
   </details>;
