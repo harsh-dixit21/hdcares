@@ -16,7 +16,7 @@ export default function WorkspaceSearch({ notes, tasks, entries }: WorkspaceData
     ...entries.map(entry => ({ key: 'journal-' + entry.id, type: 'Journal', day: entry.day, closed: false, title: entry.text, description: entry.day, search: entry.type ?? '', link: '#activity-journal' })),
   ];
   const matches = records.filter(record => {
-    const content = [record.title, record.description, record.search].join(' ').toLowerCase();
+    const content = [record.title, record.description, record.search, record.day].join(' ').toLowerCase();
     return (!datedOnly || !!record.day) && (!openOnly || !record.closed) && (!type || type === record.type) && words.every(word => content.includes(word));
   });
   if (alphabetical) matches.sort((a, b) => a.title.localeCompare(b.title));
@@ -28,7 +28,7 @@ export default function WorkspaceSearch({ notes, tasks, entries }: WorkspaceData
   const page = Math.min(requestedPage, pages);
   return <details className="backup-preview glass">
     <summary>Search workspace</summary>
-    <label>Find records <input type="search" value={query} maxLength={200} autoComplete="off" onChange={event => { setQuery(event.target.value); setPage(1); }} /></label>
+    <label>Find records <input type="search" value={query} placeholder="Name, reference, or YYYY-MM-DD" maxLength={200} autoComplete="off" onChange={event => { setQuery(event.target.value); setPage(1); }} /></label>
     <p role="status">{matches.length} matching records</p>
     <label>Record type <select value={type} onChange={event => { setType(event.target.value); setPage(1); }}>
       <option value="">All records</option><option>Reports</option><option>Actions</option><option>Journal</option>
@@ -49,7 +49,7 @@ export default function WorkspaceSearch({ notes, tasks, entries }: WorkspaceData
       setDatedOnly(event.target.checked); setPage(1);
     }} />Dated records only</label>
     <ul>{matches.slice((page - 1) * 10, page * 10).map(record => <li key={record.key}>
-      <a href={record.link}>{record.title}</a><p>{record.type} · {record.description}</p>
+      <a href={record.link}>{record.title}</a><p>{record.type} · {record.description}{record.day && record.day !== record.description && <> · <time dateTime={record.day}>{record.day}</time></>}</p>
     </li>)}</ul>
     {pages > 1 && <nav className="backup-actions" aria-label="Workspace results pages">
       <button className="report-copy" disabled={page <= 1} onClick={() => setPage(page - 1)}>Previous results</button>
