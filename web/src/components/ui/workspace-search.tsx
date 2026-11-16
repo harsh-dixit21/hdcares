@@ -12,6 +12,7 @@ export default function WorkspaceSearch({ notes, tasks, entries }: WorkspaceData
   const [from, setFrom] = useState('');
   const [through, setThrough] = useState('');
   const [pageSize, setPageSize] = useState(10);
+  const [compact, setCompact] = useState(false);
   const words = query.trim().toLowerCase().split(/\s+/).filter(Boolean);
   const records = [
     ...notes.map(note => ({ key: 'report-' + note.id, type: 'Reports', day: note.date, closed: note.status === 'Resolved', title: note.platform, description: note.url, search: note.reference + ' ' + note.status, link: '#report-organizer' })),
@@ -60,8 +61,9 @@ export default function WorkspaceSearch({ notes, tasks, entries }: WorkspaceData
     <label>Records per page<select value={pageSize} onChange={event => {
       setPageSize(Number(event.target.value)); setPage(1);
     }}>{[10, 25, 50].map(size => <option key={size}>{size}</option>)}</select></label>
+    <label><input type="checkbox" checked={compact} onChange={event => setCompact(event.target.checked)} />Show titles only</label>
     <ul>{matches.slice((page - 1) * pageSize, page * pageSize).map(record => <li key={record.key}>
-      <a href={record.link}>{record.title}</a><p>{record.type} · {record.description}{record.day && record.day !== record.description && <> · <time dateTime={record.day}>{record.day}</time></>}</p>
+      <a href={record.link}>{record.title}</a>{!compact && <p>{record.type} · {record.description}{record.day && record.day !== record.description && <> · <time dateTime={record.day}>{record.day}</time></>}</p>}
     </li>)}</ul>
     {pages > 1 && <nav className="backup-actions" aria-label="Workspace results pages">
       <button className="report-copy" disabled={page <= 1} onClick={() => setPage(page - 1)}>Previous results</button>
