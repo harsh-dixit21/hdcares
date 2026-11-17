@@ -14,6 +14,7 @@ export default function WorkspaceSearch({ notes, tasks, entries }: WorkspaceData
   const [through, setThrough] = useState('');
   const [pageSize, setPageSize] = useState(10);
   const [compact, setCompact] = useState(false);
+  const [saved, setSaved] = useState<Set<string>>(new Set());
   const words = query.trim().toLowerCase().split(/\s+/).filter(Boolean);
   const records = [
     ...notes.map(note => ({ key: 'report-' + note.id, type: 'Reports', day: note.date, closed: note.status === 'Resolved', title: note.platform, description: note.url, search: note.reference + ' ' + note.status, link: '#report-organizer' })),
@@ -71,6 +72,11 @@ export default function WorkspaceSearch({ notes, tasks, entries }: WorkspaceData
         compact ? '' : record.description].filter(Boolean).join(' · ')).join('\n'))}>Save matching records</button>
     <ul>{matches.slice((page - 1) * pageSize, page * pageSize).map(record => <li key={record.key}>
       <a href={record.link}>{record.title}</a>{!compact && <p>{record.type} · {record.description}{record.day && record.day !== record.description && <> · <time dateTime={record.day}>{record.day}</time></>}</p>}
+      <button className="report-copy" aria-pressed={saved.has(record.key)} onClick={() => setSaved(previous => {
+        const next = new Set(previous);
+        if (next.has(record.key)) next.delete(record.key); else next.add(record.key);
+        return next;
+      })}>Bookmark record</button>
     </li>)}</ul>
     {pages > 1 && <nav className="backup-actions" aria-label="Workspace results pages">
       <button className="report-copy" disabled={page <= 1} onClick={() => setPage(page - 1)}>Previous results</button>
