@@ -125,6 +125,8 @@ function WorkspaceBackup() {
           }} />{label}</label>)}
       </fieldset>
       {included.notes && pending.notes.length > 0 && <details><summary>Review incoming report domains</summary>
+        <ul aria-label="Incoming report status totals">{[...new Set(pending.notes.map(note => note.status))].map(status =>
+          <li key={status}>{status}: {pending.notes.filter(note => note.status === status).length}</li>)}</ul>
         <ul>{[...new Set(pending.notes.map(note => new URL(note.url).hostname))].sort().map(domain =>
           <li key={domain}>{domain}</li>)}</ul>
       </details>}
