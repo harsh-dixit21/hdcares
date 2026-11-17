@@ -6,6 +6,7 @@ import type { ReportNote } from '@/lib/report-notes';
 import { MAX_WORKSPACE_BYTES, mergeWorkspace, readWorkspaceBackup, type WorkspaceData } from '@/lib/workspace-backup';
 import CaseDetailsPanel from './case-details';
 import type { CaseDetails } from '@/lib/workspace-backup';
+import { localToday } from '@/lib/report-date';
 import WorkspaceSearch from './workspace-search';
 import LockedBackupTools from './locked-backup-tools';
 import { downloadText } from '@/lib/download-text';
@@ -182,6 +183,10 @@ export function WorkspaceOverview() {
     <a href="#personal-plan">Action plan · {tasks.filter(task => !task.done).length} pending</a>
     <a href="#activity-journal">Activity journal · {entries.length} entries</a>
   </nav>
+  {details.review && details.stage !== 'Closed' && <p>
+    {details.review < localToday() ? 'Case review overdue' : details.review === localToday() ? 'Case review due today' : 'Next case review'}
+    {' · '}<time dateTime={details.review}>{details.review}</time>
+  </p>}
   <CaseDetailsPanel value={details} onChange={setDetails} />
   <WorkspaceSearch notes={notes} tasks={tasks} entries={entries} />
   <button className="report-copy" onClick={() => downloadText('workspace-counts.txt', [
