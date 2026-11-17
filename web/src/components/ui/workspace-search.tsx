@@ -1,3 +1,4 @@
+import { downloadText } from '@/lib/download-text';
 import { useState } from 'react';
 import type { WorkspaceData } from '@/lib/workspace-backup';
 
@@ -62,6 +63,9 @@ export default function WorkspaceSearch({ notes, tasks, entries }: WorkspaceData
       setPageSize(Number(event.target.value)); setPage(1);
     }}>{[10, 25, 50].map(size => <option key={size}>{size}</option>)}</select></label>
     <label><input type="checkbox" checked={compact} onChange={event => setCompact(event.target.checked)} />Show titles only</label>
+    <button className="report-copy" disabled={!matches.length} onClick={() =>
+      downloadText('workspace-search.txt', matches.map(record => [record.type, record.title, record.day,
+        compact ? '' : record.description].filter(Boolean).join(' · ')).join('\n'))}>Save matching records</button>
     <ul>{matches.slice((page - 1) * pageSize, page * pageSize).map(record => <li key={record.key}>
       <a href={record.link}>{record.title}</a>{!compact && <p>{record.type} · {record.description}{record.day && record.day !== record.description && <> · <time dateTime={record.day}>{record.day}</time></>}</p>}
     </li>)}</ul>
