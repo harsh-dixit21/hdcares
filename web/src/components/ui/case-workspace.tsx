@@ -91,12 +91,22 @@ function WorkspaceBackup() {
     </fieldset>
     <button className="report-copy" disabled={!hasData} onClick={() =>
       downloadText('workspace-backup.json', serialize(), 'application/json')}>Back up workspace</button>
+    <details><summary>Review backup contents</summary>
+    <ul>{([
+      ['Report locations', exportParts.notes, notes.length],
+      ['Personal actions', exportParts.tasks, tasks.length],
+      ['Journal activities', exportParts.entries, entries.length],
+      ['Case details', exportParts.details, Object.values(details).filter(value => value?.trim()).length],
+    ] as const).map(([label, included, count]) => <li key={label}>
+      {label}: {included ? count + ' included' : 'Excluded'}
+    </li>)}</ul>
     <button className="report-copy" disabled={!hasData} onClick={() => downloadText('workspace-manifest.txt', [
-      'Workspace backup manifest', ...Object.entries(exportParts).map(([section, include]) => {
+      'Workspace backup manifest', 'Selection reviewed: ' + new Date().toISOString(), ...Object.entries(exportParts).map(([section, include]) => {
         const totals = { notes: notes.length, tasks: tasks.length, entries: entries.length, details: Object.values(details).filter(Boolean).length };
         return section + ': ' + (include ? totals[section as keyof typeof totals] + ' included' : 'excluded');
       }),
     ].join('\n'))}>Save backup manifest</button>
+    </details>
     <LockedBackupTools label="workspace" filename="workspace-encrypted.json" enabled={hasData} serialize={serialize} restore={text => {
       setPending(readWorkspaceBackup(text)); setIncluded({ notes: true, tasks: true, entries: true, details: true });
       setStatus('');
