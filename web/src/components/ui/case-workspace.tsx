@@ -155,6 +155,15 @@ function WorkspaceBackup() {
       }}>Merge workspace backup</button>
       <button className="report-copy" onClick={() => { setPending(null); setStatus(''); }}>Cancel workspace restore</button>
     </div>}
+    {undo && <LockedBackupTools label="pre-merge recovery" filename="workspace-recovery-encrypted.json" enabled serialize={() => {
+      const before = undo.before;
+      return JSON.stringify({
+        format: 'hdcares-workspace', version: 1, details: before.details,
+        reports: JSON.parse(createReportBackup(before.notes)),
+        plan: { format: 'hdcares-plan', version: 1, tasks: before.tasks },
+        journal: JSON.parse(createActivityBackup(before.entries)),
+      });
+    }} />}
     {undo && <button className="report-copy" onClick={() => {
       const before = undo.before;
       downloadText('workspace-before-merge.json', JSON.stringify({
