@@ -36,6 +36,9 @@ export default function WorkspaceSearch({ notes, tasks, entries }: WorkspaceData
     <summary>Search workspace</summary>
     <label>Find records <input type="search" value={query} placeholder="Name, reference, or YYYY-MM-DD" maxLength={200} autoComplete="off" onChange={event => { setQuery(event.target.value); setPage(1); }} /></label>
     <p role="status">{matches.length} matching records</p>
+    <ul aria-label="Matches by record type">{['Reports', 'Actions', 'Journal'].map(group => <li key={group}>
+      {group}: {matches.filter(record => record.type === group).length}
+    </li>)}</ul>
     <label>Record type <select value={type} onChange={event => { setType(event.target.value); setPage(1); }}>
       <option value="">All records</option><option>Reports</option><option>Actions</option><option>Journal</option>
     </select></label>
