@@ -1,10 +1,11 @@
+import { validObservationDate } from './report-date.ts';
 import { parseReportBackup, mergeReportNotes } from './report-backup.ts';
 import { readPlanBackup, type PlanTask } from './plan-backup.ts';
 import { readActivityBackup, MAX_ACTIVITIES, type ActivityEntry } from './activity-journal.ts';
 import type { ReportNote } from './report-notes.ts';
 
 export const MAX_WORKSPACE_BYTES = 10_000_000;
-export type CaseDetails = { title?: string; reference?: string; summary?: string; stage?: typeof caseStages[number] };
+export type CaseDetails = { title?: string; opened?: string; reference?: string; summary?: string; stage?: typeof caseStages[number] };
 export const caseStages = ['Planning', 'Reporting', 'Following up', 'Closed'] as const;
 export type WorkspaceData = { details?: CaseDetails; notes: ReportNote[]; tasks: PlanTask[]; entries: ActivityEntry[] };
 
@@ -31,6 +32,10 @@ function readCaseDetails(value: unknown): CaseDetails | undefined {
     if (field === undefined) continue;
     if (typeof field !== 'string' || field.length > limit) throw new Error('Invalid ' + key + '.');
     details[key] = field;
+  }
+  if (raw.opened !== undefined) {
+    if (typeof raw.opened !== 'string' || !validObservationDate(raw.opened, '9999-12-31')) throw new Error('Invalid case opening date.');
+    details.opened = raw.opened;
   }
   if (raw.stage !== undefined) {
     details.stage = caseStages.find(stage => stage === raw.stage);
