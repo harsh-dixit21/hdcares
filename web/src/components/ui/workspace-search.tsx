@@ -66,6 +66,9 @@ export default function WorkspaceSearch({ notes, tasks, entries }: WorkspaceData
       {from && through && from > through && <p role="status">Choose an end date on or after the start date.</p>}
     </fieldset>
     <label><input type="checkbox" checked={savedOnly} onChange={event => { setSavedOnly(event.target.checked); setPage(1); }} />Bookmarks only</label>
+    <button className="report-copy" disabled={!saved.size} onClick={() => {
+      setSaved(new Set()); setSavedOnly(false); setPage(1);
+    }}>Clear record bookmarks</button>
     <label>Records per page<select value={pageSize} onChange={event => {
       setPageSize(Number(event.target.value)); setPage(1);
     }}>{[10, 25, 50].map(size => <option key={size}>{size}</option>)}</select></label>
