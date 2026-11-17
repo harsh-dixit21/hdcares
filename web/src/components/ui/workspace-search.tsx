@@ -15,6 +15,7 @@ export default function WorkspaceSearch({ notes, tasks, entries }: WorkspaceData
   const [pageSize, setPageSize] = useState(10);
   const [compact, setCompact] = useState(false);
   const [saved, setSaved] = useState<Set<string>>(new Set());
+  const [savedOnly, setSavedOnly] = useState(false);
   const words = query.trim().toLowerCase().split(/\s+/).filter(Boolean);
   const records = [
     ...notes.map(note => ({ key: 'report-' + note.id, type: 'Reports', day: note.date, closed: note.status === 'Resolved', title: note.platform, description: note.url, search: note.reference + ' ' + note.status, link: '#report-organizer' })),
@@ -22,6 +23,7 @@ export default function WorkspaceSearch({ notes, tasks, entries }: WorkspaceData
     ...entries.map(entry => ({ key: 'journal-' + entry.id, type: 'Journal', day: entry.day, closed: false, title: entry.text, description: entry.day, search: entry.type ?? '', link: '#activity-journal' })),
   ];
   const matches = records.filter(record => {
+    if (savedOnly && !saved.has(record.key)) return false;
     if ((from || through) && (!record.day || (from && record.day < from) || (through && record.day > through))) return false;
     const content = [record.title, record.description, record.search, record.day].join(' ').toLowerCase();
     return (!datedOnly || !!record.day) && (!openOnly || !record.closed) && (!type || type === record.type) && words.every(word => content.includes(word));
@@ -49,8 +51,8 @@ export default function WorkspaceSearch({ notes, tasks, entries }: WorkspaceData
     <label><input type="checkbox" checked={openOnly} onChange={event => {
       setOpenOnly(event.target.checked); setPage(1);
     }} />Hide completed actions and resolved reports</label>
-    <button className="report-copy" disabled={!query && !type && !alphabetical && !openOnly && !dateOrder && !datedOnly && !from && !through} onClick={() => {
-      setQuery(''); setType(''); setAlphabetical(false); setOpenOnly(false); setDateOrder(''); setDatedOnly(false); setFrom(''); setThrough(''); setPage(1);
+    <button className="report-copy" disabled={!query && !type && !alphabetical && !openOnly && !dateOrder && !datedOnly && !from && !through && !savedOnly} onClick={() => {
+      setQuery(''); setType(''); setAlphabetical(false); setOpenOnly(false); setDateOrder(''); setDatedOnly(false); setFrom(''); setThrough(''); setSavedOnly(false); setPage(1);
     }}>Reset workspace search</button>
     <label>Order by record date<select value={dateOrder} onChange={event => {
       setDateOrder(event.target.value); setPage(1);
@@ -63,6 +65,7 @@ export default function WorkspaceSearch({ notes, tasks, entries }: WorkspaceData
       <label>Through<input type="date" value={through} onChange={event => { setThrough(event.target.value); setPage(1); }} /></label>
       {from && through && from > through && <p role="status">Choose an end date on or after the start date.</p>}
     </fieldset>
+    <label><input type="checkbox" checked={savedOnly} onChange={event => { setSavedOnly(event.target.checked); setPage(1); }} />Bookmarks only</label>
     <label>Records per page<select value={pageSize} onChange={event => {
       setPageSize(Number(event.target.value)); setPage(1);
     }}>{[10, 25, 50].map(size => <option key={size}>{size}</option>)}</select></label>
