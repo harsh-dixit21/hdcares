@@ -161,6 +161,9 @@ function WorkspaceBackup() {
         journal: JSON.parse(createActivityBackup(before.entries)),
       }), 'application/json');
     }}>Download pre-merge recovery file</button>}
+    {undo && <button className="report-copy" onClick={() => {
+      setUndo(null); setStatus('Pre-merge recovery snapshot discarded.');
+    }}>Discard merge recovery snapshot</button>}
     {undo && notes === undo.after.notes && tasks === undo.after.tasks && entries === undo.after.entries &&
       details === undo.after.details && <button className="report-copy" onClick={() => {
         setNotes(undo.before.notes); setTasks(undo.before.tasks); setEntries(undo.before.entries);
