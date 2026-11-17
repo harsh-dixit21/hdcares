@@ -1,10 +1,12 @@
 import { useState } from "react";
 import { caseStages, type CaseDetails as Details } from '@/lib/workspace-backup';
 
+import { useCaseWorkspace } from './case-workspace';
 import { followUpCalendar } from '@/lib/follow-up-calendar';
 import { downloadText } from '@/lib/download-text';
 
 export default function CaseDetails({ value, onChange }: { value: Details; onChange: (value: Details) => void }) {
+  const { tasks, setTasks } = useCaseWorkspace();
   const [feedback, setFeedback] = useState('');
   const [confirm, setConfirm] = useState(false);
   return <details className="backup-preview glass">
@@ -20,6 +22,13 @@ export default function CaseDetails({ value, onChange }: { value: Details; onCha
       try { downloadText('case-review.ics', followUpCalendar(value.review ?? ''), 'text/calendar;charset=utf-8'); }
       catch { setFeedback('Choose a valid review date.'); }
     }}>Save case review calendar event</button>
+    <button className="report-copy" disabled={!value.review || tasks.length >= 500 ||
+      tasks.some(task => !task.done && task.title === 'Review case status' && task.due === value.review)} onClick={() => {
+      if (!value.review) return;
+      const action = { id: crypto.randomUUID(), title: 'Review case status', due: value.review, done: false };
+      setTasks(previous => previous.length < 500 ? [...previous, action] : previous);
+      setFeedback('Case review added to your action plan.');
+    }}>Add review to action plan</button>
     <label>Case stage <select value={value.stage ?? ''} onChange={event =>
       onChange({ ...value, stage: caseStages.find(stage => stage === event.target.value) })}>
       <option value="">Choose a stage</option>{caseStages.map(stage => <option key={stage}>{stage}</option>)}
