@@ -13,6 +13,8 @@ export default function CaseDetails({ value, onChange }: { value: Details; onCha
       onChange={event => onChange({ ...value, title: event.target.value })} /></label>
     <label>Case opened on <input type="date" max="9999-12-31" value={value.opened ?? ''}
       onChange={event => onChange({ ...value, opened: event.target.value })} /></label>
+    <label>Next case review <input type="date" max="9999-12-31" value={value.review ?? ''}
+      onChange={event => onChange({ ...value, review: event.target.value })} /></label>
     <label>Case stage <select value={value.stage ?? ''} onChange={event =>
       onChange({ ...value, stage: caseStages.find(stage => stage === event.target.value) })}>
       <option value="">Choose a stage</option>{caseStages.map(stage => <option key={stage}>{stage}</option>)}
@@ -23,7 +25,7 @@ export default function CaseDetails({ value, onChange }: { value: Details; onCha
       onChange={event => onChange({ ...value, summary: event.target.value })} /></label>
     <button className="report-copy" disabled={!Object.values(value).some(item => item?.trim())} onClick={() =>
       downloadText('case-details.txt', [value.title, value.reference && 'Reference: ' + value.reference,
-        value.stage && 'Stage: ' + value.stage, value.opened && 'Opened: ' + value.opened, value.summary].filter(Boolean).join('\n\n'))}>Save case details</button>
+        value.stage && 'Stage: ' + value.stage, value.opened && 'Opened: ' + value.opened, value.review && 'Review: ' + value.review, value.summary].filter(Boolean).join('\n\n'))}>Save case details</button>
     <button className="report-copy" disabled={!value.reference?.trim()} onClick={async () => {
       try { await navigator.clipboard.writeText(value.reference ?? ''); setFeedback('Case reference copied.'); }
       catch { setFeedback('Clipboard unavailable. Select the case reference and copy it manually.'); }
