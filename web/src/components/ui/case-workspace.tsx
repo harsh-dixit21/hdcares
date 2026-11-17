@@ -90,6 +90,12 @@ function WorkspaceBackup() {
     </fieldset>
     <button className="report-copy" disabled={!hasData} onClick={() =>
       downloadText('workspace-backup.json', serialize(), 'application/json')}>Back up workspace</button>
+    <button className="report-copy" disabled={!hasData} onClick={() => downloadText('workspace-manifest.txt', [
+      'Workspace backup manifest', ...Object.entries(exportParts).map(([section, include]) => {
+        const totals = { notes: notes.length, tasks: tasks.length, entries: entries.length, details: Object.values(details).filter(Boolean).length };
+        return section + ': ' + (include ? totals[section as keyof typeof totals] + ' included' : 'excluded');
+      }),
+    ].join('\n'))}>Save backup manifest</button>
     <LockedBackupTools label="workspace" filename="workspace-encrypted.json" enabled={hasData} serialize={serialize} restore={text => {
       setPending(readWorkspaceBackup(text)); setIncluded({ notes: true, tasks: true, entries: true, details: true });
       setStatus('');
