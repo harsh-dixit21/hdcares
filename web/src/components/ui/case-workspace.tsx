@@ -108,6 +108,10 @@ function WorkspaceBackup() {
       <p>Review import: {pending.notes.length} locations, {pending.tasks.length} actions, {pending.entries.length} activities. Existing records take precedence.</p>
       {pending.createdAt && <p>Backup created {new Date(pending.createdAt).toLocaleString()}.</p>}
       <fieldset><legend>Restore from this file</legend>
+        <button className="report-copy" onClick={() => setIncluded({
+          notes: !!pending.notes.length, tasks: !!pending.tasks.length, entries: !!pending.entries.length,
+          details: !!pending.details && Object.values(pending.details).some(Boolean),
+        })}>Select populated sections</button>
         {([['notes', 'Report locations'], ['tasks', 'Personal actions'], ['entries', 'Journal activities'], ['details', 'Case details']] as const).map(([key, label]) =>
           <label key={key}><input type="checkbox" checked={included[key]} onChange={event => {
             const checked = event.target.checked;
