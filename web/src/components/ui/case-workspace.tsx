@@ -197,6 +197,14 @@ function WorkspaceBackup() {
 
 export function WorkspaceOverview() {
   const { tasks, entries, notes, details, setDetails } = useCaseWorkspace();
+  const [copyStatus, setCopyStatus] = useState('');
+  const counts = [
+    'HD Cares workspace counts', 'Report locations: ' + notes.length,
+    'Unresolved reports: ' + notes.filter(note => note.status !== 'Resolved').length,
+    'Pending actions: ' + tasks.filter(task => !task.done).length,
+    'Completed actions: ' + tasks.filter(task => task.done).length,
+    'Journal activities: ' + entries.length,
+  ].join('\n');
   return <><nav className="tool-shortcuts" aria-label="Workspace overview">
     <a href="#report-organizer">Reports · {notes.filter(note => note.status !== 'Resolved').length} unresolved</a>
     <a href="#personal-plan">Action plan · {tasks.filter(task => !task.done).length} pending</a>
@@ -208,13 +216,12 @@ export function WorkspaceOverview() {
   </p>}
   <CaseDetailsPanel value={details} onChange={setDetails} />
   <WorkspaceSearch notes={notes} tasks={tasks} entries={entries} />
-  <button className="report-copy" onClick={() => downloadText('workspace-counts.txt', [
-    'HD Cares workspace counts', 'Report locations: ' + notes.length,
-    'Unresolved reports: ' + notes.filter(note => note.status !== 'Resolved').length,
-    'Pending actions: ' + tasks.filter(task => !task.done).length,
-    'Completed actions: ' + tasks.filter(task => task.done).length,
-    'Journal activities: ' + entries.length,
-  ].join('\n'))}>Save workspace counts</button>
+  <button className="report-copy" onClick={() => downloadText('workspace-counts.txt', counts)}>Save workspace counts</button>
+  <button className="report-copy" onClick={async () => {
+    try { await navigator.clipboard.writeText(counts); setCopyStatus('Workspace counts copied.'); }
+    catch { setCopyStatus('Clipboard unavailable. Save the workspace counts as a file.'); }
+  }}>Copy workspace counts</button>
+  <p role="status">{copyStatus}</p>
   <WorkspaceBackup />
   </>;
 }
