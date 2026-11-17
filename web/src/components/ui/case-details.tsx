@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { caseStages, type CaseDetails as Details } from '@/lib/workspace-backup';
 
+import { followUpCalendar } from '@/lib/follow-up-calendar';
 import { downloadText } from '@/lib/download-text';
 
 export default function CaseDetails({ value, onChange }: { value: Details; onChange: (value: Details) => void }) {
@@ -15,6 +16,10 @@ export default function CaseDetails({ value, onChange }: { value: Details; onCha
       onChange={event => onChange({ ...value, opened: event.target.value })} /></label>
     <label>Next case review <input type="date" max="9999-12-31" value={value.review ?? ''}
       onChange={event => onChange({ ...value, review: event.target.value })} /></label>
+    <button className="report-copy" disabled={!value.review} onClick={() => {
+      try { downloadText('case-review.ics', followUpCalendar(value.review ?? ''), 'text/calendar;charset=utf-8'); }
+      catch { setFeedback('Choose a valid review date.'); }
+    }}>Save case review calendar event</button>
     <label>Case stage <select value={value.stage ?? ''} onChange={event =>
       onChange({ ...value, stage: caseStages.find(stage => stage === event.target.value) })}>
       <option value="">Choose a stage</option>{caseStages.map(stage => <option key={stage}>{stage}</option>)}
